@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import 'screens/Login.dart';
+import 'package:gestion_menu_ult_frontend/routes/routes.dart';
 
 void main() {
   runApp(MyApp());
@@ -18,7 +17,8 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.red,
         scaffoldBackgroundColor: Colors.white,
       ),
-      home: Login(),
+      initialRoute: AppRoutes.login,
+      routes: AppRoutes.getRoutes(),
     );
   }
 }
