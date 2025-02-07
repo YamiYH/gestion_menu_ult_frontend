@@ -23,7 +23,7 @@ class ReservarTicketCard extends StatelessWidget {
           child: Column(
             children: [
               Image.asset(
-                'assets/logo7.png',
+                'assets/img/logo7.png',
                 width: screenWidth > 600 ? 150 : 100,
                 height: screenWidth > 600 ? 200 : 100,
               ),
@@ -77,7 +77,7 @@ class GestionarMenuCard extends StatelessWidget {
           child: Column(
             children: [
               Image.asset(
-                'assets/logo3.png',
+                'assets/img/logo3.png',
                 width: screenWidth > 600 ? 300 : 150,
                 height: screenWidth > 600 ? 200 : 100,
               ),

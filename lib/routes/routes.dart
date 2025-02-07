@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gestion_menu_ult_frontend/screens/almacen/inventario.dart';
 
 import '../screens/Gestionar_Menu.dart';
 import '../screens/Home.dart';
@@ -13,6 +14,10 @@ class AppRoutes {
   static const String options = '/options';
   static const String reservarTicket = '/reservar_ticket';
   static const String gestionarMenu = '/gestionar_menu';
+  static const String gestionarAlmacen = '/gestionar_almacen';
+
+  //static const String confirmarReserva = '/confirmar_reserva';
+  //static const String menuPropuesta = '/menu_propuesta';
 
   // Mapeamos las rutas a las pantallas correspondientes
   static Map<String, WidgetBuilder> getRoutes() {
@@ -22,6 +27,8 @@ class AppRoutes {
       options: (context) => Options(),
       reservarTicket: (context) => ReservarTicket(),
       gestionarMenu: (context) => GestionarMenu(),
+      gestionarAlmacen: (context) => GestionarAlmacen(),
+      //confirmarReserva: (context) => ConfirmarReserva()
     };
   }
 }
