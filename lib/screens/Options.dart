@@ -14,7 +14,7 @@ class Options extends StatelessWidget {
         title: Text(
           '¿Qué deseas hacer?',
           style: TextStyle(
-            fontWeight: FontWeight.bold,
+            fontWeight: isMobile ? FontWeight.bold : FontWeight.normal,
             color: Colors.white,
             fontSize: screenWidth > 600 ? 25 : 20,
           ),

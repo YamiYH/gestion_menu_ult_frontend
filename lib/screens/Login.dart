@@ -24,15 +24,16 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
+    bool isMobile = screenWidth < 600;
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         titleTextStyle: TextStyle(),
         title: Text('Bienvenido al Menú Digital ULT',
             style: TextStyle(
-                fontWeight: FontWeight.bold,
+                fontWeight: isMobile ? FontWeight.bold : FontWeight.normal,
                 fontFamily: 'Roboto',
-                //fontWeight: FontWeight.bold,
                 color: Colors.white,
                 fontSize: screenWidth > 600 ? 25 : 20)),
         backgroundColor: Colors.red[900],

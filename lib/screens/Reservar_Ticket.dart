@@ -66,7 +66,7 @@ class _ReservarTicketState extends State<ReservarTicket> {
           'Reservar Ticket',
           style: TextStyle(
             color: Colors.white,
-            fontWeight: FontWeight.bold,
+            fontWeight: isMobile ? FontWeight.bold : FontWeight.normal,
             fontSize: isMobile ? 20 : 25,
           ),
         ),
@@ -83,14 +83,16 @@ class _ReservarTicketState extends State<ReservarTicket> {
                   ? Column(children: _buildOptions(context, isMobile))
                   : Row(
                       mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: _buildOptions(context, isMobile),
                     ),
-              SizedBox(height: 30),
+              SizedBox(height: isMobile ? 10 : 50), // Espaciado responsivo
 
               // Lista de menús disponibles
               Text(
                 'Menús Disponibles:',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    fontSize: isMobile ? 12 : 18, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 10),
               if (availableMenus.isEmpty)
@@ -123,6 +125,7 @@ class _ReservarTicketState extends State<ReservarTicket> {
 
   // Método para construir las opciones (responsive)
   List<Widget> _buildOptions(BuildContext context, bool isMobile) {
+    double screenWidth = MediaQuery.of(context).size.width;
     return [
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -131,11 +134,12 @@ class _ReservarTicketState extends State<ReservarTicket> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              SizedBox(height: 10),
               _buildOptionTitle('Comedor', Icons.restaurant_menu),
               SizedBox(height: 8),
               SizedBox(
                 width: isMobile ? 150 : 200,
-                height: 65,
+                height: isMobile ? 65 : 50,
                 child: InputDecorator(
                   decoration: InputDecoration(
                     filled: true,
@@ -176,11 +180,12 @@ class _ReservarTicketState extends State<ReservarTicket> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              SizedBox(height: 10),
               _buildOptionTitle('Menú', Icons.food_bank),
               SizedBox(height: 8),
               SizedBox(
                 width: isMobile ? 150 : 200,
-                height: 65,
+                height: isMobile ? 65 : 50,
                 child: InputDecorator(
                   decoration: InputDecoration(
                     filled: true,
@@ -218,21 +223,58 @@ class _ReservarTicketState extends State<ReservarTicket> {
           ),
         ],
       ),
-      SizedBox(height: 20),
+      SizedBox(height: 20, width: isMobile ? 20 : 40),
+
       // Selector de fechas con iconos
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          // Botón "Desde"
           ElevatedButton.icon(
             style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10))),
+              fixedSize: Size(isMobile ? 120 : 150, isMobile ? 40 : 50),
+              // Ancho responsivo
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              backgroundColor: Colors.white,
+              // Fondo blanco
+              side: BorderSide(color: Colors.red[900]!, width: 1),
+              // Borde rojo
+              padding: EdgeInsets.symmetric(
+                horizontal: isMobile ? 10 : 20, // Padding horizontal responsivo
+                vertical: isMobile ? 8 : 12, // Padding vertical responsivo
+              ),
+            ),
             onPressed: () async {
               final pickedDate = await showDatePicker(
                 context: context,
                 initialDate: DateTime.now(),
                 firstDate: DateTime.now(),
                 lastDate: DateTime.now().add(Duration(days: 30)),
+                builder: (BuildContext context, Widget? child) {
+                  return Theme(
+                    data: ThemeData(
+                      // Cambia el color del día seleccionado
+                      primaryColor: Colors.red[900],
+                      // Color del círculo del día seleccionado
+                      colorScheme: ColorScheme.light(
+                        primary: Colors.red[
+                            400]!, // Color del texto y otros elementos relacionados
+                      ),
+                      dialogBackgroundColor: Colors.white,
+                      // Fondo del calendario
+                      textTheme: TextTheme(
+                        headlineMedium: TextStyle(fontSize: 16),
+                        // Tamaño para "Select Date"
+                        bodyLarge: TextStyle(fontSize: 14),
+                        // Tamaño para las fechas
+                        bodyMedium: TextStyle(fontSize: 12),
+                      ),
+                    ),
+                    child: child!,
+                  );
+                },
               );
               if (pickedDate != null) {
                 setState(() {
@@ -240,25 +282,71 @@ class _ReservarTicketState extends State<ReservarTicket> {
                 });
               }
             },
-            icon: Icon(Icons.calendar_today, color: Colors.red[900]),
+            icon: Icon(
+              Icons.calendar_today,
+              color: Colors.red[900],
+              size: isMobile ? 18 : 24,
+            ),
+            // Tamaño del ícono responsivo
             label: Text(
               startDate == null
                   ? 'Desde'
                   : DateFormat('yyyy-MM-dd').format(startDate!),
-              style: TextStyle(fontSize: 14, color: Colors.red[900]),
+              style: TextStyle(
+                fontSize: isMobile ? 12 : 14, // Tamaño del texto responsivo
+                color: Colors.red[900],
+              ),
             ),
           ),
-          SizedBox(width: isMobile ? 10 : 30),
+          SizedBox(width: isMobile ? 10 : 20),
+          Icon(Icons.arrow_forward, color: Colors.red[900]),
+          SizedBox(width: isMobile ? 10 : 20),
+          // Botón "Hasta"
           ElevatedButton.icon(
             style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10))),
+              fixedSize: Size(isMobile ? 120 : 150, isMobile ? 40 : 50),
+              // Ancho responsivo
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              backgroundColor: Colors.white,
+              // Fondo blanco
+              side: BorderSide(color: Colors.red[900]!, width: 1),
+              // Borde rojo
+              padding: EdgeInsets.symmetric(
+                horizontal: isMobile ? 10 : 20, // Padding horizontal responsivo
+                vertical: isMobile ? 8 : 12, // Padding vertical responsivo
+              ),
+            ),
             onPressed: () async {
               final pickedDate = await showDatePicker(
                 context: context,
                 initialDate: DateTime.now(),
                 firstDate: DateTime.now(),
                 lastDate: DateTime.now().add(Duration(days: 30)),
+                builder: (BuildContext context, Widget? child) {
+                  return Theme(
+                    data: ThemeData(
+                      // Cambia el color del día seleccionado
+                      primaryColor: Colors.red[900],
+                      // Color del círculo del día seleccionado
+                      colorScheme: ColorScheme.light(
+                        primary: Colors.red[
+                            400]!, // Color del texto y otros elementos relacionados
+                      ),
+                      dialogBackgroundColor: Colors.white,
+                      // Fondo del calendario
+                      textTheme: TextTheme(
+                        headlineMedium: TextStyle(fontSize: 16),
+                        // Tamaño para "Select Date"
+                        bodyLarge: TextStyle(fontSize: 14),
+                        // Tamaño para las fechas
+                        bodyMedium: TextStyle(fontSize: 12),
+                      ),
+                    ),
+                    child: child!,
+                  );
+                },
               );
               if (pickedDate != null) {
                 setState(() {
@@ -266,20 +354,23 @@ class _ReservarTicketState extends State<ReservarTicket> {
                 });
               }
             },
-            icon: Icon(Icons.calendar_today, color: Colors.red[900]),
+            icon: Icon(Icons.calendar_today,
+                color: Colors.red[900],
+                size: isMobile ? 18 : 24), // Tamaño del ícono responsivo
             label: Text(
               endDate == null
                   ? 'Hasta'
                   : DateFormat('yyyy-MM-dd').format(endDate!),
               style: TextStyle(
-                fontSize: 14,
+                fontSize: isMobile ? 12 : 14, // Tamaño del texto responsivo
                 color: Colors.red[900],
               ),
             ),
           ),
         ],
       ),
-      SizedBox(height: 20),
+      SizedBox(width: isMobile ? 10 : 50, height: isMobile ? 20 : 50),
+      // Espaciado responsivo
       // Botón BUSCAR
       ElevatedButton(
         onPressed: () {
@@ -292,26 +383,27 @@ class _ReservarTicketState extends State<ReservarTicket> {
           }
         },
         style: ElevatedButton.styleFrom(
+          fixedSize: Size(isMobile ? 150 : 200, isMobile ? 40 : 50),
           elevation: 3,
           backgroundColor: Colors.red[900],
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           padding: EdgeInsets.symmetric(
-            horizontal: isMobile ? 30 : 50,
-            vertical: 15,
-          ),
+              horizontal: isMobile ? 10 : 20, // Ajustar el padding horizontal
+              vertical: isMobile ? 8 : 12),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           // Asegura que los elementos estén juntos
           children: [
-            Icon(Icons.search, color: Colors.white, size: 20),
+            Icon(Icons.search, color: Colors.white, size: isMobile ? 16 : 20),
             // Ícono de búsqueda
             SizedBox(width: 8),
             // Espaciado entre el ícono y el texto
             Text(
               'BUSCAR',
-              style: TextStyle(color: Colors.white, fontSize: 17),
+              style:
+                  TextStyle(color: Colors.white, fontSize: isMobile ? 14 : 17),
             ),
             // Texto del botón
           ],
