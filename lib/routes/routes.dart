@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/screens/almacen/inventario.dart';
 
-import '../screens/Gestionar_Menu.dart';
-import '../screens/Home.dart';
-import '../screens/Login.dart';
-import '../screens/Options.dart';
-import '../screens/Reservar_Ticket.dart';
+import '../screens/common/Home.dart';
+import '../screens/common/Login.dart';
+import '../screens/common/Options.dart';
+import '../screens/menu/Gestionar_Menu.dart';
+import '../screens/ticket/Reservar_Ticket.dart';
 
 class AppRoutes {
   // Definimos los nombres de las rutas

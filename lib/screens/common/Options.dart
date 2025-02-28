@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../widgets/card_widgets.dart'; // Importar los widgets de las tarjetas
+import '../../widgets/card_widgets.dart'; // Importar los widgets de las tarjetas
 
 class Options extends StatelessWidget {
   @override
