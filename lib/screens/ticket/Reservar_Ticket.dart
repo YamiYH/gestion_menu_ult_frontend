@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gestion_menu_ult_frontend/widgets/buscar.dart';
 import 'package:intl/intl.dart' show DateFormat; // Para formatear fechas
 
 class ReservarTicket extends StatefulWidget {
@@ -166,7 +167,6 @@ class _ReservarTicketState extends State<ReservarTicket> {
                             children: _buildOptions(context, isMobile),
                           ),
                     SizedBox(height: isMobile ? 10 : 50),
-                    // Espaciado responsivo
 
                     // Lista de menús disponibles
                     Text(
@@ -230,6 +230,7 @@ class _ReservarTicketState extends State<ReservarTicket> {
                                                 fontSize: isMobile ? 13 : 16),
                                           ),
                                           value: ingredient['selected'],
+                                          activeColor: Colors.red,
                                           onChanged: (bool? value) {
                                             setState(() {
                                               ingredient['selected'] = value!;
@@ -290,7 +291,12 @@ class _ReservarTicketState extends State<ReservarTicket> {
                           return Card(
                             margin: EdgeInsets.symmetric(vertical: 5),
                             child: ListTile(
-                              title: Text(ticket['menu']),
+                              title: Text(
+                                ticket['menu'],
+                                style: TextStyle(
+                                    color: Colors.red[900],
+                                    fontWeight: FontWeight.bold),
+                              ),
                               subtitle: Text(
                                   '${ticket['cafeteria']} - ${ticket['mealType']} (${ticket['date']})'),
                               trailing: ElevatedButton(
@@ -330,16 +336,34 @@ class _ReservarTicketState extends State<ReservarTicket> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Detalles de la Reserva'),
+          title: Text(
+            'Detalles de la Reserva',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Comedor: ${ticket['cafeteria']}'),
-              Text('Tipo de Comida: ${ticket['mealType']}'),
-              Text('Fecha: ${ticket['date']}'),
-              Text('Menú: ${ticket['menu']}'),
-              Text('Ingredientes: ${ticket['ingredients'].join(", ")}'),
+              Text(
+                'Comedor: ${ticket['cafeteria']}',
+                style: TextStyle(fontSize: 20),
+              ),
+              Text(
+                'Tipo de Comida: ${ticket['mealType']}',
+                style: TextStyle(fontSize: 20),
+              ),
+              Text(
+                'Fecha: ${ticket['date']}',
+                style: TextStyle(fontSize: 20),
+              ),
+              Text(
+                'Menú: ${ticket['menu']}',
+                style: TextStyle(fontSize: 20),
+              ),
+              Text(
+                'Ingredientes: ${ticket['ingredients'].join(", ")}',
+                style: TextStyle(fontSize: 20),
+              ),
             ],
           ),
           actions: [
@@ -350,13 +374,25 @@ class _ReservarTicketState extends State<ReservarTicket> {
                   _cancelReservation(ticket);
                   Navigator.of(context).pop(); // Cerrar el diálogo
                 },
-                child: Text('CANCELAR RESERVA'),
+                child: Text(
+                  'CANCELAR RESERVA',
+                  style: TextStyle(
+                      color: Colors.red.shade800,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold),
+                ),
               ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Cerrar el diálogo
               },
-              child: Text('CERRAR'),
+              child: Text(
+                'CERRAR',
+                style: TextStyle(
+                    color: Colors.red.shade800,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold),
+              ),
             ),
           ],
         );
@@ -397,7 +433,7 @@ class _ReservarTicketState extends State<ReservarTicket> {
 
   // Método para construir las opciones (responsive)
   List<Widget> _buildOptions(BuildContext context, bool isMobile) {
-    double screenWidth = MediaQuery.of(context).size.width;
+    //double screenWidth = MediaQuery.of(context).size.width;
     return [
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -616,43 +652,9 @@ class _ReservarTicketState extends State<ReservarTicket> {
       ),
       SizedBox(height: 20, width: isMobile ? 20 : 40),
       // Botón BUSCAR
-      ElevatedButton(
-        onPressed: () {
-          if (startDate != null && endDate != null) {
-            _searchMenus();
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Selecciona un rango de fechas')),
-            );
-          }
-        },
-        style: ElevatedButton.styleFrom(
-          fixedSize: Size(isMobile ? 150 : 200, isMobile ? 40 : 50),
-          elevation: 3,
-          backgroundColor: Colors.red[900],
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          padding: EdgeInsets.symmetric(
-              horizontal: isMobile ? 10 : 20, // Ajustar el padding horizontal
-              vertical: isMobile ? 8 : 12),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          // Asegura que los elementos estén juntos
-          children: [
-            Icon(Icons.search, color: Colors.white, size: isMobile ? 16 : 20),
-            // Ícono de búsqueda
-            SizedBox(width: 8),
-            // Espaciado entre el ícono y el texto
-            Text(
-              'BUSCAR',
-              style:
-                  TextStyle(color: Colors.white, fontSize: isMobile ? 14 : 17),
-            ),
-            // Texto del botón
-          ],
-        ),
-      ),
+      SearchButton(
+        onPressed: () {},
+      )
     ];
   }
 

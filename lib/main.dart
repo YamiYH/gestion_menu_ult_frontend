@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.red,
         scaffoldBackgroundColor: Colors.white,
       ),
-      initialRoute: AppRoutes.gestionarAlmacen,
+      initialRoute: AppRoutes.login,
       routes: AppRoutes.getRoutes(),
     );
   }

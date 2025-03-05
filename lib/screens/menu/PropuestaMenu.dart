@@ -1,9 +1,8 @@
-// lib/screens/menu_propuesta.dart
 import 'package:flutter/material.dart';
 
 class MenuPropuesta extends StatefulWidget {
-  final String tipo;
-  final Map<String, List<String>> comidas;
+  late String tipo = '';
+  late Map<String, List<String>> comidas;
 
   MenuPropuesta({required this.tipo, required this.comidas});
 

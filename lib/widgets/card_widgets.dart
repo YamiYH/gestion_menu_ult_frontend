@@ -83,7 +83,7 @@ class GestionarMenuCard extends StatelessWidget {
               ),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/gestionar_menu');
+                  Navigator.pushNamed(context, '/modulos');
                 },
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,
