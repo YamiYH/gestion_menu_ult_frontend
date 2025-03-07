@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:gestion_menu_ult_frontend/widgets/buscar.dart';
-import 'package:gestion_menu_ult_frontend/widgets/dropdownfield.dart';
-import 'package:gestion_menu_ult_frontend/widgets/fecha.dart';
+import 'package:gestion_menu_ult_frontend/controllers/logs_controller.dart';
+import 'package:intl/intl.dart' show DateFormat;
+
+import '../../widgets/button.dart';
 
 class LogsScreen extends StatefulWidget {
   const LogsScreen({super.key});
@@ -11,72 +12,17 @@ class LogsScreen extends StatefulWidget {
 }
 
 class _LogsScreenState extends State<LogsScreen> {
-  // Variables para los filtros
-  String? searchUser; // Usuario ingresado en el TextFormField
-  String? selectedTypeFilter; // Tipo de log seleccionado para filtrar
-  DateTime? startDate;
-  DateTime? endDate;
-  DateTime? startDateFilter; // Fecha inicial para filtrar
-  DateTime? endDateFilter; // Fecha final para filtrar
-
-  // Lista simulada de logs
-  final List<Map<String, dynamic>> _allLogs = [
-    {
-      'type': 'login',
-      'message': 'Inicio de sesión exitoso',
-      'user': 'admin',
-      'date': '2023-10-01 10:15 AM',
-    },
-    {
-      'type': 'error',
-      'message': 'Error al acceder a la base de datos',
-      'user': 'system',
-      'date': '2023-10-01 11:30 AM',
-    },
-    {
-      'type': 'logout',
-      'message': 'Cierre de sesión',
-      'user': 'admin',
-      'date': '2023-10-01 12:00 PM',
-    },
-    {
-      'type': 'warning',
-      'message': 'Intento fallido de inicio de sesión',
-      'user': 'guest',
-      'date': '2023-10-01 01:45 PM',
-    },
-  ];
-
-  // Lista de logs filtrados
-  List<Map<String, dynamic>> _filteredLogs = [];
-
-  // Función para aplicar filtros
-  void _applyFilters() {
-    setState(() {
-      _filteredLogs = _allLogs.where((log) {
-        bool matchesUser = searchUser == null ||
-            log['user'].toLowerCase().contains(searchUser!.toLowerCase());
-        bool matchesDate = (startDateFilter == null || endDateFilter == null) ||
-            (DateTime.parse(log['date']).isAfter(startDateFilter!) &&
-                DateTime.parse(log['date']).isBefore(endDateFilter!));
-        bool matchesType =
-            selectedTypeFilter == null || log['type'] == selectedTypeFilter;
-
-        return matchesUser && matchesDate && matchesType;
-      }).toList();
-    });
-  }
+  final LogsController _controller = LogsController();
 
   @override
   void initState() {
     super.initState();
-    _filteredLogs = _allLogs; // Inicialmente mostrar todos los logs
+    _controller.initializeData(); // Inicializar datos si es necesario
   }
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    bool isMobile = screenWidth < 600;
+    bool isMobile = MediaQuery.of(context).size.width < 600;
 
     return Scaffold(
       appBar: AppBar(
@@ -86,7 +32,6 @@ class _LogsScreenState extends State<LogsScreen> {
           'Registros',
           style: TextStyle(
             color: Colors.white,
-            fontWeight: isMobile ? FontWeight.bold : FontWeight.normal,
             fontSize: isMobile ? 20 : 25,
           ),
         ),
@@ -98,199 +43,384 @@ class _LogsScreenState extends State<LogsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Filtros responsivos
-              isMobile
-                  ? Center(
-                      child: Column(
-                        children: [
-                          SizedBox(
-                            width: isMobile
-                                ? screenWidth * 0.8
-                                : screenWidth * 0.4,
-                            child: TextFormField(
-                              decoration: InputDecoration(
-                                labelText: 'Buscar Usuario',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                ),
-                                suffixIcon:
-                                    Icon(Icons.person, color: Colors.red[900]),
-                              ),
-                              onChanged: (value) {
-                                setState(() {
-                                  searchUser = value;
-                                });
-                              },
-                            ),
-                          ),
-                          SizedBox(height: 15),
-                          SizedBox(
-                            width: isMobile
-                                ? screenWidth * 0.8
-                                : screenWidth * 0.4,
-                            child: DropDownField(),
-                          ),
-                          SizedBox(height: 15),
-                          SizedBox(
-                            width: isMobile
-                                ? screenWidth * 0.8
-                                : screenWidth * 0.4,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                DatePickerButton(
-                                  label: 'Desde',
-                                  selectedDate: startDate,
-                                  onDateSelected: (date) {
-                                    setState(() {
-                                      startDate = date;
-                                    });
-                                  },
-                                ),
-                                SizedBox(width: 10),
-                                Icon(Icons.arrow_forward,
-                                    color: Colors.red[900]),
-                                SizedBox(width: 10),
-                                DatePickerButton(
-                                  label: 'Hasta',
-                                  selectedDate: endDate,
-                                  onDateSelected: (date) {
-                                    setState(() {
-                                      endDate = date;
-                                    });
-                                  },
-                                )
-                              ],
-                            ),
-                          ),
-                          SizedBox(height: 20),
-                          SearchButton(
-                            onPressed: _applyFilters,
-                          )
-                        ],
-                      ),
-                    )
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          width: screenWidth * 0.2,
-                          child: TextFormField(
-                            decoration: InputDecoration(
-                              labelText: 'Buscar Usuario',
-                              border: OutlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.red),
-                                  borderRadius: BorderRadius.circular(10.0)),
-                              suffixIcon:
-                                  Icon(Icons.person, color: Colors.red[900]),
-                            ),
-                            onChanged: (value) {
-                              setState(() {
-                                searchUser = value;
-                              });
-                            },
-                          ),
-                        ),
-
-                        SizedBox(width: 15),
-
-                        // Selector de tipo de log
-                        SizedBox(
-                          width: screenWidth * 0.2,
-                          child: DropDownField(),
-                        ),
-
-                        SizedBox(width: 15),
-
-                        DatePickerButton(
-                          label: 'Desde',
-                          selectedDate: startDate,
-                          onDateSelected: (date) {
-                            setState(() {
-                              startDate = date;
-                            });
-                          },
-                        ),
-
-                        SizedBox(width: 3),
-                        Icon(Icons.arrow_forward, color: Colors.red[900]),
-                        SizedBox(width: 3),
-
-                        DatePickerButton(
-                          label: 'Hasta',
-                          selectedDate: endDate,
-                          onDateSelected: (date) {
-                            setState(() {
-                              endDate = date;
-                            });
-                          },
-                        ),
-
-                        SizedBox(width: 15),
-                        SearchButton(onPressed: _applyFilters),
-                      ],
-                    ),
+              _buildFilters(context, isMobile),
               SizedBox(height: 50),
-
               // Encabezados de las columnas
-              Row(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: Text(
-                      'Usuario',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 2,
-                    child: Text(
-                      'Fecha',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 3,
-                    child: Text(
-                      'Actividad',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ],
-              ),
+              _buildHeaders(),
+              const Divider(),
+              // Lista de logs filtrados
+              _buildLogsList(),
               Divider(),
 
               // Lista de logs filtrados
-              if (_filteredLogs.isEmpty)
-                Center(child: Text('No hay logs disponibles'))
-              else
-                ..._filteredLogs.map((log) {
-                  return Column(
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            flex: 2,
-                            child: Text(log['user']),
-                          ),
-                          Expanded(
-                            flex: 2,
-                            child: Text(log['date']),
-                          ),
-                          Expanded(
-                            flex: 3,
-                            child: Text(log['message']),
-                          ),
-                        ],
-                      ),
-                      Divider(),
-                    ],
-                  );
-                }).toList(),
             ],
           ),
         ),
       ),
     );
+  }
+
+  // Widget para los encabezados
+  Widget _buildHeaders() {
+    return const Row(
+      children: [
+        Expanded(
+            flex: 2,
+            child:
+                Text('Usuario', style: TextStyle(fontWeight: FontWeight.bold))),
+        Expanded(
+            flex: 2,
+            child:
+                Text('Fecha', style: TextStyle(fontWeight: FontWeight.bold))),
+        Expanded(
+            flex: 3,
+            child: Text('Actividad',
+                style: TextStyle(fontWeight: FontWeight.bold))),
+      ],
+    );
+  }
+
+// Widget para los filtros
+  Widget _buildFilters(BuildContext context, bool isMobile) {
+    return isMobile
+        ? Column(
+            children: [
+              SizedBox(height: 15),
+              TextFormField(
+                decoration: InputDecoration(
+                  labelText: 'Buscar Usuario',
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  prefixIcon: Icon(Icons.person, color: Colors.red[900]),
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    _controller.searchUser = value;
+                  });
+                },
+              ),
+              SizedBox(height: 15),
+              DropdownButtonFormField<String>(
+                value: _controller.selectedTypeFilter,
+                decoration: InputDecoration(
+                  labelText: 'Buscar por Actividad',
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                ),
+                onChanged: (newValue) {
+                  setState(() {
+                    _controller.selectedTypeFilter = newValue;
+                  });
+                },
+                items: ['login', 'logout', 'error', 'warning', 'info', 'all']
+                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                    .toList(),
+              ),
+              SizedBox(height: 15),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      fixedSize: Size(isMobile ? 150 : 170, isMobile ? 40 : 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      backgroundColor: Colors.white,
+                      side: BorderSide(color: Colors.red[900]!, width: 1),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isMobile ? 10 : 20,
+                        vertical: isMobile ? 8 : 12,
+                      ),
+                    ),
+                    onPressed: () async {
+                      final pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(2020),
+                        lastDate: DateTime.now().add(Duration(days: 30)),
+                      );
+                      if (pickedDate != null) {
+                        setState(() {
+                          _controller.startDateFilter = pickedDate;
+                        });
+                      }
+                    },
+                    icon: Icon(Icons.calendar_today, color: Colors.red[900]),
+                    label: Text(
+                      style: TextStyle(
+                        fontSize: isMobile ? 14 : 18,
+                        color: Colors.red[900],
+                      ),
+                      _controller.startDateFilter == null
+                          ? 'Desde'
+                          : DateFormat('yyyy-MM-dd')
+                              .format(_controller.startDateFilter!),
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  Icon(Icons.arrow_forward, color: Colors.red[900]),
+                  SizedBox(width: 10),
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      fixedSize: Size(isMobile ? 150 : 170, isMobile ? 40 : 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      backgroundColor: Colors.white,
+                      side: BorderSide(color: Colors.red[900]!, width: 1),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isMobile ? 10 : 20,
+                        vertical: isMobile ? 8 : 12,
+                      ),
+                    ),
+                    onPressed: () async {
+                      final pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(2020),
+                        lastDate: DateTime.now().add(Duration(days: 30)),
+                      );
+                      if (pickedDate != null) {
+                        setState(() {
+                          // Ajustar la fecha final al último segundo del día
+                          _controller.endDateFilter = DateTime(
+                            pickedDate.year,
+                            pickedDate.month,
+                            pickedDate.day,
+                            23,
+                            59,
+                            59,
+                          );
+                        });
+                      }
+                    },
+                    icon: Icon(Icons.calendar_today, color: Colors.red[900]),
+                    label: Text(
+                      style: TextStyle(
+                        fontSize: isMobile ? 14 : 18,
+                        color: Colors.red[900],
+                      ),
+                      _controller.endDateFilter == null
+                          ? 'Hasta'
+                          : DateFormat('yyyy-MM-dd')
+                              .format(_controller.endDateFilter!),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20),
+              Button(
+                  onPressed: () => setState(() {}),
+                  text: 'BUSCAR',
+                  icon: Icons.search)
+            ],
+          )
+        : Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              //SizedBox(width: 45),
+              SizedBox(
+                width: 300,
+                child: TextFormField(
+                  decoration: InputDecoration(
+                    labelText: 'Buscar Usuario',
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    prefixIcon: Icon(Icons.person, color: Colors.red[900]),
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      _controller.searchUser = value;
+                    });
+                  },
+                ),
+              ),
+              SizedBox(width: 20),
+              SizedBox(
+                width: 300,
+                child: DropdownButtonFormField<String>(
+                  value: _controller.selectedTypeFilter,
+                  decoration: InputDecoration(
+                    labelText: 'Buscar por Actividad',
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                  ),
+                  onChanged: (newValue) {
+                    setState(() {
+                      _controller.selectedTypeFilter = newValue;
+                    });
+                  },
+                  items: ['login', 'logout', 'error', 'warning', 'info', 'all']
+                      .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                      .toList(),
+                ),
+              ),
+              SizedBox(width: 20),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Reemplazar DatePickerButton con ElevatedButton
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      fixedSize: Size(isMobile ? 150 : 170, isMobile ? 40 : 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      backgroundColor: Colors.white,
+                      side: BorderSide(color: Colors.red[900]!, width: 1),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isMobile ? 10 : 20,
+                        vertical: isMobile ? 8 : 12,
+                      ),
+                    ),
+                    onPressed: () async {
+                      final pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(2020),
+                        lastDate: DateTime.now().add(Duration(days: 30)),
+                        builder: (BuildContext context, Widget? child) {
+                          return Theme(
+                            data: ThemeData(
+                              primaryColor: Colors.red[900],
+                              colorScheme: ColorScheme.light(
+                                primary: Colors.red[400]!,
+                              ),
+                              dialogBackgroundColor: Colors.white,
+                              textTheme: TextTheme(
+                                headlineMedium: TextStyle(fontSize: 16),
+                                bodyLarge: TextStyle(fontSize: 14),
+                                bodyMedium: TextStyle(fontSize: 12),
+                              ),
+                            ),
+                            child: child!,
+                          );
+                        },
+                      );
+                      if (pickedDate != null) {
+                        setState(() {
+                          _controller.startDateFilter =
+                              pickedDate; // Fecha con hora 00:00:00
+                        });
+                      }
+                    },
+                    icon: Icon(Icons.calendar_today, color: Colors.red[900]),
+                    label: Text(
+                      style: TextStyle(
+                        fontSize: isMobile ? 14 : 18,
+                        color: Colors.red[900],
+                      ),
+                      _controller.startDateFilter == null
+                          ? 'Desde'
+                          : DateFormat('yyyy-MM-dd')
+                              .format(_controller.startDateFilter!),
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  Icon(Icons.arrow_forward, color: Colors.red[900]),
+                  SizedBox(width: 10),
+                  ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      fixedSize: Size(isMobile ? 150 : 170, isMobile ? 40 : 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      backgroundColor: Colors.white,
+                      side: BorderSide(color: Colors.red[900]!, width: 1),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isMobile ? 10 : 20,
+                        vertical: isMobile ? 8 : 12,
+                      ),
+                    ),
+                    onPressed: () async {
+                      final pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(2020),
+                        lastDate: DateTime.now().add(Duration(days: 30)),
+                        builder: (BuildContext context, Widget? child) {
+                          return Theme(
+                            data: ThemeData(
+                              primaryColor: Colors.red[900],
+                              colorScheme: ColorScheme.light(
+                                primary: Colors.red[400]!,
+                              ),
+                              dialogBackgroundColor: Colors.white,
+                              textTheme: TextTheme(
+                                headlineMedium: TextStyle(fontSize: 16),
+                                bodyLarge: TextStyle(fontSize: 14),
+                                bodyMedium: TextStyle(fontSize: 12),
+                              ),
+                            ),
+                            child: child!,
+                          );
+                        },
+                      );
+                      if (pickedDate != null) {
+                        setState(() {
+                          // Ajustar la fecha final al último segundo del día
+                          _controller.endDateFilter = DateTime(
+                            pickedDate.year,
+                            pickedDate.month,
+                            pickedDate.day,
+                            23,
+                            59,
+                            59,
+                          );
+                        });
+                      }
+                    },
+                    icon: Icon(Icons.calendar_today, color: Colors.red[900]),
+                    label: Text(
+                      style: TextStyle(
+                        fontSize: isMobile ? 14 : 18,
+                        color: Colors.red[900],
+                      ),
+                      _controller.endDateFilter == null
+                          ? 'Hasta'
+                          : DateFormat('yyyy-MM-dd')
+                              .format(_controller.endDateFilter!),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(width: 20),
+              Button(
+                  onPressed: _applyFilters, text: 'BUSCAR', icon: Icons.search)
+            ],
+          );
+  }
+
+// Widget para la lista de logs
+  Widget _buildLogsList() {
+    final filteredLogs =
+        _controller.filteredLogs; // Obtener logs del controlador
+    return Column(
+      children: [
+        if (filteredLogs.isEmpty)
+          Center(child: Text('No hay logs disponibles'))
+        else
+          ...filteredLogs.map((log) {
+            return Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(flex: 2, child: Text(log['user'])),
+                    Expanded(flex: 2, child: Text(log['date'])),
+                    Expanded(flex: 3, child: Text(log['message'])),
+                  ],
+                ),
+                const Divider(),
+              ],
+            );
+          }).toList(),
+      ],
+    );
+  }
+
+  void _applyFilters() {
+    setState(() {});
   }
 }

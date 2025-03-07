@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../widgets/card_widgets.dart'; // Importar los widgets de las tarjetas
+import '../../widgets/card_widgets.dart';
+import '../../widgets/custom_appbar.dart'; // Importar los widgets de las tarjetas
 
 class Options extends StatelessWidget {
   @override
@@ -8,19 +9,19 @@ class Options extends StatelessWidget {
     double screenWidth = MediaQuery.of(context).size.width;
     bool isMobile = screenWidth < 600;
 
+    // Datos simulados para el usuario y las notificaciones
+    final String userName = 'Yamilet Yero';
+    final List<String> notifications = [
+      'Nueva actualización disponible',
+      'Tienes un nuevo mensaje',
+      'Recordatorio: Reunión a las 3 PM',
+    ];
+
     return Scaffold(
-      appBar: AppBar(
-        iconTheme: IconThemeData(color: Colors.white),
-        title: Text(
-          '¿Qué deseas hacer?',
-          style: TextStyle(
-            fontWeight: isMobile ? FontWeight.bold : FontWeight.normal,
-            color: Colors.white,
-            fontSize: screenWidth > 600 ? 25 : 20,
-          ),
-        ),
-        backgroundColor: Colors.red[900],
-        centerTitle: true,
+      appBar: CustomAppBar(
+        userName: userName,
+        notifications: notifications,
+        text: '¿Qué deseas hacer?',
       ),
       body: Center(
         child: Padding(

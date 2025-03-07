@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:gestion_menu_ult_frontend/widgets/buscar.dart';
-import 'package:intl/intl.dart' show DateFormat; // Para formatear fechas
+import 'package:gestion_menu_ult_frontend/widgets/small_button.dart';
+import 'package:intl/intl.dart' show DateFormat;
 
-class ReservarTicket extends StatefulWidget {
+import '../../widgets/button.dart'; // Para formatear fechas
+
+class GestionarTicket extends StatefulWidget {
   @override
-  _ReservarTicketState createState() => _ReservarTicketState();
+  _GestionarTicketState createState() => _GestionarTicketState();
 }
 
-class _ReservarTicketState extends State<ReservarTicket> {
+class _GestionarTicketState extends State<GestionarTicket> {
   // Variables para los filtros
   String selectedCafeteria = 'Lenin'; // Comedor seleccionado
   String selectedMealType = 'Desayuno'; // Tipo de comida seleccionado
@@ -243,23 +245,12 @@ class _ReservarTicketState extends State<ReservarTicket> {
                                 ),
                                 //SizedBox(height: 10),
                                 Align(
-                                  alignment: Alignment.center,
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      _reserveMenu(menu);
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10)),
-                                      backgroundColor: Colors.red[900],
-                                    ),
-                                    child: Text('Reservar',
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: isMobile ? 12 : 15)),
-                                  ),
-                                ),
+                                    alignment: Alignment.center,
+                                    child: SmallButton(
+                                        onPressed: () {
+                                          _reserveMenu(menu);
+                                        },
+                                        text: 'Reservar')),
                                 SizedBox(height: 15),
                               ],
                             ),
@@ -291,30 +282,20 @@ class _ReservarTicketState extends State<ReservarTicket> {
                           return Card(
                             margin: EdgeInsets.symmetric(vertical: 5),
                             child: ListTile(
-                              title: Text(
-                                ticket['menu'],
-                                style: TextStyle(
-                                    color: Colors.red[900],
-                                    fontWeight: FontWeight.bold),
-                              ),
-                              subtitle: Text(
-                                  '${ticket['cafeteria']} - ${ticket['mealType']} (${ticket['date']})'),
-                              trailing: ElevatedButton(
-                                onPressed: () {
-                                  // Mostrar ventana modal con los detalles del ticket
-                                  _showTicketDetails(context, ticket);
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red[900],
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10)),
+                                title: Text(
+                                  ticket['menu'],
+                                  style: TextStyle(
+                                      color: Colors.red[900],
+                                      fontWeight: FontWeight.bold),
                                 ),
-                                child: Text('DETALLES',
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: isMobile ? 12 : 15)),
-                              ),
-                            ),
+                                subtitle: Text(
+                                    '${ticket['cafeteria']} - ${ticket['mealType']} (${ticket['date']})'),
+                                trailing: SmallButton(
+                                  onPressed: () {
+                                    _showTicketDetails(context, ticket);
+                                  },
+                                  text: 'Detalles',
+                                )),
                           );
                         },
                       ),
@@ -335,10 +316,15 @@ class _ReservarTicketState extends State<ReservarTicket> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
+        double screenWidth = MediaQuery.of(context).size.width;
+        bool isMobile = screenWidth < 600;
         return AlertDialog(
-          title: Text(
-            'Detalles de la Reserva',
-            style: TextStyle(fontWeight: FontWeight.bold),
+          title: Center(
+            child: Text(
+              'Detalles de la Reserva',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold, fontSize: isMobile ? 18 : 25),
+            ),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -346,23 +332,23 @@ class _ReservarTicketState extends State<ReservarTicket> {
             children: [
               Text(
                 'Comedor: ${ticket['cafeteria']}',
-                style: TextStyle(fontSize: 20),
+                style: TextStyle(fontSize: isMobile ? 14 : 18),
               ),
               Text(
                 'Tipo de Comida: ${ticket['mealType']}',
-                style: TextStyle(fontSize: 20),
+                style: TextStyle(fontSize: isMobile ? 14 : 18),
               ),
               Text(
                 'Fecha: ${ticket['date']}',
-                style: TextStyle(fontSize: 20),
+                style: TextStyle(fontSize: isMobile ? 14 : 18),
               ),
               Text(
                 'Menú: ${ticket['menu']}',
-                style: TextStyle(fontSize: 20),
+                style: TextStyle(fontSize: isMobile ? 14 : 18),
               ),
               Text(
                 'Ingredientes: ${ticket['ingredients'].join(", ")}',
-                style: TextStyle(fontSize: 20),
+                style: TextStyle(fontSize: isMobile ? 14 : 18),
               ),
             ],
           ),
@@ -378,7 +364,7 @@ class _ReservarTicketState extends State<ReservarTicket> {
                   'CANCELAR RESERVA',
                   style: TextStyle(
                       color: Colors.red.shade800,
-                      fontSize: 16,
+                      fontSize: isMobile ? 14 : 16,
                       fontWeight: FontWeight.bold),
                 ),
               ),
@@ -390,7 +376,7 @@ class _ReservarTicketState extends State<ReservarTicket> {
                 'CERRAR',
                 style: TextStyle(
                     color: Colors.red.shade800,
-                    fontSize: 16,
+                    fontSize: isMobile ? 14 : 16,
                     fontWeight: FontWeight.bold),
               ),
             ),
@@ -433,7 +419,8 @@ class _ReservarTicketState extends State<ReservarTicket> {
 
   // Método para construir las opciones (responsive)
   List<Widget> _buildOptions(BuildContext context, bool isMobile) {
-    //double screenWidth = MediaQuery.of(context).size.width;
+    double screenWidth = MediaQuery.of(context).size.width;
+    bool isMobile = screenWidth < 600;
     return [
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -652,8 +639,18 @@ class _ReservarTicketState extends State<ReservarTicket> {
       ),
       SizedBox(height: 20, width: isMobile ? 20 : 40),
       // Botón BUSCAR
-      SearchButton(
-        onPressed: () {},
+      Button(
+        icon: Icons.search,
+        text: 'BUSCAR',
+        onPressed: () {
+          if (startDate != null && endDate != null) {
+            _searchMenus();
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Selecciona un rango de fechas')),
+            );
+          }
+        },
       )
     ];
   }

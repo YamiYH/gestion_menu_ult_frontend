@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gestion_menu_ult_frontend/widgets/big_button.dart';
 
 class ReservarTicketCard extends StatelessWidget {
   final double screenWidth;
@@ -27,26 +28,11 @@ class ReservarTicketCard extends StatelessWidget {
                 width: screenWidth > 600 ? 150 : 100,
                 height: screenWidth > 600 ? 200 : 100,
               ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/reservar_ticket');
-                },
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  backgroundColor: Colors.red[900],
-                  padding: EdgeInsets.symmetric(
-                    horizontal: screenWidth > 600 ? 80 : 20,
-                    vertical: 20,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: Text(
-                  'Reservar ticket',
-                  style: TextStyle(fontSize: screenWidth > 600 ? 20 : 15),
-                ),
-              ),
+              BigButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/gestionar_ticket');
+                  },
+                  text: 'Reservar ticket'),
               SizedBox(height: 15),
             ],
           ),
@@ -81,26 +67,11 @@ class GestionarMenuCard extends StatelessWidget {
                 width: screenWidth > 600 ? 300 : 150,
                 height: screenWidth > 600 ? 200 : 100,
               ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/modulos');
-                },
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  backgroundColor: Colors.red[900],
-                  padding: EdgeInsets.symmetric(
-                    horizontal: screenWidth > 600 ? 80 : 20,
-                    vertical: 20,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: Text(
-                  'Gestionar Menú',
-                  style: TextStyle(fontSize: screenWidth > 600 ? 20 : 15),
-                ),
-              ),
+              BigButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/modulos');
+                  },
+                  text: 'Gestionar Menú'),
               SizedBox(height: 15),
             ],
           ),

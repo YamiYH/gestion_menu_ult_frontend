@@ -6,7 +6,7 @@ class ModulosScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    bool isMobile = screenWidth < 600; // Define si la pantalla es móvil
+    bool isMobile = screenWidth < 600;
 
     return Scaffold(
       appBar: AppBar(
@@ -17,7 +17,7 @@ class ModulosScreen extends StatelessWidget {
           style: TextStyle(
             color: Colors.white,
             fontWeight: isMobile ? FontWeight.bold : FontWeight.normal,
-            fontSize: isMobile ? 20 : 25,
+            fontSize: isMobile ? 18 : 25,
           ),
         ),
         backgroundColor: Colors.red[900],

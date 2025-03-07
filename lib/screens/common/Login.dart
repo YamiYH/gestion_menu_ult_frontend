@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../widgets/button.dart';
+
 class Login extends StatefulWidget {
   @override
   _LoginState createState() => _LoginState();
@@ -32,7 +34,6 @@ class _LoginState extends State<Login> {
         titleTextStyle: TextStyle(),
         title: Text('Bienvenido al Menú Digital ULT',
             style: TextStyle(
-                fontWeight: isMobile ? FontWeight.bold : FontWeight.normal,
                 fontFamily: 'Roboto',
                 color: Colors.white,
                 fontSize: screenWidth > 600 ? 25 : 20)),
@@ -66,6 +67,7 @@ class _LoginState extends State<Login> {
                   TextFormField(
                     controller: _userController,
                     decoration: InputDecoration(
+                      contentPadding: EdgeInsets.all(20),
                       labelText: 'Usuario',
                       labelStyle: TextStyle(color: Colors.red[900]),
                       border: OutlineInputBorder(
@@ -87,6 +89,7 @@ class _LoginState extends State<Login> {
                     controller: _passwordController,
                     obscureText: true,
                     decoration: InputDecoration(
+                      contentPadding: EdgeInsets.all(10.0),
                       labelText: 'Contraseña',
                       labelStyle: TextStyle(color: Colors.red[900]),
                       border: OutlineInputBorder(
@@ -104,25 +107,11 @@ class _LoginState extends State<Login> {
                     },
                   ),
                   SizedBox(height: 50),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Navegar a la pantalla de reserva de tickets
-                      Navigator.pushNamed(context, '/options');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      elevation: 3,
-                      backgroundColor: Colors.red[900],
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      padding: EdgeInsets.symmetric(
-                          horizontal: screenWidth > 600
-                              ? 80
-                              : 50, // Ajustar el padding horizontal
-                          vertical: 15),
-                    ),
-                    child: Text('Iniciar Sesión',
-                        style: TextStyle(color: Colors.white, fontSize: 17)),
-                  ),
+                  Button(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/options');
+                      },
+                      text: 'Iniciar sesión'),
                   //SizedBox(height: 20),
                   Image.asset(
                     'assets/logos/logo1.png',

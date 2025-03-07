@@ -32,6 +32,10 @@ class DatePickerButton extends StatelessWidget {
         ),
         backgroundColor: Colors.white,
         side: BorderSide(color: iconColor!, width: 1),
+        padding: EdgeInsets.symmetric(
+          horizontal: isMobile ? 10 : 20,
+          vertical: isMobile ? 8 : 12,
+        ),
       ),
       onPressed: () async {
         final pickedDate = await showDatePicker(
@@ -62,11 +66,11 @@ class DatePickerButton extends StatelessWidget {
               pickedDate); // Llamar al callback con la fecha seleccionada
         }
       },
-      icon: Icon(icon, color: iconColor),
+      icon: Icon(Icons.calendar_today, color: Colors.red[900]),
       label: Text(
         selectedDate == null
             ? label
-            : DateFormat('yyyy-MM-dd').format(selectedDate!),
+            : DateFormat('yyyy-MM-dd hh:mm a').format(selectedDate!),
         style: TextStyle(
           fontSize: isMobile ? 14 : 18,
           color: Colors.red[900],
