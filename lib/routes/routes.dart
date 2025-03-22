@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:gestion_menu_ult_frontend/screens/admin/logs.dart';
-import 'package:gestion_menu_ult_frontend/screens/almacen/inventario.dart';
-import 'package:gestion_menu_ult_frontend/screens/common/modulos.dart';
+import 'package:gestion_menu_ult_frontend/screens/admin/Users.dart';
 
+import '../screens/admin/Admin.dart';
 import '../screens/common/Home.dart';
 import '../screens/common/Login.dart';
+import '../screens/common/Modulos.dart';
 import '../screens/common/Options.dart';
+import '../screens/inventario/Inventario.dart';
 import '../screens/menu/Gestionar_Menu.dart';
+import '../screens/security/Logs.dart';
 import '../screens/ticket/Gestionar_Ticket.dart';
 
 class AppRoutes {
@@ -20,6 +22,8 @@ class AppRoutes {
   static const String modulos = '/modulos';
   static const String logs = '/logs';
   static const String propuesta = '/propuesta';
+  static const String admin = '/admin';
+  static const String users = '/users';
 
   // Mapeamos las rutas a las pantallas correspondientes
   static Map<String, WidgetBuilder> getRoutes() {
@@ -32,6 +36,8 @@ class AppRoutes {
       gestionarAlmacen: (context) => GestionarAlmacen(),
       modulos: (context) => ModulosScreen(),
       logs: (context) => LogsScreen(),
+      admin: (context) => AdminScreen(),
+      users: (context) => UsersScreen(),
     };
   }
 }

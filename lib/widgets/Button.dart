@@ -21,13 +21,13 @@ class _ButtonState extends State<Button> {
     return ElevatedButton(
       onPressed: widget.onPressed,
       style: ElevatedButton.styleFrom(
-        fixedSize: Size(isMobile ? 170 : 220, isMobile ? 40 : 50),
+        fixedSize: Size(isMobile ? 180 : 220, 50),
         elevation: 3,
         backgroundColor: Colors.red[900],
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         padding: EdgeInsets.symmetric(
           horizontal: isMobile ? 30 : 50,
-          vertical: 15,
+          vertical: isMobile ? 11 : 18,
         ),
       ),
       child: Row(
@@ -37,13 +37,13 @@ class _ButtonState extends State<Button> {
             Icon(
               widget.icon,
               color: Colors.white,
-              size: isMobile ? 16 : 20,
+              size: isMobile ? 18 : 20,
             ),
           ],
           SizedBox(width: 8),
           Text(
             widget.text,
-            style: TextStyle(color: Colors.white, fontSize: isMobile ? 13 : 16),
+            style: TextStyle(color: Colors.white, fontSize: isMobile ? 15 : 18),
           ),
         ],
       ),

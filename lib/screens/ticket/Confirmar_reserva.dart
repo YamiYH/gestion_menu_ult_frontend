@@ -1,4 +1,4 @@
-// lib/screens/confirmar_reserva.dart
+// lib/screens/Confirmar_reserva.dart
 import 'package:flutter/material.dart';
 
 class ConfirmarReserva extends StatelessWidget {

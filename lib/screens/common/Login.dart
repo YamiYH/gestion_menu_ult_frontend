@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../widgets/button.dart';
+import '../../widgets/Button.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -36,13 +36,13 @@ class _LoginState extends State<Login> {
             style: TextStyle(
                 fontFamily: 'Roboto',
                 color: Colors.white,
-                fontSize: screenWidth > 600 ? 25 : 20)),
+                fontSize: isMobile ? 20 : 25)),
         backgroundColor: Colors.red[900],
       ),
       body: SingleChildScrollView(
         child: Center(
           child: Container(
-            width: screenWidth > 600 ? 500 : 300,
+            width: isMobile ? 300 : 500,
             alignment: Alignment.center,
             child: Form(
               key: _formKey,
@@ -51,23 +51,20 @@ class _LoginState extends State<Login> {
                   SizedBox(height: 30),
                   Image.asset(
                     'assets/logos/logo5.png',
-                    // Ruta de la imagen en tu proyecto
-                    width: screenWidth > 600
-                        ? 150
-                        : 100, // Ajustar el tamaño de la imagen
-                    height: screenWidth > 600 ? 150 : 100,
+                    width: isMobile ? 100 : 150,
+                    height: isMobile ? 100 : 150,
                   ),
                   Text(
                     '"Tu comedor universitario en la palma de tu mano"',
                     style: TextStyle(
-                        fontSize: screenWidth > 600 ? 16 : 11,
+                        fontSize: isMobile ? 11 : 16,
                         fontWeight: FontWeight.w400),
                   ),
                   SizedBox(height: 50),
                   TextFormField(
                     controller: _userController,
                     decoration: InputDecoration(
-                      contentPadding: EdgeInsets.all(20),
+                      contentPadding: EdgeInsets.all(15.0),
                       labelText: 'Usuario',
                       labelStyle: TextStyle(color: Colors.red[900]),
                       border: OutlineInputBorder(
@@ -89,7 +86,7 @@ class _LoginState extends State<Login> {
                     controller: _passwordController,
                     obscureText: true,
                     decoration: InputDecoration(
-                      contentPadding: EdgeInsets.all(10.0),
+                      contentPadding: EdgeInsets.all(15.0),
                       labelText: 'Contraseña',
                       labelStyle: TextStyle(color: Colors.red[900]),
                       border: OutlineInputBorder(
@@ -112,14 +109,10 @@ class _LoginState extends State<Login> {
                         Navigator.pushNamed(context, '/options');
                       },
                       text: 'Iniciar sesión'),
-                  //SizedBox(height: 20),
                   Image.asset(
                     'assets/logos/logo1.png',
-                    // Ruta de la imagen en tu proyecto
-                    width: screenWidth > 600
-                        ? 100
-                        : 80, // Ajustar el tamaño de la imagen
-                    height: screenWidth > 600 ? 170 : 130,
+                    width: isMobile ? 80 : 100,
+                    height: isMobile ? 130 : 170,
                   ),
                 ],
               ),

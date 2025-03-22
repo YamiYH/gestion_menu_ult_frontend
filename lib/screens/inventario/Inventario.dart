@@ -1,0 +1,452 @@
+import 'package:flutter/material.dart';
+
+import '../../widgets/Button.dart';
+
+class GestionarAlmacen extends StatefulWidget {
+  const GestionarAlmacen({super.key});
+
+  @override
+  _GestionarAlmacenState createState() => _GestionarAlmacenState();
+}
+
+class _GestionarAlmacenState extends State<GestionarAlmacen> {
+  // Controladores para los campos de texto
+  final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _minQuantityController = TextEditingController();
+  final TextEditingController _maxQuantityController = TextEditingController();
+
+  // Variables para filtros
+  String? _selectedCategory;
+  List<Map<String, dynamic>> _filteredProducts = [];
+
+  // Lista de productos con categorías y cantidades (simulada)
+  final List<Map<String, dynamic>> _productos = [
+    {
+      'code': '001',
+      'name': 'Arroz',
+      'category': 'Carbohidratos',
+      'quantity': 150,
+      'unit': 'kg'
+    },
+    {
+      'code': '002',
+      'name': 'Res',
+      'category': 'Carnes',
+      'quantity': 80,
+      'unit': 'kg'
+    },
+    {
+      'code': '003',
+      'name': 'Cerdo',
+      'category': 'Carnes',
+      'quantity': 60,
+      'unit': 'kg'
+    },
+    {
+      'code': '004',
+      'name': 'Espagueti',
+      'category': 'Carbohidratos',
+      'quantity': 120,
+      'unit': 'Kg'
+    },
+    {
+      'code': '005',
+      'name': 'Plátano',
+      'category': 'Viandas',
+      'quantity': 200,
+      'unit': 'Lb'
+    },
+    {
+      'code': '006',
+      'name': 'Yuca',
+      'category': 'Viandas',
+      'quantity': 90,
+      'unit': 'Lb'
+    },
+    {
+      'code': '007',
+      'name': 'Pepino',
+      'category': 'Vegetales',
+      'quantity': 150,
+      'unit': 'Lb'
+    },
+    {
+      'code': '008',
+      'name': 'Tomate',
+      'category': 'Vegetales',
+      'quantity': 75,
+      'unit': 'Lb'
+    },
+    {
+      'code': '009',
+      'name': 'Lechuga',
+      'category': 'Vegetales',
+      'quantity': 40,
+      'unit': 'Lb'
+    },
+    {
+      'code': '010',
+      'name': 'Ají',
+      'category': 'Especias',
+      'quantity': 30,
+      'unit': 'Kg'
+    },
+    {
+      'code': '011',
+      'name': 'Cebolla',
+      'category': 'Vegetales',
+      'quantity': 100,
+      'unit': 'Lb'
+    },
+    {
+      'code': '012',
+      'name': 'Ajo',
+      'category': 'Especias',
+      'quantity': 25,
+      'unit': 'Lb'
+    },
+  ];
+
+  // Lista de categorías
+  final List<String> _categorias = [
+    'Seleccione una categoría', // Placeholder
+    'Carnes',
+    'Viandas',
+    'Vegetales',
+    'Especias',
+    'Carbohidratos',
+    'Refrescos'
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _filteredProducts = List.from(_productos); // Mostrar todos por defecto
+    _selectedCategory = _categorias.first; // Inicializar con el placeholder
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _minQuantityController.dispose();
+    _maxQuantityController.dispose();
+    super.dispose();
+  }
+
+  // Función para aplicar filtros
+  void _applyFilters() {
+    setState(() {
+      _filteredProducts = _productos.where((product) {
+        final nameMatch = product['name']
+            .toLowerCase()
+            .contains(_searchController.text.toLowerCase());
+
+        final categoryMatch = _selectedCategory == null ||
+            product['category'] == _selectedCategory;
+
+        final quantityMatch = _minQuantityController.text.isEmpty &&
+                _maxQuantityController.text.isEmpty
+            ? true
+            : (int.tryParse(_minQuantityController.text) ?? 0) <=
+                    product['quantity'] &&
+                product['quantity'] <=
+                    (int.tryParse(_maxQuantityController.text) ??
+                        double.infinity);
+
+        return nameMatch && categoryMatch && quantityMatch;
+      }).toList();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    bool isMobile = MediaQuery.of(context).size.width < 600;
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Inventario',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: isMobile ? 20 : 25,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.red[900],
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Filtros responsivos
+              _buildFilterSection(isMobile),
+              const SizedBox(height: 20),
+              // Encabezados de la lista
+              _buildHeaderRow(isMobile),
+              const Divider(),
+              // Lista de productos
+              _buildProductList(isMobile),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Sección de filtros (adaptativa)
+  Widget _buildFilterSection(bool isMobile) {
+    return isMobile
+        ? Column(
+            children: [
+              _buildSearchField(),
+              const SizedBox(height: 20),
+              _buildCategoryDropdown(),
+              const SizedBox(height: 20),
+              _buildQuantityRange(),
+              const SizedBox(height: 20),
+              Button(
+                  onPressed: () {
+                    _applyFilters();
+                  },
+                  text: 'BUSCAR',
+                  icon: Icons.search),
+            ],
+          )
+        : Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(width: 300, child: _buildSearchField()),
+              const SizedBox(width: 20),
+              SizedBox(width: 300, child: _buildCategoryDropdown()),
+              const SizedBox(width: 20),
+              SizedBox(width: 300, child: _buildQuantityRange()),
+              const SizedBox(width: 20),
+              Button(
+                  onPressed: () {
+                    _applyFilters();
+                  },
+                  text: 'BUSCAR',
+                  icon: Icons.search),
+            ],
+          );
+  }
+
+  // Campo de búsqueda por nombre
+  Widget _buildSearchField() {
+    return TextFormField(
+      controller: _searchController,
+      decoration: InputDecoration(
+        labelText: 'Buscar producto',
+        prefixIcon: Icon(Icons.search, color: Colors.red[900]),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+      onChanged: (value) => _applyFilters(),
+    );
+  }
+
+  // Dropdown de categorías
+  Widget _buildCategoryDropdown() {
+    return DropdownButtonFormField<String>(
+      value: _selectedCategory,
+      decoration: InputDecoration(
+        labelText: 'Categoría',
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        prefixIcon: Icon(Icons.category, color: Colors.red[900]),
+      ),
+      items: _categorias
+          .map((cat) => DropdownMenuItem(value: cat, child: Text(cat)))
+          .toList(),
+      onChanged: (value) {
+        setState(() {
+          _selectedCategory = value;
+          _applyFilters();
+        });
+      },
+    );
+  }
+
+  // Rango de cantidad
+  Widget _buildQuantityRange() {
+    return Row(
+      children: [
+        Expanded(
+          child: TextFormField(
+            controller: _minQuantityController,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              labelText: 'Cant. Mínima',
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+          ),
+        ),
+        const SizedBox(width: 5),
+        Icon(Icons.arrow_forward, color: Colors.red[900]),
+        const SizedBox(width: 5),
+        Expanded(
+          child: TextFormField(
+            controller: _maxQuantityController,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              labelText: 'Cant. Máxima',
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Encabezados de la tabla
+  Widget _buildHeaderRow(bool isMobile) {
+    return SingleChildScrollView(
+      child: Container(
+        color: Colors.grey[200],
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: isMobile
+            ? Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.25,
+                      child: Text('Producto', style: _headerStyle())),
+                  SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.25,
+                      child: Text('Cantidad', style: _headerStyle())),
+                  SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.2,
+                      child: Text('Unidad', style: _headerStyle())),
+                ],
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SizedBox(
+                      width: 100, child: Text('Código', style: _headerStyle())),
+                  SizedBox(
+                      width: 200,
+                      child: Text('Producto', style: _headerStyle())),
+                  SizedBox(
+                      width: 200,
+                      child: Text('Categoría', style: _headerStyle())),
+                  SizedBox(
+                      width: 100,
+                      child: Text('Cantidad', style: _headerStyle())),
+                  SizedBox(
+                      width: 100, child: Text('Unidad', style: _headerStyle())),
+                ],
+              ),
+      ),
+    );
+  }
+
+// Lista de productos con encabezados
+  Widget _buildProductList(bool isMobile) {
+    return Column(
+      children: [
+        if (_filteredProducts.isEmpty)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 20),
+            child: Center(child: Text('No hay productos disponibles')),
+          )
+        else
+          ..._filteredProducts.map((product) {
+            return SingleChildScrollView(
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                child: isMobile
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.25,
+                            child: Text(
+                              product['name'],
+                              style: TextStyle(fontSize: 14),
+                            ),
+                          ),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.25,
+                            child: Text(
+                              product['quantity'].toString(),
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: 14),
+                            ),
+                          ),
+                          SizedBox(width: 20),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.25,
+                            child: Text(
+                              product['unit'] ?? 'N/A',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: 14),
+                            ),
+                          ),
+                        ],
+                      )
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          SizedBox(
+                            width: 100,
+                            child: Text(
+                              product['code'] ?? 'N/A',
+                              style: TextStyle(fontSize: 14),
+                            ),
+                          ),
+                          SizedBox(width: 20),
+                          SizedBox(
+                            width: 200,
+                            child: Text(
+                              product['name'],
+                              style: TextStyle(fontSize: 14),
+                            ),
+                          ),
+                          SizedBox(width: 20),
+                          SizedBox(
+                            width: 200,
+                            child: Text(
+                              product['category'],
+                              style: TextStyle(fontSize: 14),
+                            ),
+                          ),
+                          SizedBox(width: 20),
+                          SizedBox(
+                            width: 100,
+                            child: Text(
+                              product['quantity'].toString(),
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: 14),
+                            ),
+                          ),
+                          SizedBox(width: 20),
+                          SizedBox(
+                            width: 100,
+                            child: Text(
+                              product['unit'] ?? 'N/A',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: 14),
+                            ),
+                          ),
+                        ],
+                      ),
+              ),
+            );
+          }).toList(),
+      ],
+    );
+  }
+
+  // Estilo para encabezados
+  TextStyle _headerStyle() {
+    bool isMobile = MediaQuery.of(context).size.width < 600;
+    return TextStyle(
+        fontWeight: FontWeight.bold,
+        color: Colors.red[900],
+        fontSize: isMobile ? 13 : 16);
+  }
+}

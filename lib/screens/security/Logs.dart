@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/controllers/logs_controller.dart';
 import 'package:intl/intl.dart' show DateFormat;
 
-import '../../widgets/button.dart';
+import '../../widgets/Button.dart';
 
 class LogsScreen extends StatefulWidget {
   const LogsScreen({super.key});
@@ -103,10 +103,10 @@ class _LogsScreenState extends State<LogsScreen> {
               DropdownButtonFormField<String>(
                 value: _controller.selectedTypeFilter,
                 decoration: InputDecoration(
-                  labelText: 'Buscar por Actividad',
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                ),
+                    labelText: 'Actividad',
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    prefixIcon: Icon(Icons.login, color: Colors.red[900])),
                 onChanged: (newValue) {
                   setState(() {
                     _controller.selectedTypeFilter = newValue;
@@ -242,7 +242,8 @@ class _LogsScreenState extends State<LogsScreen> {
                 child: DropdownButtonFormField<String>(
                   value: _controller.selectedTypeFilter,
                   decoration: InputDecoration(
-                    labelText: 'Buscar por Actividad',
+                    labelText: 'Actividad',
+                    prefixIcon: Icon(Icons.login, color: Colors.red[900]),
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10)),
                   ),

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:gestion_menu_ult_frontend/screens/common/Modulos.dart';
+import 'package:gestion_menu_ult_frontend/screens/ticket/Gestionar_Ticket.dart';
 
-import '../../widgets/card_widgets.dart';
-import '../../widgets/custom_appbar.dart'; // Importar los widgets de las tarjetas
+import '../../widgets/Build_Card.dart';
+import '../../widgets/Custom_Appbar.dart';
+import '../admin/Admin.dart'; // Importar los widgets de las tarjetas
 
 class Options extends StatelessWidget {
   @override
@@ -21,33 +24,80 @@ class Options extends StatelessWidget {
       appBar: CustomAppBar(
         userName: userName,
         notifications: notifications,
-        text: '¿Qué deseas hacer?',
       ),
-      body: Center(
+      body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(10.0),
+          padding: EdgeInsets.all(isMobile ? 20 : 60),
           child: isMobile
-              ? Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 20),
-                    ReservarTicketCard(screenWidth: screenWidth),
-                    GestionarMenuCard(screenWidth: screenWidth),
-                  ],
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: _buildWidgetList(context),
+                  ),
                 )
-              : Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Flexible(
-                        child: ReservarTicketCard(screenWidth: screenWidth)),
-                    SizedBox(width: 100),
-                    Flexible(
-                        child: GestionarMenuCard(screenWidth: screenWidth)),
-                  ],
+              : GridView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    crossAxisSpacing: 40,
+                    mainAxisSpacing: 40,
+                    childAspectRatio: 2.5,
+                  ),
+                  itemCount: _buildWidgetList(context).length,
+                  itemBuilder: (context, index) {
+                    return _buildWidgetList(context).elementAt(index);
+                  },
                 ),
         ),
       ),
     );
+  }
+
+  List<Widget> _buildWidgetList(BuildContext context) {
+    return [
+      Container(
+        padding: EdgeInsets.all(5),
+        child: BuildCard(
+            title: 'Administración',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AdminScreen(),
+                ),
+              );
+            },
+            icon: Icons.admin_panel_settings),
+      ),
+      Container(
+        padding: EdgeInsets.all(5),
+        child: BuildCard(
+            icon: Icons.qr_code,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => GestionarTicket(),
+                ),
+              );
+            },
+            title: 'Tickets'),
+      ),
+      Container(
+        padding: EdgeInsets.all(5),
+        child: BuildCard(
+            title: 'Menú',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ModulosScreen(),
+                ),
+              );
+            },
+            icon: Icons.restaurant_menu),
+      ),
+    ];
   }
 }

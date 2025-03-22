@@ -3,13 +3,11 @@ import 'package:flutter/material.dart';
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String userName; // Nombre del usuario logeado
   final List<String> notifications; // Lista de notificaciones
-  final String text;
 
   const CustomAppBar({
     Key? key,
     required this.userName,
     required this.notifications,
-    required this.text,
   }) : super(key: key);
 
   @override
@@ -38,11 +36,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   width: isMobile ? 80 : 150,
                   child: Text(
                     userName,
-                    overflow: TextOverflow.ellipsis,
+                    overflow: TextOverflow.clip,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: isMobile ? 13 : 16,
-                      //fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
@@ -50,18 +47,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
           ),
           //SizedBox(height: screenWidth * 0.15),
-          Expanded(
-            child: Center(
-              child: Text(
-                text,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: isMobile ? FontWeight.bold : FontWeight.normal,
-                  fontSize: isMobile ? 16 : 25,
-                ),
-              ),
-            ),
-          ),
 
           SizedBox(width: isMobile ? 10 : 60),
 

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:gestion_menu_ult_frontend/widgets/small_button.dart';
+import 'package:gestion_menu_ult_frontend/widgets/Small_Button.dart';
 import 'package:intl/intl.dart' show DateFormat;
 
-import '../../widgets/button.dart'; // Para formatear fechas
+import '../../widgets/Button.dart'; // Para formatear fechas
 
 class GestionarTicket extends StatefulWidget {
   @override
@@ -11,10 +11,10 @@ class GestionarTicket extends StatefulWidget {
 
 class _GestionarTicketState extends State<GestionarTicket> {
   // Variables para los filtros
-  String selectedCafeteria = 'Lenin'; // Comedor seleccionado
-  String selectedMealType = 'Desayuno'; // Tipo de comida seleccionado
-  DateTime? startDate; // Fecha inicial
-  DateTime? endDate; // Fecha final
+  String selectedCafeteria = 'Lenin';
+  String selectedMealType = 'Desayuno';
+  DateTime? startDate;
+  DateTime? endDate;
 
   // Lista simulada de menús disponibles
   List<Map<String, dynamic>> availableMenus = [];
@@ -245,12 +245,24 @@ class _GestionarTicketState extends State<GestionarTicket> {
                                 ),
                                 //SizedBox(height: 10),
                                 Align(
-                                    alignment: Alignment.center,
-                                    child: SmallButton(
-                                        onPressed: () {
-                                          _reserveMenu(menu);
-                                        },
-                                        text: 'Reservar')),
+                                  alignment: Alignment.center,
+                                  child: SmallButton(
+                                    onPressed: () {
+                                      if (DateTime.now().hour >= 13) {
+                                        // 13 = 1:00 PM
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                              content: Text(
+                                                  'Reservas disponibles solo hasta la 1:00 PM')),
+                                        );
+                                      } else {
+                                        _reserveMenu(menu); // Lógica de reserva
+                                      }
+                                    },
+                                    text: 'Reservar',
+                                  ),
+                                ),
                                 SizedBox(height: 15),
                               ],
                             ),
@@ -391,12 +403,12 @@ class _GestionarTicketState extends State<GestionarTicket> {
     final now = DateTime.now();
     final reservationDateTime = DateFormat('yyyy-MM-dd').parse(reservationDate);
 
-    // Obtener la fecha límite para cancelar antes de las 4:00 PM del dia de reserva
+    // Obtener la fecha límite para cancelar antes de la 1:00 PM del dia de reserva
     final cancelDeadline = DateTime(
       reservationDateTime.year,
       reservationDateTime.month,
       reservationDateTime.day,
-      16, // 4:00 PM
+      13, // 1:00 PM
     );
 
     // Permitir cancelar solo si la hora actual es antes de la fecha límite
