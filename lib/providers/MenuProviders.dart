@@ -1,7 +1,7 @@
 // lib/providers/menu_provider.dart
 import 'package:flutter/material.dart';
 
-import '../models/menu_propuesta.dart';
+import '../models/MenuPropuesta.dart';
 
 class MenuProvider with ChangeNotifier {
   List<MenuPropuesta> _propuestas = [];

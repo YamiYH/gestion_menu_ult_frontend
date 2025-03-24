@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gestion_menu_ult_frontend/providers/menu_providers.dart';
+import 'package:gestion_menu_ult_frontend/providers/MenuProviders.dart';
 import 'package:gestion_menu_ult_frontend/routes/routes.dart';
 import 'package:google_fonts/google_fonts.dart' show GoogleFonts;
 import 'package:provider/provider.dart';
@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.red,
         scaffoldBackgroundColor: Colors.white,
       ),
-      initialRoute: AppRoutes.login,
+      initialRoute: AppRoutes.users,
       routes: AppRoutes.getRoutes(),
     );
   }

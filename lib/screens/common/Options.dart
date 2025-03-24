@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/screens/common/Modulos.dart';
 import 'package:gestion_menu_ult_frontend/screens/ticket/Gestionar_Ticket.dart';
 
-import '../../widgets/Build_Card.dart';
-import '../../widgets/Custom_Appbar.dart';
+import '../../widgets/BuildCard.dart';
+import '../../widgets/CustomAppbar.dart';
 import '../admin/Admin.dart'; // Importar los widgets de las tarjetas
 
 class Options extends StatelessWidget {

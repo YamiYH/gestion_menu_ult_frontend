@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gestion_menu_ult_frontend/widgets/Build_Card.dart';
+import 'package:gestion_menu_ult_frontend/widgets/BuildCard.dart';
 
 import '../inventario/Inventario.dart';
 import '../security/Logs.dart';
@@ -7,8 +7,7 @@ import '../security/Logs.dart';
 class ModulosScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    bool isMobile = screenWidth < 600;
+    bool isMobile = MediaQuery.of(context).size.width < 600;
 
     return Scaffold(
       appBar: AppBar(

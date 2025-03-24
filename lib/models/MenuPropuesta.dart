@@ -1,4 +1,4 @@
-// lib/models/menu_propuesta.dart
+// lib/models/MenuPropuesta.dart
 class MenuPropuesta {
   String tipo = ''; // 'estudiante' o 'profesor'
   Map<String, List<String>> comidas = Map(); // Desayuno, Almuerzo, Comida

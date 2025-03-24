@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gestion_menu_ult_frontend/widgets/Build_Card.dart';
+import 'package:gestion_menu_ult_frontend/widgets/BuildCard.dart';
 
 import '../security/Logs.dart';
 import 'Users.dart';

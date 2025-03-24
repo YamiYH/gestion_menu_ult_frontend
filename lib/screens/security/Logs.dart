@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gestion_menu_ult_frontend/controllers/logs_controller.dart';
 import 'package:intl/intl.dart' show DateFormat;
 
+import '../../controllers/LogsController.dart';
 import '../../widgets/Button.dart';
 
 class LogsScreen extends StatefulWidget {

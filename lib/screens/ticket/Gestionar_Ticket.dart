@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:gestion_menu_ult_frontend/widgets/Small_Button.dart';
 import 'package:intl/intl.dart' show DateFormat;
 
-import '../../widgets/Button.dart'; // Para formatear fechas
+import '../../widgets/Button.dart';
+import '../../widgets/SmallButton.dart'; // Para formatear fechas
 
 class GestionarTicket extends StatefulWidget {
   @override
