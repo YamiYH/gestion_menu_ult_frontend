@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 import 'package:intl/intl.dart' show DateFormat;
 
 import '../../widgets/Button.dart';
@@ -96,229 +97,222 @@ class _GestionarTicketState extends State<GestionarTicket> {
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    bool isMobile = screenWidth < 600;
+    bool isMobile = MediaQuery.of(context).size.width < 600;
 
     return DefaultTabController(
-      length: 2, // Número de pestañas
-      child: Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          iconTheme: IconThemeData(color: Colors.white),
-          title: Text(
-            'Gestión de Tickets',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: isMobile ? FontWeight.bold : FontWeight.normal,
-              fontSize: isMobile ? 20 : 25,
-            ),
-          ),
-          backgroundColor: Colors.red[900],
-          bottom: TabBar(
-            indicator: BoxDecoration(
-              color: Colors.white,
-            ),
-            labelStyle: TextStyle(
-              fontSize: isMobile ? 15 : 20,
-              fontWeight: FontWeight.bold,
-            ),
-            labelColor: Colors.red[900],
-            unselectedLabelColor: Colors.white,
-            unselectedLabelStyle: TextStyle(fontWeight: FontWeight.normal),
-            tabs: [
-              Tab(
-                child: Container(
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    'Reservar Ticket',
-                  ),
-                ),
+        length: 2, // Número de pestañas
+        child: Scaffold(
+          appBar: CustomAppBar(
+            title: 'Gestión de Tickets',
+            bottom: TabBar(
+              indicator: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(10),
+                    topRight: Radius.circular(10)),
+                color: Colors.white,
               ),
-              Tab(
-                child: Container(
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text('Mis Tickets'),
-                ),
+              labelStyle: TextStyle(
+                fontSize: isMobile ? 15 : 20,
+                fontWeight: FontWeight.bold,
               ),
-            ],
-          ),
-        ),
-        body: TabBarView(
-          children: [
-            // Pestaña "Reservar Ticket"
-            SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Fila superior con opciones (responsive)
-                    isMobile
-                        ? Column(children: _buildOptions(context, isMobile))
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: _buildOptions(context, isMobile),
-                          ),
-                    SizedBox(height: isMobile ? 10 : 50),
-
-                    // Lista de menús disponibles
-                    Text(
-                      'Menús Disponibles:',
-                      style: TextStyle(
-                          fontSize: isMobile ? 15 : 18,
-                          fontWeight: FontWeight.bold),
+              labelColor: Colors.red[900],
+              unselectedLabelColor: Colors.white,
+              unselectedLabelStyle: TextStyle(fontWeight: FontWeight.normal),
+              tabs: [
+                Tab(
+                  child: Container(
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    SizedBox(height: 10),
-                    if (availableMenus.isEmpty)
-                      Center(child: Text('No hay menús disponibles'))
-                    else
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: availableMenus.length,
-                        itemBuilder: (context, index) {
-                          final menu = availableMenus[index];
-                          return Card(
-                            margin: EdgeInsets.symmetric(vertical: 5),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                ListTile(
+                    child: Text(
+                      'Reservar Ticket',
+                    ),
+                  ),
+                ),
+                Tab(
+                  child: Container(
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text('Mis Tickets'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          body: TabBarView(
+            children: [
+              // Pestaña "Reservar Ticket"
+              SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Fila superior con opciones (responsive)
+                      isMobile
+                          ? Column(children: _buildOptions(context, isMobile))
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: _buildOptions(context, isMobile),
+                            ),
+                      SizedBox(height: isMobile ? 10 : 50),
+
+                      // Lista de menús disponibles
+                      Text(
+                        'Menús Disponibles:',
+                        style: TextStyle(
+                            fontSize: isMobile ? 15 : 18,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 10),
+                      if (availableMenus.isEmpty)
+                        Center(child: Text('No hay menús disponibles'))
+                      else
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: availableMenus.length,
+                          itemBuilder: (context, index) {
+                            final menu = availableMenus[index];
+                            return Card(
+                              margin: EdgeInsets.symmetric(vertical: 5),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  ListTile(
+                                    title: Text(
+                                      menu['menu'],
+                                      style: TextStyle(
+                                          fontSize: isMobile ? 14 : 17,
+                                          color: Colors.red[900],
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    subtitle: Text(
+                                      '${menu['cafeteria']} - ${menu['mealType']} (${menu['date']})',
+                                      style: TextStyle(
+                                          fontSize: isMobile ? 13 : 16,
+                                          fontStyle: FontStyle.italic),
+                                    ),
+                                  ),
+                                  Divider(),
+                                  //SizedBox(height: 10),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        SizedBox(height: 10),
+                                        Text(
+                                          'Ingredientes:',
+                                          style: TextStyle(
+                                              fontSize: isMobile ? 14 : 17,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        SizedBox(height: 10),
+                                        ...menu['ingredients']
+                                            .map((ingredient) {
+                                          return CheckboxListTile(
+                                            title: Text(
+                                              ingredient['name'],
+                                              style: TextStyle(
+                                                  fontSize: isMobile ? 13 : 16),
+                                            ),
+                                            value: ingredient['selected'],
+                                            activeColor: Colors.red,
+                                            onChanged: (bool? value) {
+                                              setState(() {
+                                                ingredient['selected'] = value!;
+                                              });
+                                            },
+                                          );
+                                        }).toList(),
+                                      ],
+                                    ),
+                                  ),
+                                  //SizedBox(height: 10),
+                                  Align(
+                                    alignment: Alignment.center,
+                                    child: SmallButton(
+                                      onPressed: () {
+                                        if (DateTime.now().hour >= 13) {
+                                          // 13 = 1:00 PM
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                                content: Text(
+                                                    'Reservas disponibles solo hasta la 1:00 PM')),
+                                          );
+                                        } else {
+                                          _reserveMenu(
+                                              menu); // Lógica de reserva
+                                        }
+                                      },
+                                      text: 'Reservar',
+                                    ),
+                                  ),
+                                  SizedBox(height: 15),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Pestaña "Mis Tickets"
+              SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 10),
+                      if (myTickets.isEmpty)
+                        Center(child: Text('No tienes tickets'))
+                      else
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: myTickets.length,
+                          itemBuilder: (context, index) {
+                            final ticket = myTickets[index];
+                            return Card(
+                              margin: EdgeInsets.symmetric(vertical: 5),
+                              child: ListTile(
                                   title: Text(
-                                    menu['menu'],
+                                    ticket['menu'],
                                     style: TextStyle(
-                                        fontSize: isMobile ? 14 : 17,
                                         color: Colors.red[900],
                                         fontWeight: FontWeight.bold),
                                   ),
                                   subtitle: Text(
-                                    '${menu['cafeteria']} - ${menu['mealType']} (${menu['date']})',
-                                    style: TextStyle(
-                                        fontSize: isMobile ? 13 : 16,
-                                        fontStyle: FontStyle.italic),
-                                  ),
-                                ),
-                                Divider(),
-                                //SizedBox(height: 10),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 16.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      SizedBox(height: 10),
-                                      Text(
-                                        'Ingredientes:',
-                                        style: TextStyle(
-                                            fontSize: isMobile ? 14 : 17,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      SizedBox(height: 10),
-                                      ...menu['ingredients'].map((ingredient) {
-                                        return CheckboxListTile(
-                                          title: Text(
-                                            ingredient['name'],
-                                            style: TextStyle(
-                                                fontSize: isMobile ? 13 : 16),
-                                          ),
-                                          value: ingredient['selected'],
-                                          activeColor: Colors.red,
-                                          onChanged: (bool? value) {
-                                            setState(() {
-                                              ingredient['selected'] = value!;
-                                            });
-                                          },
-                                        );
-                                      }).toList(),
-                                    ],
-                                  ),
-                                ),
-                                //SizedBox(height: 10),
-                                Align(
-                                  alignment: Alignment.center,
-                                  child: SmallButton(
+                                      '${ticket['cafeteria']} - ${ticket['mealType']} (${ticket['date']})'),
+                                  trailing: SmallButton(
                                     onPressed: () {
-                                      if (DateTime.now().hour >= 13) {
-                                        // 13 = 1:00 PM
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          SnackBar(
-                                              content: Text(
-                                                  'Reservas disponibles solo hasta la 1:00 PM')),
-                                        );
-                                      } else {
-                                        _reserveMenu(menu); // Lógica de reserva
-                                      }
+                                      _showTicketDetails(context, ticket);
                                     },
-                                    text: 'Reservar',
-                                  ),
-                                ),
-                                SizedBox(height: 15),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                  ],
+                                    text: 'Detalles',
+                                  )),
+                            );
+                          },
+                        ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-
-            // Pestaña "Mis Tickets"
-            SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 10),
-                    if (myTickets.isEmpty)
-                      Center(child: Text('No tienes tickets'))
-                    else
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: myTickets.length,
-                        itemBuilder: (context, index) {
-                          final ticket = myTickets[index];
-                          return Card(
-                            margin: EdgeInsets.symmetric(vertical: 5),
-                            child: ListTile(
-                                title: Text(
-                                  ticket['menu'],
-                                  style: TextStyle(
-                                      color: Colors.red[900],
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                subtitle: Text(
-                                    '${ticket['cafeteria']} - ${ticket['mealType']} (${ticket['date']})'),
-                                trailing: SmallButton(
-                                  onPressed: () {
-                                    _showTicketDetails(context, ticket);
-                                  },
-                                  text: 'Detalles',
-                                )),
-                          );
-                        },
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+            ],
+          ),
+        ));
   }
 
   // Función para mostrar los detalles del ticket

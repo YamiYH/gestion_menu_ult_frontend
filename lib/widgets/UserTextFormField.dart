@@ -24,7 +24,7 @@ class _UsertextformfieldState extends State<Usertextformfield> {
       child: TextFormField(
         decoration: InputDecoration(
           labelText: widget.text,
-          border: OutlineInputBorder(),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         ),
         onChanged: (value) => widget.onChanged,
       ),

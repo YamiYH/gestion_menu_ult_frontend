@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gestion_menu_ult_frontend/screens/common/Modulos.dart';
+import 'package:gestion_menu_ult_frontend/screens/menu/ModulosMenu.dart';
 import 'package:gestion_menu_ult_frontend/screens/ticket/Gestionar_Ticket.dart';
 
 import '../../widgets/BuildCard.dart';
@@ -12,19 +12,8 @@ class Options extends StatelessWidget {
     double screenWidth = MediaQuery.of(context).size.width;
     bool isMobile = screenWidth < 600;
 
-    // Datos simulados para el usuario y las notificaciones
-    final String userName = 'Yamilet Yero';
-    final List<String> notifications = [
-      'Nueva actualización disponible',
-      'Tienes un nuevo mensaje',
-      'Recordatorio: Reunión a las 3 PM',
-    ];
-
     return Scaffold(
-      appBar: CustomAppBar(
-        userName: userName,
-        notifications: notifications,
-      ),
+      appBar: CustomAppBar(title: ''),
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(isMobile ? 20 : 60),
@@ -73,6 +62,20 @@ class Options extends StatelessWidget {
       Container(
         padding: EdgeInsets.all(5),
         child: BuildCard(
+            title: 'Menú',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ModulosMenu(),
+                ),
+              );
+            },
+            icon: Icons.restaurant_menu),
+      ),
+      Container(
+        padding: EdgeInsets.all(5),
+        child: BuildCard(
             icon: Icons.qr_code,
             onTap: () {
               Navigator.push(
@@ -83,20 +86,6 @@ class Options extends StatelessWidget {
               );
             },
             title: 'Tickets'),
-      ),
-      Container(
-        padding: EdgeInsets.all(5),
-        child: BuildCard(
-            title: 'Menú',
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ModulosScreen(),
-                ),
-              );
-            },
-            icon: Icons.restaurant_menu),
       ),
     ];
   }

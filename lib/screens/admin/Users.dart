@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/widgets/AddButton.dart';
+import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 
 import '../../widgets/Button.dart';
 import '../../widgets/FilterButton.dart';
 import '../../widgets/UserTextFormField.dart';
 
-class UsersScreen extends StatefulWidget {
-  const UsersScreen({super.key});
+class Users extends StatefulWidget {
+  const Users({super.key});
 
   @override
-  _UsersScreenState createState() => _UsersScreenState();
+  _UsersState createState() => _UsersState();
 }
 
-class _UsersScreenState extends State<UsersScreen> {
+class _UsersState extends State<Users> {
   String selectedStatus = 'Todos'; // Estado seleccionado
   String selectedUserType = 'Todos'; // Tipo de usuario seleccionado
 
@@ -52,6 +53,82 @@ class _UsersScreenState extends State<UsersScreen> {
   List<Map<String, dynamic>> _filteredUsers = [];
   List<int> _selectedUserIds = [];
   final TextEditingController _searchController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    bool isMobile = MediaQuery.of(context).size.width < 600;
+
+    return Scaffold(
+      appBar: CustomAppBar(title: 'Usuarios'),
+      body: Column(
+        children: [
+          // Barra de búsqueda
+          Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: isMobile
+                  ? Column(children: [
+                      SizedBox(height: 10, width: 10),
+                      Usertextformfield(
+                          text: 'Usuario', onChanged: _applySearch),
+                      SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Status(),
+                          SizedBox(height: 20, width: 20),
+                          Type(),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          FilterButton(
+                            text: 'Filtrar',
+                            onPressed: _applySearchWrapper,
+                            icon: Icons.filter_alt,
+                          ),
+                          SizedBox(width: 10),
+                          AddButton(onPressed: () {}, text: 'Agregar usuario')
+                        ],
+                      ),
+                      SizedBox(height: 10),
+                    ])
+                  : Row(
+                      children: _buildTextFormField(),
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    )),
+
+          // Encabezados de la tabla
+          isMobile ? _buildHeaderMobile() : _buildHeaderRow(),
+
+          // Lista de usuarios
+          SizedBox(height: 10),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _filteredUsers.length,
+              itemBuilder: (context, index) {
+                final user = _filteredUsers[index];
+                return Column(
+                  children: [
+                    SingleChildScrollView(
+                        child: isMobile
+                            ? _buildUserRowMobile(user)
+                            : _buildUserRow(user)),
+                    Divider()
+                  ],
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -121,100 +198,19 @@ class _UsersScreenState extends State<UsersScreen> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    bool isMobile = MediaQuery.of(context).size.width < 600;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Usuarios',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: isMobile ? 20 : 25,
-            )),
-        centerTitle: true,
-        backgroundColor: Colors.red[900],
-        iconTheme: IconThemeData(color: Colors.white),
-      ),
-      body: Column(
-        children: [
-          // Barra de búsqueda
-          Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: isMobile
-                  ? Column(children: [
-                      SizedBox(height: 10, width: 10),
-                      Usertextformfield(
-                          text: 'Usuario', onChanged: _applySearch),
-                      SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Status(),
-                          SizedBox(height: 20, width: 20),
-                          Type(),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          FilterButton(
-                            text: 'Filtrar',
-                            onPressed: _applySearchWrapper,
-                            icon: Icons.filter_alt,
-                          ),
-                          SizedBox(width: 10),
-                          AddButton(onPressed: () {}, text: 'Agregar usuario')
-                        ],
-                      ),
-                      SizedBox(height: 10),
-                    ])
-                  : Row(
-                      children: _buildTextFormField(),
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    )),
-
-          // Encabezados de la tabla
-          isMobile ? _buildHeaderMobile() : _buildHeaderRow(),
-          const Divider(),
-          // Lista de usuarios
-
-          Expanded(
-            child: ListView.builder(
-              itemCount: _filteredUsers.length,
-              itemBuilder: (context, index) {
-                final user = _filteredUsers[index];
-                return SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: isMobile
-                        ? _buildUserRowMobile(user)
-                        : _buildUserRow(user));
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   List<Widget> _buildTextFormField() {
     bool isMobile = MediaQuery.of(context).size.width < 600;
 
     return [
       SizedBox(height: isMobile ? 10 : 15, width: isMobile ? 10 : 5),
       Usertextformfield(text: 'Usuario', onChanged: _applySearch),
-      SizedBox(height: 10, width: 10),
+      SizedBox(height: 10, width: isMobile ? 10 : 0),
       Usertextformfield(text: 'Nombre', onChanged: _applySearch),
-      SizedBox(height: 10, width: 10),
+      SizedBox(height: 10, width: isMobile ? 10 : 0),
       Usertextformfield(text: 'Apellido', onChanged: _applySearch),
-      SizedBox(height: 10, width: 10),
+      SizedBox(height: 10, width: isMobile ? 10 : 0),
       Usertextformfield(text: 'Correo', onChanged: _applySearch),
-      SizedBox(height: 10, width: 10),
+      SizedBox(height: 10, width: isMobile ? 10 : 0),
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -224,12 +220,15 @@ class _UsersScreenState extends State<UsersScreen> {
           Type(),
         ],
       ),
-      SizedBox(height: 10, width: 10),
+      SizedBox(height: 10, width: isMobile ? 10 : 0),
       Button(
           text: 'Filtrar',
           onPressed: _applySearchWrapper,
           icon: Icons.filter_alt),
-      SizedBox(height: 20),
+      SizedBox(
+        height: 20,
+        width: isMobile ? 10 : 0,
+      ),
     ];
   }
 
@@ -314,43 +313,42 @@ class _UsersScreenState extends State<UsersScreen> {
 
   // Encabezados responsivos
   Widget _buildHeaderRow() {
-    bool isMobile = MediaQuery.of(context).size.width < 600;
     return Container(
       color: Colors.grey[200],
       padding: EdgeInsets.all(10),
       child: Row(
         children: [
           SizedBox(
-            width: 20,
+            width: MediaQuery.of(context).size.width * 0.02,
           ),
           SizedBox(
             child: Text('Usuario', style: _headerStyle()),
-            width: isMobile ? 50 : 200,
+            width: MediaQuery.of(context).size.width * 0.15,
             height: 25,
           ),
           SizedBox(
             child: Text('Nombre', style: _headerStyle()),
-            width: isMobile ? 50 : 250,
+            width: MediaQuery.of(context).size.width * 0.15,
             height: 25,
           ),
           SizedBox(
             child: Text('Apellidos', style: _headerStyle()),
-            width: isMobile ? 50 : 250,
+            width: MediaQuery.of(context).size.width * 0.15,
             height: 25,
           ),
           SizedBox(
             child: Text('Correo', style: _headerStyle()),
-            width: isMobile ? 50 : 250,
+            width: MediaQuery.of(context).size.width * 0.15,
             height: 25,
           ),
           SizedBox(
             child: Text('Estado', style: _headerStyle()),
-            width: isMobile ? 50 : 200,
+            width: MediaQuery.of(context).size.width * 0.1,
             height: 25,
           ),
           SizedBox(
             child: Text('Tipo', style: _headerStyle()),
-            width: isMobile ? 50 : 120,
+            width: MediaQuery.of(context).size.width * 0.1,
             height: 25,
           ),
           AddButton(onPressed: () {}, text: 'Agregar usuario')
@@ -367,27 +365,27 @@ class _UsersScreenState extends State<UsersScreen> {
       child: Row(
         children: [
           SizedBox(
-            width: 20,
+            width: MediaQuery.of(context).size.width * 0.04,
           ),
           SizedBox(
             child: Text('Usuario', style: _headerStyle()),
-            width: 120,
-            height: 20,
+            width: MediaQuery.of(context).size.width * 0.25,
+            height: 25,
           ),
           SizedBox(
             child: Text('Estado', style: _headerStyle()),
-            width: 90,
-            height: 20,
+            width: MediaQuery.of(context).size.width * 0.25,
+            height: 25,
           ),
           SizedBox(
             child: Text('Tipo', style: _headerStyle()),
-            width: 60,
-            height: 20,
+            width: MediaQuery.of(context).size.width * 0.20,
+            height: 25,
           ),
           SizedBox(
             child: Text('Acciones', style: _headerStyle()),
-            width: 80,
-            height: 20,
+            width: MediaQuery.of(context).size.width * 0.20,
+            height: 25,
           ),
         ],
       ),
@@ -397,128 +395,116 @@ class _UsersScreenState extends State<UsersScreen> {
   Widget _buildUserRowMobile(Map<String, dynamic> user) {
     return Column(
       children: [
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              SizedBox(
-                child: Text(user['username']),
-                width: 120,
-                height: 20,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            SizedBox(width: MediaQuery.of(context).size.width * 0.03),
+            SizedBox(
+              child: Text(user['username']),
+              width: MediaQuery.of(context).size.width * 0.25,
+              height: 20,
+            ),
+            SizedBox(
+              child: Text(user['status']),
+              width: MediaQuery.of(context).size.width * 0.25,
+              height: 20,
+            ),
+            SizedBox(
+              child: Text(user['type']),
+              width: MediaQuery.of(context).size.width * 0.20,
+              height: 20,
+            ),
+            SizedBox(width: 3),
+            SizedBox(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.edit, color: Colors.grey.shade500),
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/edit-user/${user['id']}');
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.delete, color: Colors.red),
+                    onPressed: () {
+                      setState(() {
+                        _users.removeWhere((u) => u['id'] == user['id']);
+                        _filteredUsers = List.from(_users);
+                      });
+                    },
+                  ),
+                ],
               ),
-              SizedBox(
-                child: Text(user['status']),
-                width: 90,
-                height: 20,
-              ),
-              SizedBox(
-                child: Text(user['type']),
-                width: 60,
-                height: 20,
-              ),
-              SizedBox(width: 3),
-              SizedBox(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.edit, color: Colors.grey.shade500),
-                      onPressed: () {
-                        Navigator.pushNamed(
-                            context, '/edit-user/${user['id']}');
-                      },
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.delete, color: Colors.red),
-                      onPressed: () {
-                        setState(() {
-                          _users.removeWhere((u) => u['id'] == user['id']);
-                          _filteredUsers = List.from(_users);
-                        });
-                      },
-                    ),
-                    const Divider(),
-                  ],
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
-        const Divider(),
       ],
     );
   }
 
   // Fila de usuario
   Widget _buildUserRow(Map<String, dynamic> user) {
-    bool isMobile = MediaQuery.of(context).size.width < 600;
-    return Column(
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        SizedBox(width: MediaQuery.of(context).size.width * 0.02),
+        SizedBox(
+          child: Text(user['username']),
+          width: MediaQuery.of(context).size.width * 0.15,
+          height: 20,
+        ),
+        SizedBox(
+          child: Text(user['name']),
+          width: MediaQuery.of(context).size.width * 0.15,
+          height: 20,
+        ),
+        SizedBox(
+          child: Text(user['lastname']),
+          width: MediaQuery.of(context).size.width * 0.15,
+          height: 20,
+        ),
+        SizedBox(
+          child: Text(user['email']),
+          width: MediaQuery.of(context).size.width * 0.15,
+          height: 20,
+        ),
+        SizedBox(
+          child: Text(user['status']),
+          width: MediaQuery.of(context).size.width * 0.1,
+          height: 20,
+        ),
+        SizedBox(
+          child: Text(user['type']),
+          width: MediaQuery.of(context).size.width * 0.1,
+          height: 20,
+        ),
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.15,
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SizedBox(
-                child: Text(user['username']),
-                width: isMobile ? 50 : 200,
-                height: isMobile ? 10 : 30,
+              IconButton(
+                icon: Icon(Icons.edit, color: Colors.grey.shade500),
+                onPressed: () {
+                  // Lógica para editar usuario
+                  Navigator.pushNamed(context, '/edit-user/${user['id']}');
+                },
               ),
-              SizedBox(
-                child: Text(user['name']),
-                width: isMobile ? 50 : 250,
-                height: isMobile ? 10 : 30,
-              ),
-              SizedBox(
-                child: Text(user['lastname']),
-                width: isMobile ? 50 : 250,
-                height: isMobile ? 10 : 30,
-              ),
-              SizedBox(
-                child: Text(user['email']),
-                width: isMobile ? 50 : 250,
-                height: isMobile ? 10 : 30,
-              ),
-              SizedBox(
-                child: Text(user['status']),
-                width: isMobile ? 50 : 200,
-                height: isMobile ? 10 : 30,
-              ),
-              SizedBox(
-                child: Text(user['type']),
-                width: isMobile ? 50 : 200,
-                height: isMobile ? 10 : 30,
-              ),
-              SizedBox(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.edit, color: Colors.grey.shade500),
-                      onPressed: () {
-                        // Lógica para editar usuario
-                        Navigator.pushNamed(
-                            context, '/edit-user/${user['id']}');
-                      },
-                    ),
-                    SizedBox(width: 15),
-                    IconButton(
-                      icon: Icon(Icons.delete, color: Colors.red),
-                      onPressed: () {
-                        setState(() {
-                          _users.removeWhere((u) => u['id'] == user['id']);
-                          _filteredUsers = List.from(_users);
-                        });
-                      },
-                    ),
-                  ],
-                ),
+              SizedBox(width: 15),
+              IconButton(
+                icon: Icon(Icons.delete, color: Colors.red),
+                onPressed: () {
+                  setState(() {
+                    _users.removeWhere((u) => u['id'] == user['id']);
+                    _filteredUsers = List.from(_users);
+                  });
+                },
               ),
             ],
           ),
         ),
-        const Divider(),
+        SizedBox(width: MediaQuery.of(context).size.width * 0.02)
       ],
     );
   }

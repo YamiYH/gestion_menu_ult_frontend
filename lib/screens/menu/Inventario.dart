@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 
 import '../../widgets/Button.dart';
 
@@ -109,7 +110,7 @@ class _GestionarAlmacenState extends State<GestionarAlmacen> {
 
   // Lista de categorías
   final List<String> _categorias = [
-    'Seleccione una categoría', // Placeholder
+    'Seleccione categoría', // Placeholder
     'Carnes',
     'Viandas',
     'Vegetales',
@@ -117,6 +118,32 @@ class _GestionarAlmacenState extends State<GestionarAlmacen> {
     'Carbohidratos',
     'Refrescos'
   ];
+
+  @override
+  Widget build(BuildContext context) {
+    bool isMobile = MediaQuery.of(context).size.width < 600;
+    return Scaffold(
+      appBar: CustomAppBar(title: 'Inventario'),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Filtros responsivos
+              _buildFilterSection(isMobile),
+              const SizedBox(height: 20),
+              // Encabezados de la lista
+              _buildHeaderRow(isMobile),
+              const SizedBox(height: 10),
+              // Lista de productos
+              _buildProductList(isMobile),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -156,43 +183,6 @@ class _GestionarAlmacenState extends State<GestionarAlmacen> {
         return nameMatch && categoryMatch && quantityMatch;
       }).toList();
     });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    bool isMobile = MediaQuery.of(context).size.width < 600;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Inventario',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: isMobile ? 20 : 25,
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.red[900],
-        iconTheme: const IconThemeData(color: Colors.white),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Filtros responsivos
-              _buildFilterSection(isMobile),
-              const SizedBox(height: 20),
-              // Encabezados de la lista
-              _buildHeaderRow(isMobile),
-              const Divider(),
-              // Lista de productos
-              _buildProductList(isMobile),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 
   // Sección de filtros (adaptativa)
@@ -238,8 +228,7 @@ class _GestionarAlmacenState extends State<GestionarAlmacen> {
     return TextFormField(
       controller: _searchController,
       decoration: InputDecoration(
-        labelText: 'Buscar producto',
-        prefixIcon: Icon(Icons.search, color: Colors.red[900]),
+        labelText: 'Producto',
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
       ),
       onChanged: (value) => _applyFilters(),
@@ -253,7 +242,6 @@ class _GestionarAlmacenState extends State<GestionarAlmacen> {
       decoration: InputDecoration(
         labelText: 'Categoría',
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        prefixIcon: Icon(Icons.category, color: Colors.red[900]),
       ),
       items: _categorias
           .map((cat) => DropdownMenuItem(value: cat, child: Text(cat)))
@@ -330,13 +318,13 @@ class _GestionarAlmacenState extends State<GestionarAlmacen> {
                       width: 200,
                       child: Text('Producto', style: _headerStyle())),
                   SizedBox(
-                      width: 200,
+                      width: 210,
                       child: Text('Categoría', style: _headerStyle())),
                   SizedBox(
-                      width: 100,
+                      width: 90,
                       child: Text('Cantidad', style: _headerStyle())),
                   SizedBox(
-                      width: 100, child: Text('Unidad', style: _headerStyle())),
+                      width: 90, child: Text('Unidad', style: _headerStyle())),
                 ],
               ),
       ),
@@ -359,79 +347,90 @@ class _GestionarAlmacenState extends State<GestionarAlmacen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 child: isMobile
-                    ? Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    ? Column(
                         children: [
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.25,
-                            child: Text(
-                              product['name'],
-                              style: TextStyle(fontSize: 14),
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.25,
+                                child: Text(
+                                  product['name'],
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                              ),
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.25,
+                                child: Text(
+                                  product['quantity'].toString(),
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                              ),
+                              SizedBox(width: 20),
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.25,
+                                child: Text(
+                                  product['unit'] ?? 'N/A',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                              ),
+                              //Divider(),
+                            ],
                           ),
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.25,
-                            child: Text(
-                              product['quantity'].toString(),
-                              textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: 14),
-                            ),
-                          ),
-                          SizedBox(width: 20),
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.25,
-                            child: Text(
-                              product['unit'] ?? 'N/A',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: 14),
-                            ),
-                          ),
+                          Divider()
                         ],
                       )
-                    : Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    : Column(
                         children: [
-                          SizedBox(
-                            width: 100,
-                            child: Text(
-                              product['code'] ?? 'N/A',
-                              style: TextStyle(fontSize: 14),
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              SizedBox(
+                                width: 100,
+                                child: Text(
+                                  product['code'] ?? 'N/A',
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              ),
+                              SizedBox(width: 20),
+                              SizedBox(
+                                width: 200,
+                                child: Text(
+                                  product['name'],
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              ),
+                              SizedBox(width: 10),
+                              SizedBox(
+                                width: 180,
+                                child: Text(
+                                  product['category'],
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              ),
+                              SizedBox(width: 20),
+                              SizedBox(
+                                width: 100,
+                                child: Text(
+                                  product['quantity'].toString(),
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              ),
+                              SizedBox(width: 20),
+                              SizedBox(
+                                width: 100,
+                                child: Text(
+                                  product['unit'] ?? 'N/A',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              ),
+                            ],
                           ),
-                          SizedBox(width: 20),
-                          SizedBox(
-                            width: 200,
-                            child: Text(
-                              product['name'],
-                              style: TextStyle(fontSize: 14),
-                            ),
-                          ),
-                          SizedBox(width: 20),
-                          SizedBox(
-                            width: 200,
-                            child: Text(
-                              product['category'],
-                              style: TextStyle(fontSize: 14),
-                            ),
-                          ),
-                          SizedBox(width: 20),
-                          SizedBox(
-                            width: 100,
-                            child: Text(
-                              product['quantity'].toString(),
-                              textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: 14),
-                            ),
-                          ),
-                          SizedBox(width: 20),
-                          SizedBox(
-                            width: 100,
-                            child: Text(
-                              product['unit'] ?? 'N/A',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: 14),
-                            ),
-                          ),
+                          Divider(),
                         ],
                       ),
               ),

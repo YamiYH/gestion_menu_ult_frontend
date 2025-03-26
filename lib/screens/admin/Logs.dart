@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 import 'package:intl/intl.dart' show DateFormat;
 
 import '../../controllers/LogsController.dart';
 import '../../widgets/Button.dart';
 
-class LogsScreen extends StatefulWidget {
-  const LogsScreen({super.key});
+class Logs extends StatefulWidget {
+  const Logs({super.key});
 
   @override
-  _LogsScreenState createState() => _LogsScreenState();
+  _LogsState createState() => _LogsState();
 }
 
-class _LogsScreenState extends State<LogsScreen> {
+class _LogsState extends State<Logs> {
   final LogsController _controller = LogsController();
 
   @override
@@ -25,18 +26,7 @@ class _LogsScreenState extends State<LogsScreen> {
     bool isMobile = MediaQuery.of(context).size.width < 600;
 
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        iconTheme: IconThemeData(color: Colors.white),
-        title: Text(
-          'Registros',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: isMobile ? 20 : 25,
-          ),
-        ),
-        backgroundColor: Colors.red[900],
-      ),
+      appBar: CustomAppBar(title: 'Auditoría'),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -50,7 +40,6 @@ class _LogsScreenState extends State<LogsScreen> {
               const Divider(),
               // Lista de logs filtrados
               _buildLogsList(),
-              Divider(),
 
               // Lista de logs filtrados
             ],
@@ -88,10 +77,9 @@ class _LogsScreenState extends State<LogsScreen> {
               SizedBox(height: 15),
               TextFormField(
                 decoration: InputDecoration(
-                  labelText: 'Buscar Usuario',
+                  labelText: 'Usuario',
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10)),
-                  prefixIcon: Icon(Icons.person, color: Colors.red[900]),
                 ),
                 onChanged: (value) {
                   setState(() {
@@ -103,10 +91,10 @@ class _LogsScreenState extends State<LogsScreen> {
               DropdownButtonFormField<String>(
                 value: _controller.selectedTypeFilter,
                 decoration: InputDecoration(
-                    labelText: 'Actividad',
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                    prefixIcon: Icon(Icons.login, color: Colors.red[900])),
+                  labelText: 'Actividad',
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                ),
                 onChanged: (newValue) {
                   setState(() {
                     _controller.selectedTypeFilter = newValue;
@@ -224,10 +212,9 @@ class _LogsScreenState extends State<LogsScreen> {
                 width: 300,
                 child: TextFormField(
                   decoration: InputDecoration(
-                    labelText: 'Buscar Usuario',
+                    labelText: 'Usuario',
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10)),
-                    prefixIcon: Icon(Icons.person, color: Colors.red[900]),
                   ),
                   onChanged: (value) {
                     setState(() {
@@ -243,7 +230,6 @@ class _LogsScreenState extends State<LogsScreen> {
                   value: _controller.selectedTypeFilter,
                   decoration: InputDecoration(
                     labelText: 'Actividad',
-                    prefixIcon: Icon(Icons.login, color: Colors.red[900]),
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10)),
                   ),

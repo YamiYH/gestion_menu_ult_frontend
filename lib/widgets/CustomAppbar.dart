@@ -1,21 +1,25 @@
 import 'package:flutter/material.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final String userName; // Nombre del usuario logeado
-  final List<String> notifications; // Lista de notificaciones
+  final String userName = 'Yamilet Yero'; // Nombre del usuario logeado
+  final List<String> notifications = [
+    'Nueva actualización disponible',
+    'Tienes un nuevo mensaje',
+    'Recordatorio: Reunión a las 3 PM',
+  ]; // Lista de notificaciones
+  final String title;
+  final PreferredSizeWidget? bottom;
 
-  const CustomAppBar({
+  CustomAppBar({
     Key? key,
-    required this.userName,
-    required this.notifications,
+    required this.title,
+    this.bottom,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    bool isMobile = screenWidth < 600;
+    bool isMobile = MediaQuery.of(context).size.width < 600;
     return AppBar(
-      centerTitle: false,
       iconTheme: IconThemeData(color: Colors.white),
       backgroundColor: Colors.red[900],
       titleSpacing: 0,
@@ -24,36 +28,42 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircleAvatar(
-                  backgroundImage: AssetImage('assets/icons/user.png'),
-                  radius: isMobile ? 16 : 20,
-                ),
-                SizedBox(width: 10),
-                SizedBox(
-                  width: isMobile ? 80 : 150,
-                  child: Text(
-                    userName,
-                    overflow: TextOverflow.clip,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: isMobile ? 13 : 16,
-                    ),
+            child: isMobile
+                ? SizedBox()
+                : Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircleAvatar(
+                        backgroundImage: AssetImage('assets/icons/user.png'),
+                        radius: 16,
+                      ),
+                      SizedBox(width: 10),
+                      SizedBox(
+                        width: isMobile ? 80 : 150,
+                        child: Text(
+                          userName,
+                          overflow: TextOverflow.clip,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: isMobile ? 13 : 16,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
           ),
-          //SizedBox(height: screenWidth * 0.15),
-
-          SizedBox(width: isMobile ? 10 : 60),
-
+          SizedBox(width: isMobile ? 0 : 60),
           Expanded(
+            flex: 4,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
+                Text(title,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: isMobile ? 16 : 18,
+                    )),
+                SizedBox(width: isMobile ? 10 : 20),
                 PopupMenuButton<String>(
                   onSelected: (value) {
                     if (value == 'view_all') {
@@ -76,7 +86,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   icon: Icon(
                     Icons.notifications,
                     color: Colors.white,
-                    size: isMobile ? 20 : 25,
+                    size: isMobile ? 22 : 25,
                   ),
                 ),
                 // Menú desplegable con opciones
@@ -102,7 +112,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   icon: Icon(
                     Icons.more_vert,
                     color: Colors.white,
-                    size: isMobile ? 20 : 25,
+                    size: isMobile ? 22 : 25,
                   ),
                 ),
               ],
@@ -110,6 +120,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ],
       ),
+      bottom: bottom,
     );
   }
 
@@ -182,5 +193,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(kToolbarHeight);
+  Size get preferredSize {
+    // Suma la altura del bottom si está presente
+    final bottomHeight = bottom?.preferredSize.height ?? 0;
+    return Size.fromHeight(kToolbarHeight + bottomHeight);
+  }
 }

@@ -1,28 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:gestion_menu_ult_frontend/screens/menu/Ventas.dart';
 import 'package:gestion_menu_ult_frontend/widgets/BuildCard.dart';
+import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 
-import '../inventario/Inventario.dart';
-import '../security/Logs.dart';
+import 'Inventario.dart';
+import 'Menu.dart';
 
-class ModulosScreen extends StatelessWidget {
+class ModulosMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bool isMobile = MediaQuery.of(context).size.width < 600;
 
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        iconTheme: IconThemeData(color: Colors.white),
-        title: Text(
-          'Módulos',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: isMobile ? FontWeight.bold : FontWeight.normal,
-            fontSize: isMobile ? 18 : 25,
-          ),
-        ),
-        backgroundColor: Colors.red[900],
-      ),
+      appBar: CustomAppBar(title: 'Menú'),
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(isMobile ? 20 : 60),
@@ -73,8 +63,12 @@ class ModulosScreen extends StatelessWidget {
         padding: EdgeInsets.all(5),
         child: BuildCard(
           onTap: () {
-            // Acción para el módulo de Menú
-            print('Módulo de Menú seleccionado');
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Menu(),
+              ),
+            );
           },
           title: 'Menú',
           icon: Icons.restaurant_menu,
@@ -87,7 +81,7 @@ class ModulosScreen extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => LogsScreen(),
+                builder: (context) => Ventas(),
               ),
             );
           },

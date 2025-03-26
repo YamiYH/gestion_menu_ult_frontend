@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:gestion_menu_ult_frontend/screens/admin/Config.dart';
+import 'package:gestion_menu_ult_frontend/screens/admin/Payment.dart';
+import 'package:gestion_menu_ult_frontend/screens/admin/Roles.dart';
 import 'package:gestion_menu_ult_frontend/widgets/BuildCard.dart';
 
-import '../security/Logs.dart';
+import '../../widgets/CustomAppbar.dart';
+import 'Logs.dart';
 import 'Users.dart';
 
 class AdminScreen extends StatefulWidget {
@@ -12,93 +16,12 @@ class AdminScreen extends StatefulWidget {
 }
 
 class _AdminScreenState extends State<AdminScreen> {
-  // Método para construir las Cards de administracion
-  List<Widget> _buildAdmin() {
-    return [
-      Container(
-        padding: EdgeInsets.all(5),
-        child: BuildCard(
-          title: 'Usuarios',
-          icon: Icons.people,
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => UsersScreen(),
-              ),
-            );
-          },
-        ),
-      ),
-      Container(
-        padding: EdgeInsets.all(5),
-        child: BuildCard(
-          title: 'Roles',
-          icon: Icons.admin_panel_settings,
-          onTap: () {},
-        ),
-      ),
-      Container(
-        padding: EdgeInsets.all(5),
-        child: BuildCard(
-          title: 'Pasarelas de Pago',
-          icon: Icons.payment,
-          onTap: () {},
-        ),
-      ),
-      Container(
-        padding: EdgeInsets.all(5),
-        child: BuildCard(
-          title: 'Auditoría',
-          icon: Icons.security,
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => LogsScreen(),
-              ),
-            );
-          },
-        ),
-      ),
-      Container(
-        padding: EdgeInsets.all(5),
-        child: BuildCard(
-          title: 'Configuración',
-          icon: Icons.settings,
-          onTap: () {
-            // Acción para el módulo de Menú
-            print('Módulo de Menú seleccionado');
-          },
-        ),
-      ),
-    ];
-  }
-
   @override
   Widget build(BuildContext context) {
     bool isMobile = MediaQuery.of(context).size.width < 600;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Administración',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: isMobile ? 20 : 25,
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.red[900],
-        iconTheme: const IconThemeData(color: Colors.white),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.logout),
-            onPressed: () {
-              // Lógica de cierre de sesión
-              Navigator.pushReplacementNamed(context, '/login');
-            },
-          ),
-        ],
+      appBar: CustomAppBar(
+        title: 'Administración',
       ),
       body: Padding(
         padding: EdgeInsets.all(isMobile ? 20 : 60),
@@ -127,5 +50,86 @@ class _AdminScreenState extends State<AdminScreen> {
               ),
       ),
     );
+  }
+
+  // Método para construir las Cards de administracion
+  List<Widget> _buildAdmin() {
+    return [
+      Container(
+        padding: EdgeInsets.all(5),
+        child: BuildCard(
+          title: 'Usuarios',
+          icon: Icons.people,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Users(),
+              ),
+            );
+          },
+        ),
+      ),
+      Container(
+        padding: EdgeInsets.all(5),
+        child: BuildCard(
+          title: 'Roles',
+          icon: Icons.admin_panel_settings,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Roles(),
+              ),
+            );
+          },
+        ),
+      ),
+      Container(
+        padding: EdgeInsets.all(5),
+        child: BuildCard(
+          title: 'Pasarelas de Pago',
+          icon: Icons.payment,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Payment(),
+              ),
+            );
+          },
+        ),
+      ),
+      Container(
+        padding: EdgeInsets.all(5),
+        child: BuildCard(
+          title: 'Auditoría',
+          icon: Icons.security,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Logs(),
+              ),
+            );
+          },
+        ),
+      ),
+      Container(
+        padding: EdgeInsets.all(5),
+        child: BuildCard(
+          title: 'Configuración',
+          icon: Icons.settings,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Config(),
+              ),
+            );
+          },
+        ),
+      ),
+    ];
   }
 }
