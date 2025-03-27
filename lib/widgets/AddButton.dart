@@ -27,18 +27,19 @@ class _ButtonState extends State<AddButton> {
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           backgroundColor: Colors.green,
           fixedSize: Size(
-              isMobile ? MediaQuery.of(context).size.width * 0.5 : 180,
-              isMobile ? 50 : 40)),
+              isMobile ? MediaQuery.of(context).size.width * 0.35 : 150, 50)),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
+            size: isMobile ? 18 : 20,
             Icons.add,
             color: Colors.white,
           ),
           SizedBox(width: 2),
           Text(widget.text,
-              style: TextStyle(color: Colors.white, fontSize: 15)),
+              style:
+                  TextStyle(color: Colors.white, fontSize: isMobile ? 15 : 18)),
         ],
       ),
     );

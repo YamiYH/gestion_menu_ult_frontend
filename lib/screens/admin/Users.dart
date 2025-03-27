@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/widgets/AddButton.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 
-import '../../widgets/Button.dart';
 import '../../widgets/FilterButton.dart';
 import '../../widgets/UserTextFormField.dart';
 
@@ -87,12 +86,10 @@ class _UsersState extends State<Users> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           FilterButton(
-                            text: 'Filtrar',
                             onPressed: _applySearchWrapper,
-                            icon: Icons.filter_alt,
                           ),
                           SizedBox(width: 10),
-                          AddButton(onPressed: () {}, text: 'Agregar usuario')
+                          AddButton(onPressed: () {}, text: 'Usuario')
                         ],
                       ),
                       SizedBox(height: 10),
@@ -221,10 +218,7 @@ class _UsersState extends State<Users> {
         ],
       ),
       SizedBox(height: 10, width: isMobile ? 10 : 0),
-      Button(
-          text: 'Filtrar',
-          onPressed: _applySearchWrapper,
-          icon: Icons.filter_alt),
+      FilterButton(onPressed: _applySearchWrapper),
       SizedBox(
         height: 20,
         width: isMobile ? 10 : 0,
@@ -351,7 +345,10 @@ class _UsersState extends State<Users> {
             width: MediaQuery.of(context).size.width * 0.1,
             height: 25,
           ),
-          AddButton(onPressed: () {}, text: 'Agregar usuario')
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.03,
+          ),
+          AddButton(onPressed: () {}, text: 'Usuario')
         ],
       ),
     );

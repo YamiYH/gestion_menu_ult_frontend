@@ -3,7 +3,7 @@ import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 import 'package:intl/intl.dart' show DateFormat;
 
 import '../../controllers/LogsController.dart';
-import '../../widgets/Button.dart';
+import '../../widgets/FilterButton.dart';
 
 class Logs extends StatefulWidget {
   const Logs({super.key});
@@ -27,45 +27,52 @@ class _LogsState extends State<Logs> {
 
     return Scaffold(
       appBar: CustomAppBar(title: 'Auditoría'),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildFilters(context, isMobile),
-              SizedBox(height: 50),
-              // Encabezados de las columnas
-              _buildHeaders(),
-              const Divider(),
-              // Lista de logs filtrados
-              _buildLogsList(),
-
-              // Lista de logs filtrados
-            ],
-          ),
-        ),
+      body: Column(
+        children: [
+          Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: _buildFilters(context, isMobile)),
+          SizedBox(height: 50),
+          _buildHeaders(),
+          SizedBox(height: isMobile ? 10 : 15),
+          _buildLogsList(),
+        ],
       ),
+
+      // Lista de logs filtrados
     );
   }
 
-  // Widget para los encabezados
+  // Encabezados responsivos
   Widget _buildHeaders() {
-    return const Row(
-      children: [
-        Expanded(
-            flex: 2,
-            child:
-                Text('Usuario', style: TextStyle(fontWeight: FontWeight.bold))),
-        Expanded(
-            flex: 2,
-            child:
-                Text('Fecha', style: TextStyle(fontWeight: FontWeight.bold))),
-        Expanded(
-            flex: 3,
-            child: Text('Actividad',
-                style: TextStyle(fontWeight: FontWeight.bold))),
-      ],
+    bool isMobile = MediaQuery.of(context).size.width < 600;
+    return Container(
+      color: Colors.grey[200],
+      padding:
+          isMobile ? EdgeInsets.symmetric(vertical: 20) : EdgeInsets.all(10),
+      child: Row(
+        children: [
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.03,
+          ),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.30,
+            height: isMobile ? 20 : 25,
+            child: Text('Usuario', style: _headerStyle()),
+          ),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.30,
+            height: isMobile ? 20 : 25,
+            child: Text('Fecha', style: _headerStyle()),
+          ),
+          SizedBox(width: isMobile ? 20 : 0),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.25,
+            height: isMobile ? 20 : 25,
+            child: Text('Actividad', style: _headerStyle()),
+          ),
+        ],
+      ),
     );
   }
 
@@ -198,10 +205,9 @@ class _LogsState extends State<Logs> {
                 ],
               ),
               SizedBox(height: 20),
-              Button(
-                  onPressed: () => setState(() {}),
-                  text: 'BUSCAR',
-                  icon: Icons.search)
+              FilterButton(
+                onPressed: () => _applyFilters(),
+              )
             ],
           )
         : Row(
@@ -374,14 +380,14 @@ class _LogsState extends State<Logs> {
                 ],
               ),
               SizedBox(width: 20),
-              Button(
-                  onPressed: _applyFilters, text: 'BUSCAR', icon: Icons.search)
+              FilterButton(onPressed: _applyFilters),
             ],
           );
   }
 
 // Widget para la lista de logs
   Widget _buildLogsList() {
+    bool isMobile = MediaQuery.of(context).size.width < 600;
     final filteredLogs =
         _controller.filteredLogs; // Obtener logs del controlador
     return Column(
@@ -394,9 +400,23 @@ class _LogsState extends State<Logs> {
               children: [
                 Row(
                   children: [
-                    Expanded(flex: 2, child: Text(log['user'])),
-                    Expanded(flex: 2, child: Text(log['date'])),
-                    Expanded(flex: 3, child: Text(log['message'])),
+                    SizedBox(width: MediaQuery.of(context).size.width * 0.03),
+                    SizedBox(
+                      child: Text(log['user']),
+                      width: MediaQuery.of(context).size.width * 0.25,
+                      height: isMobile ? 20 : 25,
+                    ),
+                    SizedBox(
+                      child: Text(log['date']),
+                      width: MediaQuery.of(context).size.width * 0.35,
+                      height: isMobile ? 20 : 25,
+                    ),
+                    SizedBox(width: isMobile ? 20 : 0),
+                    SizedBox(
+                      child: Text(log['message']),
+                      width: MediaQuery.of(context).size.width * 0.30,
+                      height: isMobile ? 20 : 25,
+                    ),
                   ],
                 ),
                 const Divider(),
@@ -410,4 +430,13 @@ class _LogsState extends State<Logs> {
   void _applyFilters() {
     setState(() {});
   }
+}
+
+// Estilo para encabezados
+TextStyle _headerStyle() {
+  return TextStyle(
+    fontWeight: FontWeight.bold,
+    color: Colors.red[900],
+    fontSize: 16,
+  );
 }

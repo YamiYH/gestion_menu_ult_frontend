@@ -2,15 +2,10 @@ import 'package:flutter/material.dart';
 
 class FilterButton extends StatefulWidget {
   final VoidCallback onPressed;
-  final String text;
-  final IconData? icon; // Ícono opcional
+  final String text = 'Filtrar';
+  final IconData icon = Icons.filter_alt;
 
-  const FilterButton({
-    Key? key,
-    required this.onPressed,
-    required this.text,
-    this.icon,
-  }) : super(key: key);
+  FilterButton({super.key, required this.onPressed});
 
   @override
   State<FilterButton> createState() => _FilterButtonState();
@@ -19,34 +14,31 @@ class FilterButton extends StatefulWidget {
 class _FilterButtonState extends State<FilterButton> {
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    bool isMobile = screenWidth < 600;
+    bool isMobile = MediaQuery.of(context).size.width < 600;
     return ElevatedButton(
       onPressed: widget.onPressed,
       style: ElevatedButton.styleFrom(
         fixedSize:
-            Size(isMobile ? MediaQuery.of(context).size.width * 0.35 : 220, 50),
+            Size(isMobile ? MediaQuery.of(context).size.width * 0.35 : 150, 50),
         elevation: 3,
         backgroundColor: Colors.red[900],
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         padding: EdgeInsets.symmetric(
-          horizontal: isMobile ? 16 : 50,
+          horizontal: isMobile ? 16 : 30,
           vertical: isMobile ? 10 : 18,
         ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (widget.icon != null) ...[
-            Icon(
-              widget.icon,
-              color: Colors.white,
-              size: isMobile ? 18 : 20,
-            ),
-          ],
+          Icon(
+            Icons.filter_alt,
+            color: Colors.white,
+            size: isMobile ? 18 : 20,
+          ),
           SizedBox(width: 8),
           Text(
-            widget.text,
+            'Filtrar',
             style: TextStyle(color: Colors.white, fontSize: isMobile ? 15 : 18),
           ),
         ],

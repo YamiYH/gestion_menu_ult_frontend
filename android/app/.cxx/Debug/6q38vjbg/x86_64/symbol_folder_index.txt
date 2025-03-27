@@ -1,0 +1,1 @@
+/home/yami/StudioProjects/gestion_menu_ult_frontend/build/app/intermediates/cxx/Debug/6q38vjbg/obj/x86_64

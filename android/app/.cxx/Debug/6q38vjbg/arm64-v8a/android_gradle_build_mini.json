@@ -1,0 +1,20 @@
+{
+  "buildFiles": [
+    "/home/yami/Android/flutter/packages/flutter_tools/gradle/src/main/groovy/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/home/yami/Android/Sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/home/yami/StudioProjects/gestion_menu_ult_frontend/android/app/.cxx/Debug/6q38vjbg/arm64-v8a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/home/yami/Android/Sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/home/yami/StudioProjects/gestion_menu_ult_frontend/android/app/.cxx/Debug/6q38vjbg/arm64-v8a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {}
+}
