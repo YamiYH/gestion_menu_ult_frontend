@@ -93,6 +93,7 @@ class _LoginState extends State<Login> {
                         borderSide: BorderSide(color: Colors.red[900]!),
                       ),
                       focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(color: Colors.red[900]!),
                       ),
                     ),

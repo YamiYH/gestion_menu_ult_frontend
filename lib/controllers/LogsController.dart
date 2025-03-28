@@ -4,6 +4,8 @@ class LogsController {
   // Variables de filtro (NO usar final)
   String? searchUser;
   String? selectedTypeFilter;
+  String? selectedActionFilter;
+  String? selectedModuleFilter;
   DateTime? startDateFilter;
   DateTime? endDateFilter;
 
@@ -11,17 +13,20 @@ class LogsController {
   final List<Map<String, dynamic>> _allLogs = [
     {
       'type': 'login',
-      'message': 'Inicio de sesión exitoso',
+      'details': 'Inicio de sesión exitoso',
       'user': 'admin',
       'date': '2023-10-01 10:15 AM',
+      'module': 'Configuración',
+      'action': 'Crear'
     },
     {
       'type': 'error',
-      'message': 'Error al acceder a la base de datos',
+      'details': 'Error al acceder a la base de datos',
       'user': 'system',
       'date': '2023-10-01 11:30 AM',
+      'module': 'Roles',
+      'action': 'Activar'
     },
-    // ... (resto de los logs)
   ];
 
 // Logs filtrados (getter)
