@@ -125,21 +125,21 @@ class _GestionarAlmacenState extends State<GestionarAlmacen> {
     return Scaffold(
       appBar: CustomAppBar(title: 'Inventario'),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Filtros responsivos
-              _buildFilterSection(isMobile),
-              const SizedBox(height: 20),
-              // Encabezados de la lista
-              _buildHeaderRow(isMobile),
-              const SizedBox(height: 10),
-              // Lista de productos
-              _buildProductList(isMobile),
-            ],
-          ),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child:
+                  // Filtros responsivos
+                  _buildFilterSection(isMobile),
+            ),
+            const SizedBox(height: 20),
+            // Encabezados de la lista
+            _buildHeaderRow(isMobile),
+            const SizedBox(height: 10),
+            // Lista de productos
+            _buildProductList(isMobile),
+          ],
         ),
       ),
     );
@@ -240,7 +240,7 @@ class _GestionarAlmacenState extends State<GestionarAlmacen> {
     return DropdownButtonFormField<String>(
       value: _selectedCategory,
       decoration: InputDecoration(
-        labelText: 'Categoría',
+        //labelText: 'Categoría',
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
       ),
       items: _categorias
@@ -345,7 +345,7 @@ class _GestionarAlmacenState extends State<GestionarAlmacen> {
             return SingleChildScrollView(
               child: Container(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                 child: isMobile
                     ? Column(
                         children: [

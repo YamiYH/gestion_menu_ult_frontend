@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class Button extends StatefulWidget {
+class DynamicButton extends StatefulWidget {
   final VoidCallback onPressed;
   final String text;
   final IconData? icon; // Ícono opcional
 
-  const Button({
+  const DynamicButton({
     Key? key,
     required this.onPressed,
     required this.text,
@@ -13,22 +13,22 @@ class Button extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<Button> createState() => _ButtonState();
+  State<DynamicButton> createState() => _DynamicButtonState();
 }
 
-class _ButtonState extends State<Button> {
+class _DynamicButtonState extends State<DynamicButton> {
   @override
   Widget build(BuildContext context) {
     bool isMobile = MediaQuery.of(context).size.width < 600;
     return ElevatedButton(
       onPressed: widget.onPressed,
       style: ElevatedButton.styleFrom(
-        fixedSize: Size(isMobile ? 180 : 220, 50),
+        fixedSize: Size(isMobile ? 180 : 160, 50),
         elevation: 3,
         backgroundColor: Colors.red[900],
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         padding: EdgeInsets.symmetric(
-          horizontal: isMobile ? 30 : 50,
+          horizontal: isMobile ? 30 : 20,
           vertical: isMobile ? 11 : 18,
         ),
       ),
