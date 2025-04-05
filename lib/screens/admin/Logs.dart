@@ -4,7 +4,9 @@ import 'package:gestion_menu_ult_frontend/widgets/UserTextFormField.dart';
 import 'package:intl/intl.dart' show DateFormat;
 
 import '../../controllers/LogsController.dart';
+import '../../widgets/DatePickerButton.dart';
 import '../../widgets/FilterButton.dart';
+import '../../widgets/Pagination.dart';
 
 class Logs extends StatefulWidget {
   const Logs({super.key});
@@ -42,7 +44,15 @@ class _LogsState extends State<Logs> {
           _buildLogsList(),
         ],
       ),
-
+      bottomNavigationBar: Pagination(
+        items: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        itemsPerPage: 10,
+        itemBuilder: (context, item) {
+          return ListTile(
+            title: Text(item as String),
+          );
+        },
+      ),
       // Lista de logs filtrados
     );
   }
@@ -174,126 +184,40 @@ class _LogsState extends State<Logs> {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        ElevatedButton.icon(
-          style: ElevatedButton.styleFrom(
-            fixedSize: Size(isMobile ? 140 : 170, isMobile ? 40 : 50),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            backgroundColor: Colors.white,
-            side: BorderSide(color: Colors.red[900]!, width: 1),
-            padding: EdgeInsets.symmetric(
-              horizontal: isMobile ? 10 : 20,
-              vertical: isMobile ? 8 : 12,
-            ),
-          ),
-          onPressed: () async {
-            final pickedDate = await showDatePicker(
-              context: context,
-              initialDate: DateTime.now(),
-              firstDate: DateTime(2020),
-              lastDate: DateTime.now().add(Duration(days: 30)),
-              builder: (BuildContext context, Widget? child) {
-                return Theme(
-                  data: ThemeData(
-                    primaryColor: Colors.red[900],
-                    colorScheme: ColorScheme.light(
-                      primary: Colors.red[400]!,
-                    ),
-                    textTheme: TextTheme(
-                      headlineMedium: TextStyle(fontSize: 16),
-                      bodyLarge: TextStyle(fontSize: 14),
-                      bodyMedium: TextStyle(fontSize: 12),
-                    ),
-                    dialogTheme: DialogThemeData(backgroundColor: Colors.white),
-                  ),
-                  child: child!,
-                );
-              },
-            );
-            if (pickedDate != null) {
-              setState(() {
-                _controller.startDateFilter =
-                    pickedDate; // Fecha con hora 00:00:00
-              });
-            }
+        // Botón "Desde"
+        DatePickerButton(
+          label: 'Desde',
+          selectedDate: _controller.startDateFilter,
+          onDateSelected: (date) {
+            setState(() {
+              _controller.startDateFilter = date;
+            });
           },
-          icon: Icon(Icons.calendar_today, color: Colors.red[900]),
-          label: Text(
-            style: TextStyle(
-              fontSize: isMobile ? 14 : 18,
-              color: Colors.red[900],
-            ),
-            _controller.startDateFilter == null
-                ? 'Desde'
-                : DateFormat('yyyy-MM-dd').format(_controller.startDateFilter!),
-          ),
+          firstDate: DateTime(2000),
+          lastDate: DateTime.now(),
+          includeTime: true,
         ),
+
         SizedBox(width: 10),
         Icon(Icons.arrow_forward, color: Colors.red[900]),
         SizedBox(width: 10),
-        ElevatedButton.icon(
-          style: ElevatedButton.styleFrom(
-            fixedSize: Size(isMobile ? 140 : 170, isMobile ? 40 : 50),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            backgroundColor: Colors.white,
-            side: BorderSide(color: Colors.red[900]!, width: 1),
-            padding: EdgeInsets.symmetric(
-              horizontal: isMobile ? 10 : 20,
-              vertical: isMobile ? 8 : 12,
-            ),
-          ),
-          onPressed: () async {
-            final pickedDate = await showDatePicker(
-              context: context,
-              initialDate: DateTime.now(),
-              firstDate: DateTime(2020),
-              lastDate: DateTime.now().add(Duration(days: 30)),
-              builder: (BuildContext context, Widget? child) {
-                return Theme(
-                  data: ThemeData(
-                    primaryColor: Colors.red[900],
-                    colorScheme: ColorScheme.light(
-                      primary: Colors.red[400]!,
-                    ),
-                    dialogBackgroundColor: Colors.white,
-                    textTheme: TextTheme(
-                      headlineMedium: TextStyle(fontSize: 16),
-                      bodyLarge: TextStyle(fontSize: 14),
-                      bodyMedium: TextStyle(fontSize: 12),
-                    ),
-                  ),
-                  child: child!,
-                );
-              },
-            );
-            if (pickedDate != null) {
+        DatePickerButton(
+            label: 'Hasta',
+            selectedDate: _controller.endDateFilter,
+            onDateSelected: (date) {
               setState(() {
-                // Ajustar la fecha final al último segundo del día
                 _controller.endDateFilter = DateTime(
-                  pickedDate.year,
-                  pickedDate.month,
-                  pickedDate.day,
+                  date.year,
+                  date.month,
+                  date.day,
                   23,
                   59,
                   59,
                 );
               });
-            }
-          },
-          icon: Icon(Icons.calendar_today, color: Colors.red[900]),
-          label: Text(
-            style: TextStyle(
-              fontSize: isMobile ? 14 : 18,
-              color: Colors.red[900],
-            ),
-            _controller.endDateFilter == null
-                ? 'Hasta'
-                : DateFormat('yyyy-MM-dd').format(_controller.endDateFilter!),
-          ),
-        ),
+            },
+            firstDate: DateTime(2000),
+            lastDate: DateTime.now())
       ],
     );
   }
@@ -405,12 +329,18 @@ class _LogsState extends State<Logs> {
     bool isMobile = MediaQuery.of(context).size.width < 600;
     final filteredLogs =
         _controller.filteredLogs; // Obtener logs del controlador
+
     return Column(
       children: [
         if (filteredLogs.isEmpty)
           Center(child: Text('No hay logs disponibles'))
         else
           ...filteredLogs.map((log) {
+            // Convertir la fecha (String) a DateTime
+            DateTime parsedDate =
+                DateFormat('yyyy-MM-dd hh:mm a').parse(log['date']);
+            String formattedDate =
+                DateFormat('yyyy-MM-dd HH:mm').format(parsedDate);
             return Column(
               children: [
                 isMobile
@@ -427,7 +357,7 @@ class _LogsState extends State<Logs> {
                                 height: isMobile ? 20 : 25,
                               ),
                               SizedBox(
-                                child: Text(log['date']),
+                                child: Text(log[formattedDate]),
                                 width: MediaQuery.of(context).size.width * 0.35,
                                 height: isMobile ? 20 : 25,
                               ),

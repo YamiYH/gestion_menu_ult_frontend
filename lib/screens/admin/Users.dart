@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/widgets/AddButton.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
+import 'package:gestion_menu_ult_frontend/widgets/Pagination.dart';
 
 import '../../widgets/FilterButton.dart';
 import '../../widgets/UserTextFormField.dart';
@@ -123,6 +124,15 @@ class _UsersState extends State<Users> {
             ),
           ),
         ],
+      ),
+      bottomNavigationBar: Pagination(
+        items: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        itemsPerPage: 10,
+        itemBuilder: (context, item) {
+          return ListTile(
+            title: Text(item as String),
+          );
+        },
       ),
     );
   }

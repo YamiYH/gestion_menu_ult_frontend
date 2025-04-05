@@ -171,8 +171,6 @@ class _RolesState extends State<Roles> {
       FilterButton(
         onPressed: _applySearchWrapper,
       ),
-      SizedBox(width: MediaQuery.of(context).size.width * 0.02),
-      AddButton(onPressed: () {}, text: 'Rol')
     ];
   }
 
@@ -281,10 +279,15 @@ class _RolesState extends State<Roles> {
             child: Text('Estado', style: _headerStyle()),
           ),
           SizedBox(
-            width: MediaQuery.of(context).size.width * 0.25,
+            width: MediaQuery.of(context).size.width * 0.20,
             height: 25,
             child: Text('Descripción', style: _headerStyle()),
           ),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.03,
+            height: 25,
+          ),
+          AddButton(onPressed: () {}, text: 'Rol')
         ],
       ),
     );

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 
 import '../../widgets/Button.dart';
-import '../../widgets/Date.dart';
+import '../../widgets/DatePickerButton.dart';
+import '../../widgets/Pagination.dart';
 
 class InformesVentas extends StatefulWidget {
   @override
@@ -93,6 +94,15 @@ class _InformesVentasState extends State<InformesVentas> {
           ],
         ),
       ),
+      bottomNavigationBar: Pagination(
+        items: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        itemsPerPage: 10,
+        itemBuilder: (context, item) {
+          return ListTile(
+            title: Text(item as String),
+          );
+        },
+      ),
     );
   }
 
@@ -108,6 +118,8 @@ class _InformesVentasState extends State<InformesVentas> {
               startDate = date;
             });
           },
+          firstDate: DateTime(2000),
+          lastDate: DateTime.now(),
         ),
         SizedBox(width: 10),
         Icon(Icons.arrow_forward, color: Colors.red[900]),
@@ -120,6 +132,8 @@ class _InformesVentasState extends State<InformesVentas> {
               endDate = date;
             });
           },
+          firstDate: DateTime(2000),
+          lastDate: DateTime.now(),
         ),
       ],
     );

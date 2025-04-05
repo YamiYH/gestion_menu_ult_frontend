@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
+import 'package:gestion_menu_ult_frontend/widgets/Pagination.dart';
 
 import '../../widgets/Button.dart';
 
@@ -141,6 +142,15 @@ class _GestionarAlmacenState extends State<GestionarAlmacen> {
             _buildProductList(isMobile),
           ],
         ),
+      ),
+      bottomNavigationBar: Pagination(
+        items: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        itemsPerPage: 10,
+        itemBuilder: (context, item) {
+          return ListTile(
+            title: Text(item as String),
+          );
+        },
       ),
     );
   }
