@@ -48,20 +48,6 @@ class Options extends StatelessWidget {
       Container(
         padding: EdgeInsets.all(5),
         child: BuildCard(
-            title: 'Administración',
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AdminScreen(),
-                ),
-              );
-            },
-            icon: Icons.admin_panel_settings),
-      ),
-      Container(
-        padding: EdgeInsets.all(5),
-        child: BuildCard(
             title: 'Menú',
             onTap: () {
               Navigator.push(
@@ -86,6 +72,20 @@ class Options extends StatelessWidget {
               );
             },
             title: 'Tickets'),
+      ),
+      Container(
+        padding: EdgeInsets.all(5),
+        child: BuildCard(
+            title: 'Administración',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AdminScreen(),
+                ),
+              );
+            },
+            icon: Icons.admin_panel_settings),
       ),
     ];
   }

@@ -21,8 +21,7 @@ class DatePickerButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    bool isMobile = screenWidth < 600;
+    bool isMobile = MediaQuery.of(context).size.width < 600;
 
     return ElevatedButton.icon(
       style: ElevatedButton.styleFrom(

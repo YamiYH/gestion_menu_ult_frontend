@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:gestion_menu_ult_frontend/screens/menu/InformesVentas.dart';
+import 'package:gestion_menu_ult_frontend/screens/menu/Ventas.dart';
 import 'package:gestion_menu_ult_frontend/widgets/BuildCard.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 
-import 'Inventario.dart';
-import 'Menu.dart';
-import 'ModulosVenta.dart';
-
-class ModulosMenu extends StatelessWidget {
+class ModulosVenta extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bool isMobile = MediaQuery.of(context).size.width < 600;
@@ -51,42 +49,27 @@ class ModulosMenu extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => GestionarAlmacen(),
+                builder: (context) => Ventas(),
               ),
             );
           },
-          title: 'Inventario',
-          icon: Icons.inventory,
-        ),
-      ),
-      Container(
-        padding: EdgeInsets.all(5),
-        child: BuildCard(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Menu(),
-              ),
-            );
-          },
-          title: 'Menú',
-          icon: Icons.restaurant_menu,
-        ),
-      ),
-      Container(
-        padding: EdgeInsets.all(5),
-        child: BuildCard(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ModulosVenta(),
-              ),
-            );
-          },
-          title: 'Ventas',
+          title: 'Iniciar Ventas',
           icon: Icons.attach_money,
+        ),
+      ),
+      Container(
+        padding: EdgeInsets.all(5),
+        child: BuildCard(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => InformesVentas(),
+              ),
+            );
+          },
+          title: 'Informes de Ventas',
+          icon: Icons.bar_chart,
         ),
       ),
     ];

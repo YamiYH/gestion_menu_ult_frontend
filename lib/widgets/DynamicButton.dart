@@ -23,7 +23,7 @@ class _DynamicButtonState extends State<DynamicButton> {
     return ElevatedButton(
       onPressed: widget.onPressed,
       style: ElevatedButton.styleFrom(
-        fixedSize: Size(isMobile ? 180 : 160, 50),
+        fixedSize: Size(isMobile ? 300 : 160, isMobile ? 60 : 50),
         elevation: 3,
         backgroundColor: Colors.red[900],
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -45,7 +45,7 @@ class _DynamicButtonState extends State<DynamicButton> {
           SizedBox(width: 8),
           Text(
             widget.text,
-            style: TextStyle(color: Colors.white, fontSize: isMobile ? 15 : 18),
+            style: TextStyle(color: Colors.white, fontSize: 18),
           ),
         ],
       ),
