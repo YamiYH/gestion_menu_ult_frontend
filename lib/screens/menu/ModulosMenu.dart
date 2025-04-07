@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:gestion_menu_ult_frontend/screens/menu/PropuestaMenu.dart';
 import 'package:gestion_menu_ult_frontend/widgets/BuildCard.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 
+import 'InformesVentas.dart';
 import 'Inventario.dart';
-import 'Menu.dart';
+import 'MenuConfig.dart';
 import 'ModulosVenta.dart';
+import 'Ventas.dart';
 
 class ModulosMenu extends StatelessWidget {
   @override
@@ -66,12 +69,12 @@ class ModulosMenu extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => Menu(),
+                builder: (context) => MenuPropuesta(),
               ),
             );
           },
-          title: 'Menú',
-          icon: Icons.restaurant_menu,
+          title: 'Propuestas de Menú',
+          icon: Icons.fastfood_sharp,
         ),
       ),
       Container(
@@ -87,6 +90,36 @@ class ModulosMenu extends StatelessWidget {
           },
           title: 'Ventas',
           icon: Icons.attach_money,
+        ),
+      ),
+      Container(
+        padding: EdgeInsets.all(5),
+        child: BuildCard(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => InformesVentas(),
+              ),
+            );
+          },
+          title: 'Libro de Recetas',
+          icon: Icons.book,
+        ),
+      ),
+      Container(
+        padding: EdgeInsets.all(5),
+        child: BuildCard(
+          title: 'Configuración',
+          icon: Icons.settings,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MenuConfig(),
+              ),
+            );
+          },
         ),
       ),
     ];

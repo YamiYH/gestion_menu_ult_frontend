@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/ModulosMenu.dart';
-import 'package:gestion_menu_ult_frontend/screens/ticket/Gestionar_Ticket.dart';
+import 'package:gestion_menu_ult_frontend/screens/ticket/GestionarTicket.dart';
 
 import '../../widgets/BuildCard.dart';
 import '../../widgets/CustomAppbar.dart';
@@ -48,44 +48,47 @@ class Options extends StatelessWidget {
       Container(
         padding: EdgeInsets.all(5),
         child: BuildCard(
-            title: 'Menú',
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ModulosMenu(),
-                ),
-              );
-            },
-            icon: Icons.restaurant_menu),
+          title: 'Menú',
+          icon: Icons.restaurant_menu,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ModulosMenu(),
+              ),
+            );
+          },
+        ),
       ),
       Container(
         padding: EdgeInsets.all(5),
         child: BuildCard(
-            icon: Icons.qr_code,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => GestionarTicket(),
-                ),
-              );
-            },
-            title: 'Tickets'),
+          title: 'Tickets',
+          icon: Icons.qr_code,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => GestionarTicket(),
+              ),
+            );
+          },
+        ),
       ),
       Container(
         padding: EdgeInsets.all(5),
         child: BuildCard(
-            title: 'Administración',
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AdminScreen(),
-                ),
-              );
-            },
-            icon: Icons.admin_panel_settings),
+          title: 'Administración',
+          icon: Icons.admin_panel_settings,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AdminScreen(),
+              ),
+            );
+          },
+        ),
       ),
     ];
   }

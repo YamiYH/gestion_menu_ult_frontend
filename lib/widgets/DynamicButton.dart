@@ -3,13 +3,15 @@ import 'package:flutter/material.dart';
 class DynamicButton extends StatefulWidget {
   final VoidCallback onPressed;
   final String text;
-  final IconData? icon; // Ícono opcional
+  final IconData? icon;
+  final Color colorButton;
 
   const DynamicButton({
     Key? key,
     required this.onPressed,
     required this.text,
     this.icon,
+    required this.colorButton,
   }) : super(key: key);
 
   @override
@@ -25,7 +27,7 @@ class _DynamicButtonState extends State<DynamicButton> {
       style: ElevatedButton.styleFrom(
         fixedSize: Size(isMobile ? 300 : 160, isMobile ? 60 : 50),
         elevation: 3,
-        backgroundColor: Colors.red[900],
+        backgroundColor: widget.colorButton,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         padding: EdgeInsets.symmetric(
           horizontal: isMobile ? 30 : 20,

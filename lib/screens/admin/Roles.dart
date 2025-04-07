@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/widgets/AddButton.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
+import 'package:gestion_menu_ult_frontend/widgets/Pagination.dart';
 
 import '../../widgets/FilterButton.dart';
 import '../../widgets/UserTextFormField.dart';
@@ -111,6 +112,13 @@ class _RolesState extends State<Roles> {
             ),
           ),
         ],
+      ),
+      bottomNavigationBar: Pagination(
+        itemBuilder: (context, item) {
+          return ListTile(
+            title: Text(item as String),
+          );
+        },
       ),
     );
   }

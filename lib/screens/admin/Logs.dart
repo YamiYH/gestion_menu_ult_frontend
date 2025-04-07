@@ -45,8 +45,6 @@ class _LogsState extends State<Logs> {
         ],
       ),
       bottomNavigationBar: Pagination(
-        items: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-        itemsPerPage: 10,
         itemBuilder: (context, item) {
           return ListTile(
             title: Text(item as String),
@@ -336,11 +334,19 @@ class _LogsState extends State<Logs> {
           Center(child: Text('No hay logs disponibles'))
         else
           ...filteredLogs.map((log) {
-            // Convertir la fecha (String) a DateTime
-            DateTime parsedDate =
-                DateFormat('yyyy-MM-dd hh:mm a').parse(log['date']);
-            String formattedDate =
-                DateFormat('yyyy-MM-dd HH:mm').format(parsedDate);
+            // Validar y formatear la fecha
+            String formattedDate = 'Fecha no disponible';
+            if (log['date'] != null) {
+              try {
+                DateTime parsedDate =
+                    DateFormat('yyyy-MM-dd hh:mm a').parse(log['date']);
+                formattedDate =
+                    DateFormat('yyyy-MM-dd HH:mm').format(parsedDate);
+              } catch (e) {
+                formattedDate = 'Formato de fecha inválido';
+              }
+            }
+
             return Column(
               children: [
                 isMobile
@@ -357,7 +363,7 @@ class _LogsState extends State<Logs> {
                                 height: isMobile ? 20 : 25,
                               ),
                               SizedBox(
-                                child: Text(log[formattedDate]),
+                                child: Text(formattedDate),
                                 width: MediaQuery.of(context).size.width * 0.35,
                                 height: isMobile ? 20 : 25,
                               ),

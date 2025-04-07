@@ -68,8 +68,8 @@ class _LoginState extends State<Login> {
                       labelText: 'Usuario',
                       labelStyle: TextStyle(color: Colors.red[900]),
                       border: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.red[900]!),
-                      ),
+                          borderSide: BorderSide(color: Colors.red[900]!),
+                          borderRadius: BorderRadius.circular(10)),
                       focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.red[900]!),
                       ),
@@ -90,12 +90,8 @@ class _LoginState extends State<Login> {
                       labelText: 'Contraseña',
                       labelStyle: TextStyle(color: Colors.red[900]),
                       border: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.red[900]!),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.red[900]!),
-                      ),
+                          borderSide: BorderSide(color: Colors.red[900]!),
+                          borderRadius: BorderRadius.circular(10)),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {

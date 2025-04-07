@@ -253,9 +253,13 @@ class _VentasState extends State<Ventas> {
                   DynamicButton(
                     onPressed: () {},
                     text: 'Reservar',
+                    colorButton: Colors.red.shade900,
                   ),
                   SizedBox(height: 15),
-                  DynamicButton(onPressed: () {}, text: 'Pagar'),
+                  DynamicButton(
+                      onPressed: () {},
+                      text: 'Pagar',
+                      colorButton: Colors.red.shade900),
                   SizedBox(height: 15),
                   CloseSalesButton(isMobile)
                 ])
@@ -265,9 +269,13 @@ class _VentasState extends State<Ventas> {
                       DynamicButton(
                         onPressed: () {},
                         text: 'Reservar',
+                        colorButton: Colors.red.shade900,
                       ),
                       const SizedBox(width: 10),
-                      DynamicButton(onPressed: () {}, text: 'Pagar'),
+                      DynamicButton(
+                          onPressed: () {},
+                          text: 'Pagar',
+                          colorButton: Colors.red.shade900),
                     ]),
                     SizedBox(height: 15),
                     CloseSalesButton(isMobile)

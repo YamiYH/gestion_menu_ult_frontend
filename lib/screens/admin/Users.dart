@@ -126,8 +126,6 @@ class _UsersState extends State<Users> {
         ],
       ),
       bottomNavigationBar: Pagination(
-        items: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-        itemsPerPage: 10,
         itemBuilder: (context, item) {
           return ListTile(
             title: Text(item as String),

@@ -144,8 +144,6 @@ class _GestionarAlmacenState extends State<GestionarAlmacen> {
         ),
       ),
       bottomNavigationBar: Pagination(
-        items: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-        itemsPerPage: 10,
         itemBuilder: (context, item) {
           return ListTile(
             title: Text(item as String),
@@ -354,14 +352,16 @@ class _GestionarAlmacenState extends State<GestionarAlmacen> {
           ..._filteredProducts.map((product) {
             return SingleChildScrollView(
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                padding: const EdgeInsets.symmetric(vertical: 8),
                 child: isMobile
                     ? Column(
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
+                              SizedBox(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.02),
                               SizedBox(
                                 width: MediaQuery.of(context).size.width * 0.25,
                                 child: Text(
@@ -394,51 +394,54 @@ class _GestionarAlmacenState extends State<GestionarAlmacen> {
                       )
                     : Column(
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              SizedBox(
-                                width: 100,
-                                child: Text(
-                                  product['code'] ?? 'N/A',
-                                  style: TextStyle(fontSize: 16),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 20),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                SizedBox(
+                                  width: 100,
+                                  child: Text(
+                                    product['code'] ?? 'N/A',
+                                    style: TextStyle(fontSize: 16),
+                                  ),
                                 ),
-                              ),
-                              SizedBox(width: 20),
-                              SizedBox(
-                                width: 200,
-                                child: Text(
-                                  product['name'],
-                                  style: TextStyle(fontSize: 16),
+                                SizedBox(width: 20),
+                                SizedBox(
+                                  width: 200,
+                                  child: Text(
+                                    product['name'],
+                                    style: TextStyle(fontSize: 16),
+                                  ),
                                 ),
-                              ),
-                              SizedBox(width: 10),
-                              SizedBox(
-                                width: 180,
-                                child: Text(
-                                  product['category'],
-                                  style: TextStyle(fontSize: 16),
+                                SizedBox(width: 10),
+                                SizedBox(
+                                  width: 180,
+                                  child: Text(
+                                    product['category'],
+                                    style: TextStyle(fontSize: 16),
+                                  ),
                                 ),
-                              ),
-                              SizedBox(width: 20),
-                              SizedBox(
-                                width: 100,
-                                child: Text(
-                                  product['quantity'].toString(),
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(fontSize: 16),
+                                SizedBox(width: 20),
+                                SizedBox(
+                                  width: 100,
+                                  child: Text(
+                                    product['quantity'].toString(),
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(fontSize: 16),
+                                  ),
                                 ),
-                              ),
-                              SizedBox(width: 20),
-                              SizedBox(
-                                width: 100,
-                                child: Text(
-                                  product['unit'] ?? 'N/A',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(fontSize: 16),
+                                SizedBox(width: 20),
+                                SizedBox(
+                                  width: 100,
+                                  child: Text(
+                                    product['unit'] ?? 'N/A',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(fontSize: 16),
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                           Divider(),
                         ],
