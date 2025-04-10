@@ -8,14 +8,14 @@ import '../../widgets/CustomAppbar.dart';
 import 'Logs.dart';
 import 'Users.dart';
 
-class AdminScreen extends StatefulWidget {
-  const AdminScreen({super.key});
+class ModulosAdmin extends StatefulWidget {
+  const ModulosAdmin({super.key});
 
   @override
-  _AdminScreenState createState() => _AdminScreenState();
+  _ModulosAdminState createState() => _ModulosAdminState();
 }
 
-class _AdminScreenState extends State<AdminScreen> {
+class _ModulosAdminState extends State<ModulosAdmin> {
   @override
   Widget build(BuildContext context) {
     bool isMobile = MediaQuery.of(context).size.width < 600;

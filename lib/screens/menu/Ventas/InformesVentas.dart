@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 
-import '../../widgets/Button.dart';
-import '../../widgets/DatePickerButton.dart';
-import '../../widgets/Pagination.dart';
+import '../../../widgets/Button.dart';
+import '../../../widgets/DatePickerButton.dart';
+import '../../../widgets/Pagination.dart';
 
 class InformesVentas extends StatefulWidget {
   @override
@@ -171,7 +171,7 @@ class _InformesVentasState extends State<InformesVentas> {
                     item['nombre'],
                     style: TextStyle(
                         fontSize: isMobile ? 16 : 15,
-                        fontWeight: FontWeight.w500),
+                        fontWeight: FontWeight.w700),
                   ),
 // Ícono de descarga
                   IconButton(

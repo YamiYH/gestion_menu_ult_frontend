@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 
-import '../../widgets/DynamicButton.dart';
+import '../../../widgets/DynamicButton.dart';
 
 class Ventas extends StatefulWidget {
   @override

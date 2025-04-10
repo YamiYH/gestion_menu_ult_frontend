@@ -33,6 +33,8 @@ dependencies:
   provider: ^6.0.0
   http: ^1.3.0
   equatable:
+  mobile_scanner: ^5.0.0
+  permission_handler:
   
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -41,9 +43,9 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_launcher_icons: "^0.13.1"
-  google_fonts: ^4.0.0
-  intl: ^0.17.0
+  flutter_launcher_icons: ^0.14.3
+  google_fonts: ^6.2.1
+  intl: ^0.20.2
 
 
   # The "flutter_lints" package below contains a set of recommended lints to

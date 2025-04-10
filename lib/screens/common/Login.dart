@@ -55,10 +55,11 @@ class _LoginState extends State<Login> {
                     height: isMobile ? 100 : 150,
                   ),
                   Text(
-                    '"Tu comedor universitario en la palma de tu mano"',
+                    '"El comedor universitario en la palma de tu mano"',
                     style: TextStyle(
                         fontSize: isMobile ? 11 : 16,
-                        fontWeight: FontWeight.w400),
+                        fontWeight:
+                            isMobile ? FontWeight.bold : FontWeight.w400),
                   ),
                   SizedBox(height: 50),
                   TextFormField(

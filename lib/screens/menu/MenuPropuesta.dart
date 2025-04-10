@@ -118,7 +118,7 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(isMobile ? 10 : 60),
+          padding: EdgeInsets.all(12),
           child: Column(
             children: [
               SizedBox(height: 15),

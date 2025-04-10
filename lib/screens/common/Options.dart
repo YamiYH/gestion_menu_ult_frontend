@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:gestion_menu_ult_frontend/screens/admin/ModulosAdmin.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/ModulosMenu.dart';
 import 'package:gestion_menu_ult_frontend/screens/ticket/GestionarTicket.dart';
 
 import '../../widgets/BuildCard.dart';
 import '../../widgets/CustomAppbar.dart';
-import '../admin/Admin.dart'; // Importar los widgets de las tarjetas
 
 class Options extends StatelessWidget {
   @override
@@ -84,7 +84,7 @@ class Options extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => AdminScreen(),
+                builder: (context) => ModulosAdmin(),
               ),
             );
           },

@@ -78,12 +78,12 @@ class DatePickerButton extends StatelessWidget {
             colorScheme: ColorScheme.light(
               primary: Colors.red[400]!,
             ),
-            dialogBackgroundColor: Colors.white,
             textTheme: TextTheme(
               headlineMedium: TextStyle(fontSize: 16),
               bodyLarge: TextStyle(fontSize: 14),
               bodyMedium: TextStyle(fontSize: 12),
             ),
+            dialogTheme: DialogThemeData(backgroundColor: Colors.white),
           ),
           child: child!,
         );

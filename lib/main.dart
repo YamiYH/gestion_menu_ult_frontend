@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.red,
         scaffoldBackgroundColor: Colors.white,
       ),
-      initialRoute: AppRoutes.recetaModelo,
+      initialRoute: AppRoutes.menuConfig,
       routes: AppRoutes.getRoutes(),
     );
   }

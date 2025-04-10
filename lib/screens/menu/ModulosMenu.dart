@@ -6,7 +6,7 @@ import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 import 'Inventario.dart';
 import 'LibroRecetas.dart';
 import 'MenuConfig.dart';
-import 'ModulosVenta.dart';
+import 'Ventas/ModulosVenta.dart';
 
 class ModulosMenu extends StatelessWidget {
   @override

@@ -36,8 +36,8 @@ class _RecetaModeloState extends State<RecetaModelo> {
   late TextEditingController temperaturaController;
   late TextEditingController tiempoCoccionController;
 
-  // Lista de controladores para las 12 filas de ingredientes
-  List<Map<String, TextEditingController>> ingredientesControllers = [];
+  // Lista de controladores para las filas de ingredientes
+  List<Map<String, TextEditingController>> ingredientesControllerMap = [];
 
   @override
   void initState() {
@@ -78,7 +78,7 @@ class _RecetaModeloState extends State<RecetaModelo> {
     // Inicializar controladores para ingredientes
     final List<dynamic> ingredientes = widget.receta?['ingredientes'] ?? [];
     for (var ingrediente in ingredientes) {
-      ingredientesControllers.add({
+      ingredientesControllerMap.add({
         'nombre': TextEditingController(text: ingrediente['nombre'] ?? ''),
         'pesoBruto':
             TextEditingController(text: '${ingrediente['pesoBruto'] ?? 0}'),
@@ -107,7 +107,7 @@ class _RecetaModeloState extends State<RecetaModelo> {
     temperaturaController.dispose();
     tiempoCoccionController.dispose();
 
-    for (var controllerMap in ingredientesControllers) {
+    for (var controllerMap in ingredientesControllerMap) {
       controllerMap['nombre']?.dispose();
       controllerMap['pesoBruto']?.dispose();
       controllerMap['pesoNeto']?.dispose();
@@ -118,7 +118,7 @@ class _RecetaModeloState extends State<RecetaModelo> {
   // Método para agregar una nueva fila de ingredientes
   void addIngredienteRow() {
     setState(() {
-      ingredientesControllers.add({
+      ingredientesControllerMap.add({
         'nombre': TextEditingController(),
         'pesoBruto': TextEditingController(),
         'pesoNeto': TextEditingController(),
@@ -129,13 +129,13 @@ class _RecetaModeloState extends State<RecetaModelo> {
   // Método para eliminar una fila de ingredientes
   void _removeIngredienteRow(int index) {
     setState(() {
-      if (ingredientesControllers.isNotEmpty &&
+      if (ingredientesControllerMap.isNotEmpty &&
           index >= 0 &&
-          index < ingredientesControllers.length) {
-        ingredientesControllers[index]['nombre']?.dispose();
-        ingredientesControllers[index]['pesoBruto']?.dispose();
-        ingredientesControllers[index]['pesoNeto']?.dispose();
-        ingredientesControllers.removeAt(index);
+          index < ingredientesControllerMap.length) {
+        ingredientesControllerMap[index]['nombre']?.dispose();
+        ingredientesControllerMap[index]['pesoBruto']?.dispose();
+        ingredientesControllerMap[index]['pesoNeto']?.dispose();
+        ingredientesControllerMap.removeAt(index);
       }
     });
   }
@@ -251,9 +251,9 @@ class _RecetaModeloState extends State<RecetaModelo> {
 
               // Filas de ingredientes
               ...List.generate(
-                ingredientesControllers.length,
+                ingredientesControllerMap.length,
                 (index) {
-                  final controllers = ingredientesControllers[index];
+                  final controllers = ingredientesControllerMap[index];
                   return Column(
                     children: [
                       Row(
