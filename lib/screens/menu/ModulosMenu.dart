@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:gestion_menu_ult_frontend/screens/menu/PropuestaMenu.dart';
+import 'package:gestion_menu_ult_frontend/screens/menu/MenuPropuesta.dart';
 import 'package:gestion_menu_ult_frontend/widgets/BuildCard.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 
-import 'InformesVentas.dart';
 import 'Inventario.dart';
+import 'LibroRecetas.dart';
 import 'MenuConfig.dart';
 import 'ModulosVenta.dart';
-import 'Ventas.dart';
 
 class ModulosMenu extends StatelessWidget {
   @override
@@ -99,7 +98,7 @@ class ModulosMenu extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => InformesVentas(),
+                builder: (context) => LibroRecetas(),
               ),
             );
           },

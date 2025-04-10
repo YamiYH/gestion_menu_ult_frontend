@@ -10,7 +10,7 @@ class ModulosVenta extends StatelessWidget {
     bool isMobile = MediaQuery.of(context).size.width < 600;
 
     return Scaffold(
-      appBar: CustomAppBar(title: 'Menú'),
+      appBar: CustomAppBar(title: 'Ventas'),
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(isMobile ? 20 : 60),

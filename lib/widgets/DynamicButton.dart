@@ -5,6 +5,7 @@ class DynamicButton extends StatefulWidget {
   final String text;
   final IconData? icon;
   final Color colorButton;
+  final Size? size;
 
   const DynamicButton({
     Key? key,
@@ -12,6 +13,7 @@ class DynamicButton extends StatefulWidget {
     required this.text,
     this.icon,
     required this.colorButton,
+    required this.size,
   }) : super(key: key);
 
   @override
@@ -25,7 +27,7 @@ class _DynamicButtonState extends State<DynamicButton> {
     return ElevatedButton(
       onPressed: widget.onPressed,
       style: ElevatedButton.styleFrom(
-        fixedSize: Size(isMobile ? 300 : 160, isMobile ? 60 : 50),
+        fixedSize: widget.size,
         elevation: 3,
         backgroundColor: widget.colorButton,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),

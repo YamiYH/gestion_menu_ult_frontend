@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/screens/admin/Config.dart';
 import 'package:gestion_menu_ult_frontend/screens/admin/Payment.dart';
 import 'package:gestion_menu_ult_frontend/screens/admin/Users.dart';
+import 'package:gestion_menu_ult_frontend/screens/menu/LibroRecetas.dart';
+import 'package:gestion_menu_ult_frontend/screens/menu/MenuPropuesta.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/ModulosVenta.dart';
-import 'package:gestion_menu_ult_frontend/screens/menu/PropuestaMenu.dart';
+import 'package:gestion_menu_ult_frontend/screens/menu/RecetaModelo.dart';
 
 import '../screens/admin/Admin.dart';
 import '../screens/admin/Logs.dart';
@@ -37,6 +39,8 @@ class AppRoutes {
   static const String informes = '/informes';
   static const String menuConfig = '/menu_config';
   static const String menuPropuesta = '/menu_propuesta';
+  static const String libroRecetas = '/libro_recetas';
+  static const String recetaModelo = '/receta_modelo';
 
   // Mapeamos las rutas a las pantallas correspondientes
   static Map<String, WidgetBuilder> getRoutes() {
@@ -57,6 +61,8 @@ class AppRoutes {
       informes: (context) => InformesVentas(),
       menuConfig: (context) => MenuConfig(),
       menuPropuesta: (context) => MenuPropuesta(),
+      libroRecetas: (context) => LibroRecetas(),
+      recetaModelo: (context) => RecetaModelo(isEditMode: true, receta: null),
     };
   }
 }

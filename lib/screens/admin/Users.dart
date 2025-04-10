@@ -90,7 +90,14 @@ class _UsersState extends State<Users> {
                             onPressed: _applySearchWrapper,
                           ),
                           SizedBox(width: 10),
-                          AddButton(onPressed: () {}, text: 'Usuario')
+                          AddButton(
+                              onPressed: () {},
+                              text: 'Usuario',
+                              size: Size(
+                                  isMobile
+                                      ? MediaQuery.of(context).size.width * 0.35
+                                      : 150,
+                                  50))
                         ],
                       ),
                       SizedBox(height: 10),
@@ -102,7 +109,7 @@ class _UsersState extends State<Users> {
                     )),
 
           // Encabezados de la tabla
-          isMobile ? _buildHeaderMobile() : _buildHeaderRow(),
+          isMobile ? _buildHeaderMobile() : _buildHeaderRow(isMobile),
 
           // Lista de usuarios
           SizedBox(height: 10),
@@ -314,7 +321,7 @@ class _UsersState extends State<Users> {
   }
 
   // Encabezados responsivos
-  Widget _buildHeaderRow() {
+  Widget _buildHeaderRow(bool isMobile) {
     return Container(
       color: Colors.grey[200],
       padding: EdgeInsets.all(10),
@@ -356,7 +363,12 @@ class _UsersState extends State<Users> {
           SizedBox(
             width: MediaQuery.of(context).size.width * 0.03,
           ),
-          AddButton(onPressed: () {}, text: 'Usuario')
+          AddButton(
+              onPressed: () {},
+              text: 'Usuario',
+              size: Size(
+                  isMobile ? MediaQuery.of(context).size.width * 0.35 : 150,
+                  50))
         ],
       ),
     );

@@ -4,12 +4,14 @@ class Button extends StatefulWidget {
   final VoidCallback onPressed;
   final String text;
   final IconData? icon; // Ícono opcional
+  final Size? size; // Tamaño opcional
 
   const Button({
     Key? key,
     required this.onPressed,
     required this.text,
     this.icon,
+    this.size,
   }) : super(key: key);
 
   @override
@@ -20,10 +22,15 @@ class _ButtonState extends State<Button> {
   @override
   Widget build(BuildContext context) {
     bool isMobile = MediaQuery.of(context).size.width < 600;
+
+    // Definir el tamaño predeterminado si no se proporciona uno
+    Size defaultSize = Size(isMobile ? 180 : 220, 50);
+    Size buttonSize = widget.size ?? defaultSize;
+
     return ElevatedButton(
       onPressed: widget.onPressed,
       style: ElevatedButton.styleFrom(
-        fixedSize: Size(isMobile ? 180 : 220, 50),
+        fixedSize: buttonSize,
         elevation: 3,
         backgroundColor: Colors.red[900],
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),

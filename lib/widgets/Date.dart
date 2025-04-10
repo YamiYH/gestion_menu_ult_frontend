@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 
 class DateWidget extends StatefulWidget {
-  final bool isMobile;
   final DateTime? selectedDate;
   final Function(DateTime) onDateSelected;
-  final double width1;
+  final double size;
 
   const DateWidget({
     Key? key,
-    required this.isMobile,
     required this.selectedDate,
     required this.onDateSelected,
-    required this.width1,
+    required this.size,
   }) : super(key: key);
 
   @override
@@ -21,8 +19,9 @@ class DateWidget extends StatefulWidget {
 class _DateWidgetState extends State<DateWidget> {
   @override
   Widget build(BuildContext context) {
+    bool isMobile = MediaQuery.of(context).size.width < 600;
     return Container(
-      width: widget.isMobile ? MediaQuery.of(context).size.width * 0.90 : null,
+      width: isMobile ? MediaQuery.of(context).size.width * 0.40 : null,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -30,7 +29,7 @@ class _DateWidgetState extends State<DateWidget> {
           ElevatedButton.icon(
             style: ElevatedButton.styleFrom(
               fixedSize: Size(
-                widget.width1,
+                widget.size,
                 MediaQuery.of(context).size.height * 0.07,
               ),
               shape: RoundedRectangleBorder(
@@ -39,8 +38,8 @@ class _DateWidgetState extends State<DateWidget> {
               backgroundColor: Colors.white,
               side: BorderSide(color: Colors.red[900]!, width: 1),
               padding: EdgeInsets.symmetric(
-                horizontal: widget.isMobile ? 10 : 20,
-                vertical: widget.isMobile ? 8 : 12,
+                horizontal: isMobile ? 10 : 20,
+                vertical: isMobile ? 8 : 12,
               ),
             ),
             onPressed: () async {

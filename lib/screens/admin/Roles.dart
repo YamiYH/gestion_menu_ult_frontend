@@ -78,7 +78,14 @@ class _RolesState extends State<Roles> {
                           ),
                           SizedBox(
                               width: MediaQuery.of(context).size.width * 0.07),
-                          AddButton(onPressed: () {}, text: 'Rol')
+                          AddButton(
+                              onPressed: () {},
+                              text: 'Rol',
+                              size: Size(
+                                  isMobile
+                                      ? MediaQuery.of(context).size.width * 0.35
+                                      : 150,
+                                  50))
                         ],
                       ),
                       SizedBox(height: 10),
@@ -90,7 +97,7 @@ class _RolesState extends State<Roles> {
                     )),
 
           // Encabezados de la tabla
-          isMobile ? _buildHeaderMobile() : _buildHeaderRow(),
+          isMobile ? _buildHeaderMobile() : _buildHeaderRow(isMobile),
 
           // Lista de usuarios
           SizedBox(height: 10),
@@ -262,7 +269,7 @@ class _RolesState extends State<Roles> {
   }
 
   // Encabezados responsivos
-  Widget _buildHeaderRow() {
+  Widget _buildHeaderRow(bool isMobile) {
     return Container(
       color: Colors.grey[200],
       padding: EdgeInsets.all(10),
@@ -295,7 +302,12 @@ class _RolesState extends State<Roles> {
             width: MediaQuery.of(context).size.width * 0.03,
             height: 25,
           ),
-          AddButton(onPressed: () {}, text: 'Rol')
+          AddButton(
+              onPressed: () {},
+              text: 'Rol',
+              size: Size(
+                  isMobile ? MediaQuery.of(context).size.width * 0.35 : 150,
+                  50))
         ],
       ),
     );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
+import 'package:gestion_menu_ult_frontend/widgets/DatePickerButton.dart';
 import 'package:intl/intl.dart' show DateFormat;
 
 import '../../widgets/Button.dart';
@@ -446,42 +447,7 @@ class _GestionarTicketState extends State<GestionarTicket> {
               SizedBox(height: 10),
               _buildOptionTitle('Comedor', Icons.restaurant_menu),
               SizedBox(height: 8),
-              SizedBox(
-                width: isMobile ? 150 : 200,
-                height: isMobile ? 65 : 50,
-                child: InputDecorator(
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: Colors.grey[200],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      value: selectedCafeteria,
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          selectedCafeteria = newValue!;
-                        });
-                      },
-                      items: ['Lenin', 'Pepito Tey']
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value, style: TextStyle(fontSize: 18)),
-                        );
-                      }).toList(),
-                      icon: Icon(Icons.arrow_drop_down_circle,
-                          color: Colors.red[900]),
-                      dropdownColor: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(10),
-                      isExpanded: true,
-                    ),
-                  ),
-                ),
-              ),
+              PlaceDropDown(isMobile),
             ],
           ),
           SizedBox(width: 20),
@@ -492,42 +458,7 @@ class _GestionarTicketState extends State<GestionarTicket> {
               SizedBox(height: 10),
               _buildOptionTitle('Menú', Icons.food_bank),
               SizedBox(height: 8),
-              SizedBox(
-                width: isMobile ? 150 : 200,
-                height: isMobile ? 65 : 50,
-                child: InputDecorator(
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: Colors.grey[200],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      value: selectedMealType,
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          selectedMealType = newValue!;
-                        });
-                      },
-                      items: ['Desayuno', 'Almuerzo', 'Comida']
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value, style: TextStyle(fontSize: 18)),
-                        );
-                      }).toList(),
-                      icon: Icon(Icons.arrow_drop_down_circle,
-                          color: Colors.red[900]),
-                      dropdownColor: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(10),
-                      isExpanded: true,
-                    ),
-                  ),
-                ),
-              ),
+              FoodDropDown(isMobile),
             ],
           ),
         ],
@@ -536,63 +467,29 @@ class _GestionarTicketState extends State<GestionarTicket> {
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          DatePickerButton(
+              label: 'Desde',
+              selectedDate: startDate,
+              onDateSelected: (date) {
+                setState(() {
+                  startDate = date;
+                });
+              },
+              firstDate: DateTime.now(),
+              lastDate: DateTime.now().add(Duration(days: 30))),
           SizedBox(width: isMobile ? 10 : 20),
           Icon(Icons.arrow_forward, color: Colors.red[900]),
           SizedBox(width: isMobile ? 10 : 20),
-          // Botón "Hasta"
-          ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              fixedSize: Size(isMobile ? 150 : 170, isMobile ? 40 : 50),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              backgroundColor: Colors.white,
-              side: BorderSide(color: Colors.red[900]!, width: 1),
-              padding: EdgeInsets.symmetric(
-                horizontal: isMobile ? 10 : 20,
-                vertical: isMobile ? 8 : 12,
-              ),
-            ),
-            onPressed: () async {
-              final pickedDate = await showDatePicker(
-                context: context,
-                initialDate: DateTime.now(),
-                firstDate: DateTime.now(),
-                lastDate: DateTime.now().add(Duration(days: 30)),
-                builder: (BuildContext context, Widget? child) {
-                  return Theme(
-                    data: ThemeData(
-                      primaryColor: Colors.red[900],
-                      colorScheme: ColorScheme.light(
-                        primary: Colors.red[400]!,
-                      ),
-                      dialogBackgroundColor: Colors.white,
-                      textTheme: TextTheme(
-                        headlineMedium: TextStyle(fontSize: 16),
-                        bodyLarge: TextStyle(fontSize: 14),
-                        bodyMedium: TextStyle(fontSize: 12),
-                      ),
-                    ),
-                    child: child!,
-                  );
-                },
-              );
-              if (pickedDate != null) {
-                setState(() {
-                  endDate = pickedDate;
-                });
-              }
+          DatePickerButton(
+            label: 'Hasta',
+            selectedDate: endDate,
+            onDateSelected: (date) {
+              setState(() {
+                endDate = date;
+              });
             },
-            icon: Icon(Icons.calendar_today, color: Colors.red[900]),
-            label: Text(
-              endDate == null
-                  ? 'Hasta'
-                  : DateFormat('yyyy-MM-dd').format(endDate!),
-              style: TextStyle(
-                fontSize: isMobile ? 14 : 18,
-                color: Colors.red[900],
-              ),
-            ),
+            firstDate: DateTime.now(),
+            lastDate: DateTime.now().add(Duration(days: 30)),
           ),
         ],
       ),
@@ -612,6 +509,82 @@ class _GestionarTicketState extends State<GestionarTicket> {
         },
       )
     ];
+  }
+
+  SizedBox PlaceDropDown(bool isMobile) {
+    return SizedBox(
+      width: isMobile ? 150 : 200,
+      height: isMobile ? 65 : 50,
+      child: InputDecorator(
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: Colors.grey[200],
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none,
+          ),
+        ),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<String>(
+            value: selectedCafeteria,
+            onChanged: (String? newValue) {
+              setState(() {
+                selectedCafeteria = newValue!;
+              });
+            },
+            items: ['Lenin', 'Pepito Tey']
+                .map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value, style: TextStyle(fontSize: 18)),
+              );
+            }).toList(),
+            icon: Icon(Icons.arrow_drop_down_circle, color: Colors.red[900]),
+            dropdownColor: Colors.grey[200],
+            borderRadius: BorderRadius.circular(10),
+            isExpanded: true,
+          ),
+        ),
+      ),
+    );
+  }
+
+  SizedBox FoodDropDown(bool isMobile) {
+    return SizedBox(
+      width: isMobile ? 150 : 200,
+      height: isMobile ? 65 : 50,
+      child: InputDecorator(
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: Colors.grey[200],
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none,
+          ),
+        ),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<String>(
+            value: selectedMealType,
+            onChanged: (String? newValue) {
+              setState(() {
+                selectedMealType = newValue!;
+              });
+            },
+            items: ['Desayuno', 'Almuerzo', 'Comida']
+                .map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value, style: TextStyle(fontSize: 18)),
+              );
+            }).toList(),
+            icon: Icon(Icons.arrow_drop_down_circle, color: Colors.red[900]),
+            dropdownColor: Colors.grey[200],
+            borderRadius: BorderRadius.circular(10),
+            isExpanded: true,
+          ),
+        ),
+      ),
+    );
   }
 
   // Método para crear títulos con iconos

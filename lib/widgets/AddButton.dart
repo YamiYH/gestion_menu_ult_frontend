@@ -4,12 +4,14 @@ class AddButton extends StatefulWidget {
   final VoidCallback onPressed;
   final String text;
   final Icon? icon;
+  final Size size;
 
   const AddButton({
     Key? key,
     required this.onPressed,
     required this.text,
     this.icon,
+    required this.size,
   }) : super(key: key);
 
   @override
@@ -26,8 +28,7 @@ class _ButtonState extends State<AddButton> {
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           backgroundColor: Colors.green,
-          fixedSize: Size(
-              isMobile ? MediaQuery.of(context).size.width * 0.35 : 150, 50)),
+          fixedSize: widget.size),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
