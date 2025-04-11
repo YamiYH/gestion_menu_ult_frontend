@@ -24,6 +24,30 @@ class _MenuConfigState extends State<MenuConfig> {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+
+              // Cambia el color de la selección (círculo activo)
+              colorScheme: ColorScheme.light(
+                primary: Colors.red.shade700,
+                // Cambia el color principal a rojo
+                onPrimary: Colors.white, // Texto en el botón "OK"
+              ),
+              // Cambia el color del texto del botón "CANCEL"
+              textButtonTheme: TextButtonThemeData(
+                style: TextButton.styleFrom(
+                  textStyle: TextStyle(fontWeight: FontWeight.bold),
+                  foregroundColor:
+                      Colors.red, // Cambia el color del texto a rojo
+                ),
+              ),
+              timePickerTheme: TimePickerThemeData(
+                dayPeriodColor: Colors.grey[300],
+              )),
+          child: child!,
+        );
+      },
     );
     if (picked != null) {
       setState(() {

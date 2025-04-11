@@ -1,16 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:gestion_menu_ult_frontend/providers/MenuProviders.dart';
 import 'package:gestion_menu_ult_frontend/routes/routes.dart';
 import 'package:google_fonts/google_fonts.dart' show GoogleFonts;
-import 'package:provider/provider.dart';
 
 void main() {
-  runApp(
-    ChangeNotifierProvider(
-      create: (context) => MenuProvider(),
-      child: MyApp(),
-    ),
-  );
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {

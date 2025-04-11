@@ -75,6 +75,9 @@ Widget SearchTextField(bool isMobile, BuildContext context) {
             borderRadius:
                 BorderRadius.circular(10), // Mismos bordes redondeados
           ),
+          focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.red[900]!),
+              borderRadius: BorderRadius.circular(10)),
           contentPadding: EdgeInsets.all(15)),
       onChanged: (value) {},
     ),

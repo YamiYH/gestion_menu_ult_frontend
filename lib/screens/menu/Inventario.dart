@@ -237,7 +237,12 @@ class _GestionarAlmacenState extends State<GestionarAlmacen> {
       controller: _searchController,
       decoration: InputDecoration(
         labelText: 'Producto',
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        border: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.red[900]!),
+            borderRadius: BorderRadius.circular(10)),
+        focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.red[900]!),
+            borderRadius: BorderRadius.circular(10)),
       ),
       onChanged: (value) => _applyFilters(),
     );
@@ -273,8 +278,12 @@ class _GestionarAlmacenState extends State<GestionarAlmacen> {
             keyboardType: TextInputType.number,
             decoration: InputDecoration(
               labelText: 'Cant. Mínima',
-              border:
-                  OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              border: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red[900]!),
+                  borderRadius: BorderRadius.circular(10)),
+              focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red[900]!),
+                  borderRadius: BorderRadius.circular(10)),
             ),
           ),
         ),
@@ -287,8 +296,12 @@ class _GestionarAlmacenState extends State<GestionarAlmacen> {
             keyboardType: TextInputType.number,
             decoration: InputDecoration(
               labelText: 'Cant. Máxima',
-              border:
-                  OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              border: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red[900]!),
+                  borderRadius: BorderRadius.circular(10)),
+              focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red[900]!),
+                  borderRadius: BorderRadius.circular(10)),
             ),
           ),
         ),
