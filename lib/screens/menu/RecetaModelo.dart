@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 import 'package:gestion_menu_ult_frontend/widgets/RecipeTextField.dart';
+import 'package:http/http.dart' as http;
 
 import '../../widgets/Button.dart';
 
@@ -138,6 +141,69 @@ class _RecetaModeloState extends State<RecetaModelo> {
         ingredientesControllerMap.removeAt(index);
       }
     });
+  }
+
+  Future<void> saveRecipe() async {
+    try {
+      // Validar campos obligatorios
+      if (nombreController.text.isEmpty || recetaNumController.text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content:
+                  Text('Todos los campos obligatorios deben ser llenados')),
+        );
+        return;
+      }
+
+      // Construir el objeto JSON con los datos de la receta
+      final Map<String, dynamic> recipeData = {
+        'nombre': nombreController.text,
+        'recetaNum': recetaNumController.text,
+        'proteinas': double.tryParse(proteinasController.text) ?? 0,
+        'grasas': double.tryParse(grasasController.text) ?? 0,
+        'carbohidratos': double.tryParse(carbohidratosController.text) ?? 0,
+        'energia': double.tryParse(energiaController.text) ?? 0,
+        'pesoPorcion': double.tryParse(pesoPorcionController.text) ?? 0,
+        'ingredientes': ingredientesControllerMap
+            .map((controllerMap) => {
+                  'nombre': controllerMap['nombre']?.text ?? '',
+                  'pesoBruto': double.tryParse(
+                          controllerMap['pesoBruto']?.text ?? '0') ??
+                      0,
+                  'pesoNeto':
+                      double.tryParse(controllerMap['pesoNeto']?.text ?? '0') ??
+                          0,
+                })
+            .toList(),
+        'preparacion': preparacionController.text,
+        'coccion': coccionController.text,
+        'observaciones': observacionesController.text,
+        'temperatura': double.tryParse(temperaturaController.text) ?? 0,
+        'tiempoCoccion': double.tryParse(tiempoCoccionController.text) ?? 0,
+      };
+
+      // Endpoint del backend (reemplaza con la URL real de tu API)
+      final response = await http.post(
+        Uri.parse('https://tu-backend.com/api/recetas'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(recipeData),
+      );
+
+      // Verificar la respuesta del servidor
+      if (response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Receta guardada exitosamente')),
+        );
+        Navigator.pop(
+            context, {'success': true}); // Regresar a la pantalla anterior
+      } else {
+        throw Exception('Error al guardar la receta.');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
   }
 
   @override
@@ -393,7 +459,7 @@ class _RecetaModeloState extends State<RecetaModelo> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Button(onPressed: () {}, text: 'Guardar'),
+                    Button(onPressed: saveRecipe, text: 'Guardar'),
                   ],
                 ),
               SizedBox(height: 20)

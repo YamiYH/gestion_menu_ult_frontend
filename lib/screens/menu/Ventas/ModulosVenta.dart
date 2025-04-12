@@ -21,34 +21,43 @@ class ModulosVenta extends StatelessWidget {
 
     return Scaffold(
       appBar: CustomAppBar(title: 'Ventas'),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(isMobile ? 20 : 60),
-          child: isMobile
-              ? Center(
-                  child: Column(
-                    children: _buildModulos(
-                        context, isMobile, requestCameraPermission),
-                  ),
-                )
-              : GridView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    crossAxisSpacing: 40,
-                    mainAxisSpacing: 40,
-                    childAspectRatio: 2.5,
-                  ),
-                  itemCount:
-                      _buildModulos(context, isMobile, requestCameraPermission)
-                          .length,
-                  itemBuilder: (context, index) {
-                    return _buildModulos(
+      body: Container(
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
+        decoration: BoxDecoration(
+            image: DecorationImage(
+                //opacity: 0.9,
+                image: AssetImage('assets/img/background3.png'),
+                fit: isMobile ? BoxFit.cover : BoxFit.fill)),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.all(isMobile ? 20 : 60),
+            child: isMobile
+                ? Center(
+                    child: Column(
+                      children: _buildModulos(
+                          context, isMobile, requestCameraPermission),
+                    ),
+                  )
+                : GridView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 40,
+                      mainAxisSpacing: 40,
+                      childAspectRatio: 2.5,
+                    ),
+                    itemCount: _buildModulos(
                             context, isMobile, requestCameraPermission)
-                        .elementAt(index);
-                  },
-                ),
+                        .length,
+                    itemBuilder: (context, index) {
+                      return _buildModulos(
+                              context, isMobile, requestCameraPermission)
+                          .elementAt(index);
+                    },
+                  ),
+          ),
         ),
       ),
     );

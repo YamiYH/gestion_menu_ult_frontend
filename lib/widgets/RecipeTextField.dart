@@ -32,6 +32,9 @@ class _RecipeTextFieldState extends State<RecipeTextField> {
         disabledBorder: OutlineInputBorder(
           borderSide: BorderSide(color: Colors.grey.shade400),
         ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.red[900]!),
+        ),
         labelStyle:
             TextStyle(color: widget.enabled ? Colors.black : Colors.black87),
       ),

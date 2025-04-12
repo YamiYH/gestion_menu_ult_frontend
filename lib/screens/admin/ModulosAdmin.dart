@@ -23,31 +23,40 @@ class _ModulosAdminState extends State<ModulosAdmin> {
       appBar: CustomAppBar(
         title: 'Administración',
       ),
-      body: Padding(
-        padding: EdgeInsets.all(isMobile ? 20 : 60),
-        child: isMobile
-            ? SingleChildScrollView(
-                child: Center(
-                child: Column(
-                  children: _buildAdmin(),
-                ),
-              ))
-            : SingleChildScrollView(
-                child: GridView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    crossAxisSpacing: 40,
-                    mainAxisSpacing: 40,
-                    childAspectRatio: 2.5,
+      body: Container(
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
+        decoration: BoxDecoration(
+            image: DecorationImage(
+                //opacity: 0.9,
+                image: AssetImage('assets/img/background3.png'),
+                fit: isMobile ? BoxFit.cover : BoxFit.fill)),
+        child: Padding(
+          padding: EdgeInsets.all(isMobile ? 20 : 60),
+          child: isMobile
+              ? SingleChildScrollView(
+                  child: Center(
+                  child: Column(
+                    children: _buildAdmin(),
                   ),
-                  itemCount: _buildAdmin().length,
-                  itemBuilder: (context, index) {
-                    return _buildAdmin().elementAt(index);
-                  },
+                ))
+              : SingleChildScrollView(
+                  child: GridView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 40,
+                      mainAxisSpacing: 40,
+                      childAspectRatio: 2.5,
+                    ),
+                    itemCount: _buildAdmin().length,
+                    itemBuilder: (context, index) {
+                      return _buildAdmin().elementAt(index);
+                    },
+                  ),
                 ),
-              ),
+        ),
       ),
     );
   }

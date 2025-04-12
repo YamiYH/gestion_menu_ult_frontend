@@ -215,7 +215,7 @@ class _VentasState extends State<Ventas> {
                     decoration: InputDecoration(
                       labelText: 'Buscar Usuario',
                       border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)),
+                          borderRadius: BorderRadius.circular(5)),
                       suffixIcon: Icon(Icons.search),
                     ),
                   );

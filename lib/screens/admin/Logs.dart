@@ -20,6 +20,7 @@ class _LogsState extends State<Logs> {
   String selectedTypeFilter = 'Todos';
   String selectedActionFilter = 'Todos';
   String selectedModuleFilter = 'Todos';
+  final TextEditingController _usercontroller = TextEditingController();
 
   @override
   void initState() {
@@ -136,13 +137,14 @@ class _LogsState extends State<Logs> {
         ? Column(
             children: [
               SizedBox(height: 15),
-              Usertextformfield(
+              UserTextFormField(
                   text: 'Usuario',
                   onChanged: (value) {
                     setState(() {
                       _controller.searchUser = value;
                     });
-                  }),
+                  },
+                  controller: _usercontroller),
               SizedBox(height: 15),
               DatePicker(isMobile, context),
               SizedBox(height: 20),
@@ -155,14 +157,14 @@ class _LogsState extends State<Logs> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Usertextformfield(
-                text: 'Usuario',
-                onChanged: (value) {
-                  setState(() {
-                    _controller.searchUser = value;
-                  });
-                },
-              ),
+              UserTextFormField(
+                  text: 'Usuario',
+                  onChanged: (value) {
+                    setState(() {
+                      _controller.searchUser = value;
+                    });
+                  },
+                  controller: _usercontroller),
               SizedBox(width: MediaQuery.of(context).size.width * 0.015),
               ModulesDropdown(),
               // SizedBox(width: MediaQuery.of(context).size.width * 0.02),

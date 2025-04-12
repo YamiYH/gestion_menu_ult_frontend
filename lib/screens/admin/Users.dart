@@ -68,8 +68,10 @@ class _UsersState extends State<Users> {
               child: isMobile
                   ? Column(children: [
                       SizedBox(height: 10, width: 10),
-                      Usertextformfield(
-                          text: 'Usuario', onChanged: _applySearch),
+                      UserTextFormField(
+                          text: 'Usuario',
+                          onChanged: _applySearch,
+                          controller: _searchController),
                       SizedBox(height: 10),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -215,13 +217,28 @@ class _UsersState extends State<Users> {
 
     return [
       SizedBox(height: isMobile ? 10 : 15, width: isMobile ? 10 : 5),
-      Usertextformfield(text: 'Usuario', onChanged: _applySearch),
+      UserTextFormField(
+        text: 'Usuario',
+        onChanged: _applySearch,
+        controller: _searchController,
+      ),
       SizedBox(height: 10, width: isMobile ? 10 : 0),
-      Usertextformfield(text: 'Nombre', onChanged: _applySearch),
+      UserTextFormField(
+        text: 'Nombre',
+        onChanged: _applySearch,
+        controller: _searchController,
+      ),
       SizedBox(height: 10, width: isMobile ? 10 : 0),
-      Usertextformfield(text: 'Apellido', onChanged: _applySearch),
+      UserTextFormField(
+        text: 'Apellido',
+        onChanged: _applySearch,
+        controller: _searchController,
+      ),
       SizedBox(height: 10, width: isMobile ? 10 : 0),
-      Usertextformfield(text: 'Correo', onChanged: _applySearch),
+      UserTextFormField(
+          text: 'Correo',
+          onChanged: _applySearch,
+          controller: _searchController),
       SizedBox(height: 10, width: isMobile ? 10 : 0),
       Row(
         mainAxisAlignment: MainAxisAlignment.center,

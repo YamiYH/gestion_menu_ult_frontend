@@ -65,8 +65,10 @@ class _RolesState extends State<Roles> {
               child: isMobile
                   ? Column(children: [
                       SizedBox(height: 10, width: 10),
-                      Usertextformfield(
-                          text: 'Nombre', onChanged: _applySearch),
+                      UserTextFormField(
+                          text: 'Nombre',
+                          onChanged: _applySearch,
+                          controller: _searchController),
                       SizedBox(height: 15),
                       Status(),
                       SizedBox(height: 15),
@@ -171,7 +173,10 @@ class _RolesState extends State<Roles> {
 
   List<Widget> _buildTextFormField() {
     return [
-      Usertextformfield(text: 'Nombre', onChanged: _applySearch),
+      UserTextFormField(
+          text: 'Nombre',
+          onChanged: _applySearch,
+          controller: _searchController),
       SizedBox(width: MediaQuery.of(context).size.width * 0.02),
       Row(
         //mainAxisAlignment: MainAxisAlignment.center,

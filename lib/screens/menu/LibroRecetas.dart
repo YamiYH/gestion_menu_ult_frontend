@@ -100,7 +100,19 @@ List<Widget> SearchRecipes(bool isMobile, BuildContext context) {
         ),
         SizedBox(height: 15, width: isMobile ? 5 : 15),
         AddButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RecetaModelo(
+                    receta: null,
+                    // No hay receta inicial porque estamos creando una nueva
+                    isEditMode:
+                        true, // Modo edición activado para crear una nueva receta
+                  ),
+                ),
+              );
+            },
             text: 'Receta',
             size: Size(
                 isMobile ? MediaQuery.of(context).size.width * 0.40 : 220, 50)),

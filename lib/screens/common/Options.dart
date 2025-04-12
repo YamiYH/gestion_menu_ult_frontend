@@ -14,30 +14,38 @@ class Options extends StatelessWidget {
 
     return Scaffold(
       appBar: CustomAppBar(title: ''),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(isMobile ? 20 : 60),
-          child: isMobile
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: _buildWidgetList(context),
+      body: Container(
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
+        decoration: BoxDecoration(
+            image: DecorationImage(
+                image: AssetImage('assets/img/background3.png'),
+                fit: isMobile ? BoxFit.cover : BoxFit.fill)),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.all(isMobile ? 20 : 60),
+            child: isMobile
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: _buildWidgetList(context),
+                    ),
+                  )
+                : GridView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 40,
+                      mainAxisSpacing: 40,
+                      childAspectRatio: 2.5,
+                    ),
+                    itemCount: _buildWidgetList(context).length,
+                    itemBuilder: (context, index) {
+                      return _buildWidgetList(context).elementAt(index);
+                    },
                   ),
-                )
-              : GridView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    crossAxisSpacing: 40,
-                    mainAxisSpacing: 40,
-                    childAspectRatio: 2.5,
-                  ),
-                  itemCount: _buildWidgetList(context).length,
-                  itemBuilder: (context, index) {
-                    return _buildWidgetList(context).elementAt(index);
-                  },
-                ),
+          ),
         ),
       ),
     );

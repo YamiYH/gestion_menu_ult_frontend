@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 import 'package:gestion_menu_ult_frontend/widgets/Pagination.dart';
+import 'package:gestion_menu_ult_frontend/widgets/UserTextFormField.dart';
 
 import '../../widgets/Button.dart';
+import '../../widgets/NumField.dart';
 
 class GestionarAlmacen extends StatefulWidget {
   const GestionarAlmacen({super.key});
@@ -214,6 +216,7 @@ class _GestionarAlmacenState extends State<GestionarAlmacen> {
           )
         : Row(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(width: 300, child: _buildSearchField()),
               const SizedBox(width: 20),
@@ -233,17 +236,9 @@ class _GestionarAlmacenState extends State<GestionarAlmacen> {
 
   // Campo de búsqueda por nombre
   Widget _buildSearchField() {
-    return TextFormField(
+    return UserTextFormField(
+      text: 'Producto',
       controller: _searchController,
-      decoration: InputDecoration(
-        labelText: 'Producto',
-        border: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.red[900]!),
-            borderRadius: BorderRadius.circular(10)),
-        focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.red[900]!),
-            borderRadius: BorderRadius.circular(10)),
-      ),
       onChanged: (value) => _applyFilters(),
     );
   }
@@ -254,7 +249,7 @@ class _GestionarAlmacenState extends State<GestionarAlmacen> {
       value: _selectedCategory,
       decoration: InputDecoration(
         //labelText: 'Categoría',
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(5)),
       ),
       items: _categorias
           .map((cat) => DropdownMenuItem(value: cat, child: Text(cat)))
@@ -273,38 +268,18 @@ class _GestionarAlmacenState extends State<GestionarAlmacen> {
     return Row(
       children: [
         Expanded(
-          child: TextFormField(
-            controller: _minQuantityController,
-            keyboardType: TextInputType.number,
-            decoration: InputDecoration(
-              labelText: 'Cant. Mínima',
-              border: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.red[900]!),
-                  borderRadius: BorderRadius.circular(10)),
-              focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.red[900]!),
-                  borderRadius: BorderRadius.circular(10)),
-            ),
-          ),
-        ),
+            child: NumField(
+          controller: _minQuantityController,
+          text: 'Cant.Mínima',
+        )),
         const SizedBox(width: 5),
         Icon(Icons.arrow_forward, color: Colors.red[900]),
         const SizedBox(width: 5),
         Expanded(
-          child: TextFormField(
-            controller: _maxQuantityController,
-            keyboardType: TextInputType.number,
-            decoration: InputDecoration(
-              labelText: 'Cant. Máxima',
-              border: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.red[900]!),
-                  borderRadius: BorderRadius.circular(10)),
-              focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.red[900]!),
-                  borderRadius: BorderRadius.circular(10)),
-            ),
-          ),
-        ),
+            child: NumField(
+          controller: _maxQuantityController,
+          text: 'Cant.Máxima',
+        )),
       ],
     );
   }

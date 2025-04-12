@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.red,
         scaffoldBackgroundColor: Colors.white,
       ),
-      initialRoute: AppRoutes.menuConfig,
+      initialRoute: AppRoutes.options,
       routes: AppRoutes.getRoutes(),
     );
   }

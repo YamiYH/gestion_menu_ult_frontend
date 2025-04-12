@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 
-class Usertextformfield extends StatefulWidget {
+class UserTextFormField extends StatefulWidget {
   final String text;
   final Function(String) onChanged;
+  final TextEditingController? controller;
 
-  Usertextformfield({super.key, required this.text, required this.onChanged});
+  UserTextFormField(
+      {super.key,
+      required this.text,
+      required this.onChanged,
+      required this.controller});
 
   @override
-  State<Usertextformfield> createState() => _UsertextformfieldState();
+  State<UserTextFormField> createState() => _UserTextFormFieldState();
 }
 
-class _UsertextformfieldState extends State<Usertextformfield> {
+class _UserTextFormFieldState extends State<UserTextFormField> {
   @override
   Widget build(BuildContext context) {
     bool isMobile = MediaQuery.of(context).size.width < 600;
@@ -26,10 +31,10 @@ class _UsertextformfieldState extends State<Usertextformfield> {
           labelText: widget.text,
           border: OutlineInputBorder(
               borderSide: BorderSide(color: Colors.red[900]!),
-              borderRadius: BorderRadius.circular(10)),
+              borderRadius: BorderRadius.circular(5)),
           focusedBorder: OutlineInputBorder(
               borderSide: BorderSide(color: Colors.red[900]!),
-              borderRadius: BorderRadius.circular(10)),
+              borderRadius: BorderRadius.circular(5)),
         ),
         onChanged: (value) => widget.onChanged,
       ),
