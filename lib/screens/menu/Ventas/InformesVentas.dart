@@ -18,7 +18,7 @@ class _InformesVentasState extends State<InformesVentas> {
   // Lista simulada de informes agrupados por fecha
   final List<Map<String, dynamic>> informes = [
     {
-      'fecha': '2023-10-01',
+      'fecha': '2025-03-01',
       'informes': [
         {
           'nombre': 'Informe Contabilidad',
@@ -28,7 +28,7 @@ class _InformesVentasState extends State<InformesVentas> {
       ]
     },
     {
-      'fecha': '2023-10-02',
+      'fecha': '2025-01-02',
       'informes': [
         {
           'nombre': 'Informe Contabilidad',
@@ -38,6 +38,48 @@ class _InformesVentasState extends State<InformesVentas> {
       ]
     },
   ];
+
+  List<Map<String, dynamic>> _filteredInformes = [];
+
+  @override
+  void initState() {
+    super.initState();
+    // Inicializa la lista filtrada con todos los informes al principio
+    _filteredInformes = List.from(informes);
+  }
+
+  void _applyDateFilters() {
+    setState(() {
+      _filteredInformes = informes.where((informe) {
+        final fechaString = informe['fecha'] as String?;
+        // Ignorar informes sin fecha o con formato inválido
+        if (fechaString == null) return false;
+        final reportDate = DateTime.tryParse(fechaString);
+        if (reportDate == null) return false;
+
+        // Comprobar si la fecha está después o es igual a startDate (si existe)
+        final bool afterStartDate = startDate == null ||
+            reportDate.isAtSameMomentAs(startDate!) ||
+            reportDate.isAfter(startDate!);
+
+        final bool beforeEndDate;
+        if (endDate == null) {
+          beforeEndDate = true;
+        } else {
+          // Compara si la fecha del reporte es anterior al día siguiente de endDate
+          final nextDayOfEndDate =
+              DateTime(endDate!.year, endDate!.month, endDate!.day + 1);
+          beforeEndDate = reportDate.isBefore(nextDayOfEndDate);
+        }
+
+        // El informe se incluye si cumple ambas condiciones
+        return afterStartDate && beforeEndDate;
+      }).toList();
+    });
+    // Opcional: Imprimir para depurar
+    print(
+        'Filtro aplicado. Start: $startDate, End: $endDate. Resultados: ${_filteredInformes.length}');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +100,7 @@ class _InformesVentasState extends State<InformesVentas> {
                         buildRow(),
                         SizedBox(height: 15),
                         Button(
-                          onPressed: () {},
+                          onPressed: _applyDateFilters,
                           icon: Icons.search,
                           text: 'Buscar',
                         )
@@ -70,7 +112,7 @@ class _InformesVentasState extends State<InformesVentas> {
                         buildRow(),
                         SizedBox(width: 30),
                         Button(
-                          onPressed: () {},
+                          onPressed: _applyDateFilters,
                           icon: Icons.search,
                           text: 'Buscar',
                         )
@@ -84,9 +126,9 @@ class _InformesVentasState extends State<InformesVentas> {
               child: ListView.builder(
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
-                itemCount: informes.length,
+                itemCount: _filteredInformes.length,
                 itemBuilder: (context, index) {
-                  final informe = informes[index];
+                  final informe = _filteredInformes[index];
                   return _buildInformeCard(informe);
                 },
               ),

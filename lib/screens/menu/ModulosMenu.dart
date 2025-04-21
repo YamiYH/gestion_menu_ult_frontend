@@ -21,7 +21,9 @@ class ModulosMenu extends StatelessWidget {
         decoration: BoxDecoration(
             image: DecorationImage(
                 //opacity: 0.9,
-                image: AssetImage('assets/img/background3.png'),
+                image: isMobile
+                    ? AssetImage('assets/img/background2.png')
+                    : AssetImage('assets/img/background0.png'),
                 fit: isMobile ? BoxFit.cover : BoxFit.fill)),
         child: SingleChildScrollView(
           child: Padding(
@@ -62,7 +64,7 @@ class ModulosMenu extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => GestionarAlmacen(),
+                builder: (context) => Inventario(),
               ),
             );
           },

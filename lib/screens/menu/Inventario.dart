@@ -6,14 +6,14 @@ import 'package:gestion_menu_ult_frontend/widgets/UserTextFormField.dart';
 import '../../widgets/Button.dart';
 import '../../widgets/NumField.dart';
 
-class GestionarAlmacen extends StatefulWidget {
-  const GestionarAlmacen({super.key});
+class Inventario extends StatefulWidget {
+  const Inventario({super.key});
 
   @override
-  _GestionarAlmacenState createState() => _GestionarAlmacenState();
+  _InventarioState createState() => _InventarioState();
 }
 
-class _GestionarAlmacenState extends State<GestionarAlmacen> {
+class _InventarioState extends State<Inventario> {
   // Controladores para los campos de texto
   final TextEditingController _searchController = TextEditingController();
   final TextEditingController _minQuantityController = TextEditingController();
@@ -21,6 +21,7 @@ class _GestionarAlmacenState extends State<GestionarAlmacen> {
 
   // Variables para filtros
   String? _selectedCategory;
+
   List<Map<String, dynamic>> _filteredProducts = [];
 
   // Lista de productos con categorías y cantidades (simulada)
@@ -170,26 +171,32 @@ class _GestionarAlmacenState extends State<GestionarAlmacen> {
     super.dispose();
   }
 
-  // Función para aplicar filtros
   void _applyFilters() {
     setState(() {
       _filteredProducts = _productos.where((product) {
-        final nameMatch = product['name']
-            .toLowerCase()
-            .contains(_searchController.text.toLowerCase());
+        // Filtro por nombre: Si el campo está vacío, nameMatch es true.
+        final nameMatch = _searchController.text.isEmpty ||
+            product['name']
+                .toLowerCase()
+                .contains(_searchController.text.toLowerCase());
 
-        final categoryMatch = _selectedCategory == null ||
+        // Filtro por categoría: Si está en "Seleccione categoría", categoryMatch es true.
+        final categoryMatch = _selectedCategory == 'Seleccione categoría' ||
             product['category'] == _selectedCategory;
 
-        final quantityMatch = _minQuantityController.text.isEmpty &&
-                _maxQuantityController.text.isEmpty
+        // Filtro por cantidad: Si los campos min/max están vacíos, quantityMatch es true.
+        final minQtyText = _minQuantityController.text;
+        final maxQtyText = _maxQuantityController.text;
+        final quantity = product['quantity'] as num;
+        final quantityMatch = (minQtyText.isEmpty && maxQtyText.isEmpty)
             ? true
-            : (int.tryParse(_minQuantityController.text) ?? 0) <=
-                    product['quantity'] &&
-                product['quantity'] <=
-                    (int.tryParse(_maxQuantityController.text) ??
-                        double.infinity);
+            : (num.tryParse(minQtyText) ?? 0) <= quantity &&
+                quantity <= (num.tryParse(maxQtyText) ?? double.infinity);
 
+        // El producto se incluye si CUMPLE TODOS los filtros activos.
+        // Si un filtro no se especificó (campo vacío, categoría placeholder),
+        // su respectiva variable (nameMatch, categoryMatch, quantityMatch) será `true`
+        // y no impedirá que el producto se muestre.
         return nameMatch && categoryMatch && quantityMatch;
       }).toList();
     });
@@ -202,16 +209,12 @@ class _GestionarAlmacenState extends State<GestionarAlmacen> {
             children: [
               _buildSearchField(),
               const SizedBox(height: 20),
-              _buildCategoryDropdown(),
+              _buildCategoryDropdown(isMobile),
               const SizedBox(height: 20),
-              _buildQuantityRange(),
+              SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.9,
+                  child: _buildQuantityRange()),
               const SizedBox(height: 20),
-              Button(
-                  onPressed: () {
-                    _applyFilters();
-                  },
-                  text: 'BUSCAR',
-                  icon: Icons.search),
             ],
           )
         : Row(
@@ -220,7 +223,7 @@ class _GestionarAlmacenState extends State<GestionarAlmacen> {
             children: [
               SizedBox(width: 300, child: _buildSearchField()),
               const SizedBox(width: 20),
-              SizedBox(width: 300, child: _buildCategoryDropdown()),
+              SizedBox(width: 300, child: _buildCategoryDropdown(isMobile)),
               const SizedBox(width: 20),
               SizedBox(width: 300, child: _buildQuantityRange()),
               const SizedBox(width: 20),
@@ -239,27 +242,37 @@ class _GestionarAlmacenState extends State<GestionarAlmacen> {
     return UserTextFormField(
       text: 'Producto',
       controller: _searchController,
-      onChanged: (value) => _applyFilters(),
+      onChanged: (value) {
+        _applyFilters();
+      },
     );
   }
 
   // Dropdown de categorías
-  Widget _buildCategoryDropdown() {
-    return DropdownButtonFormField<String>(
-      value: _selectedCategory,
-      decoration: InputDecoration(
-        //labelText: 'Categoría',
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(5)),
+  Widget _buildCategoryDropdown(isMobile) {
+    return SizedBox(
+      width: isMobile
+          ? MediaQuery.of(context).size.width * 0.90
+          : MediaQuery.of(context).size.width * 0.14,
+      height: isMobile
+          ? MediaQuery.of(context).size.height * 0.07
+          : MediaQuery.of(context).size.height * 0.10,
+      child: DropdownButtonFormField<String>(
+        value: _selectedCategory,
+        decoration: InputDecoration(
+          //labelText: 'Categoría',
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(5)),
+        ),
+        items: _categorias
+            .map((cat) => DropdownMenuItem(value: cat, child: Text(cat)))
+            .toList(),
+        onChanged: (value) {
+          setState(() {
+            _selectedCategory = value;
+            _applyFilters();
+          });
+        },
       ),
-      items: _categorias
-          .map((cat) => DropdownMenuItem(value: cat, child: Text(cat)))
-          .toList(),
-      onChanged: (value) {
-        setState(() {
-          _selectedCategory = value;
-          _applyFilters();
-        });
-      },
     );
   }
 

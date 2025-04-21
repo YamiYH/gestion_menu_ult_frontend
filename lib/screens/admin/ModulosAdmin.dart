@@ -29,7 +29,9 @@ class _ModulosAdminState extends State<ModulosAdmin> {
         decoration: BoxDecoration(
             image: DecorationImage(
                 //opacity: 0.9,
-                image: AssetImage('assets/img/background3.png'),
+                image: isMobile
+                    ? AssetImage('assets/img/background2.png')
+                    : AssetImage('assets/img/background0.png'),
                 fit: isMobile ? BoxFit.cover : BoxFit.fill)),
         child: Padding(
           padding: EdgeInsets.all(isMobile ? 20 : 60),

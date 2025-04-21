@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:gestion_menu_ult_frontend/widgets/AddButton.dart';
+import 'package:gestion_menu_ult_frontend/screens/admin/UserModelo.dart';
+import 'package:gestion_menu_ult_frontend/widgets/AddButton.dart'; // Asegúrate que las rutas sean correctas
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 import 'package:gestion_menu_ult_frontend/widgets/Pagination.dart';
+import 'package:gestion_menu_ult_frontend/widgets/StatusDropDown.dart';
+import 'package:gestion_menu_ult_frontend/widgets/TypeDropDown.dart';
 
-import '../../widgets/FilterButton.dart';
 import '../../widgets/UserTextFormField.dart';
 
 class Users extends StatefulWidget {
@@ -14,21 +16,20 @@ class Users extends StatefulWidget {
 }
 
 class _UsersState extends State<Users> {
-  String selectedStatus = 'Todos'; // Estado seleccionado
-  String selectedUserType = 'Todos'; // Tipo de usuario seleccionado
-
-  // Lista de usuarios simulada
+  // --- PASO 1: Añadir IDs y Controladores ---
   final List<Map<String, dynamic>> _users = [
     {
+      'id': 1, // Añadido ID
       'username': 'juanperez',
       'name': 'Juan',
       'lastname': 'Perez',
       'email': 'juanperez@gmail.com',
-      'role': 'Estudiante',
+      'role': 'Estudiante', // Mantenemos role por si se usa en otro lado
       'status': 'Activo',
-      'type': 'Employee'
+      'type': 'Employee' // Añadido Type (o asegúrate que exista)
     },
     {
+      'id': 2, // Añadido ID
       'username': 'mariaglez',
       'name': 'Maria',
       'lastname': 'Gonzalez',
@@ -38,6 +39,7 @@ class _UsersState extends State<Users> {
       'type': 'Employee'
     },
     {
+      'id': 3, // Añadido ID
       'username': 'admin123',
       'name': 'Admin',
       'lastname': 'Admin',
@@ -46,13 +48,125 @@ class _UsersState extends State<Users> {
       'status': 'Activo',
       'type': 'System'
     },
-    // ... (agrega más usuarios)
+    // ... (agrega más usuarios con IDs únicos)
   ];
 
-  // Lista filtrada y control de selección múltiple
   List<Map<String, dynamic>> _filteredUsers = [];
-  List<int> _selectedUserIds = [];
-  final TextEditingController _searchController = TextEditingController();
+  List<int> _selectedUserIds =
+      []; // Para selección múltiple (no implementada aún)
+
+  // Controladores para cada campo de texto
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _lastnameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+
+  String selectedStatus = 'Todos'; // Estado seleccionado
+  String selectedUserType = 'Todos'; // Tipo de usuario seleccionado
+
+  // --- PASO 2: Implementar initState y dispose ---
+  @override
+  void initState() {
+    super.initState();
+    _filteredUsers = List.from(_users); // Inicializar con todos los usuarios
+    _usernameController.addListener(_applyAllFilters);
+    _nameController.addListener(_applyAllFilters);
+    _lastnameController.addListener(_applyAllFilters);
+    _emailController.addListener(_applyAllFilters);
+  }
+
+  @override
+  void dispose() {
+    // --- PASO 2: Quitar Listeners y liberar ---
+    _usernameController.removeListener(_applyAllFilters);
+    _nameController.removeListener(_applyAllFilters);
+    _lastnameController.removeListener(_applyAllFilters);
+    _emailController.removeListener(_applyAllFilters);
+
+    // Liberar todos los controladores
+    _usernameController.dispose();
+    _nameController.dispose();
+    _lastnameController.dispose();
+    _emailController.dispose();
+    super.dispose();
+  }
+
+  // --- PASO 4: Implementar _applyAllFilters ---
+  void _applyAllFilters() {
+    final usernameQuery = _usernameController.text.trim().toLowerCase();
+    final nameQuery = _nameController.text.trim().toLowerCase();
+    final lastnameQuery = _lastnameController.text.trim().toLowerCase();
+    final emailQuery = _emailController.text.trim().toLowerCase();
+
+    setState(() {
+      _filteredUsers = _users.where((user) {
+        // Comprobaciones de texto (solo si el campo no está vacío)
+        final usernameMatch = usernameQuery.isEmpty ||
+            (user['username'] as String? ?? '')
+                .toLowerCase()
+                .contains(usernameQuery);
+        final nameMatch = nameQuery.isEmpty ||
+            (user['name'] as String? ?? '').toLowerCase().contains(nameQuery);
+        final lastnameMatch = lastnameQuery.isEmpty ||
+            (user['lastname'] as String? ?? '')
+                .toLowerCase()
+                .contains(lastnameQuery);
+        final emailMatch = emailQuery.isEmpty ||
+            (user['email'] as String? ?? '').toLowerCase().contains(emailQuery);
+
+        // Comprobación de estado (corregida)
+        final statusMatch = selectedStatus == 'Todos' ||
+            (user['status'] as String? ?? '') == selectedStatus;
+
+        // Comprobación de tipo (corregida - usando campo 'type')
+        final typeMatch = selectedUserType == 'Todos' ||
+            (user['type'] as String? ?? '') == selectedUserType;
+
+        // El usuario pasa si cumple todas las condiciones
+        return usernameMatch &&
+            nameMatch &&
+            lastnameMatch &&
+            emailMatch &&
+            statusMatch &&
+            typeMatch;
+      }).toList();
+    });
+    print(
+        'Filtros aplicados. Resultados: ${_filteredUsers.length}'); // Opcional: Debug
+  }
+
+  // --- Función para eliminar (necesita ID, ajustada temporalmente) ---
+  void _deleteUser(int userId) {
+    // Recibe ID
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Confirmar Eliminación'),
+        content: Text('¿Eliminar este usuario?'), // Mensaje genérico
+        actions: [
+          TextButton(
+            onPressed: Navigator.of(context).pop,
+            child: Text('CANCELAR'),
+          ),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                // Eliminar de la lista principal usando el ID
+                _users.removeWhere((user) => user['id'] == userId);
+                // Volver a aplicar TODOS los filtros para actualizar la lista visible
+                _applyAllFilters();
+                // _selectedUserIds.clear(); // Limpiar selección si se usa
+              });
+              Navigator.of(context).pop();
+            },
+            child: Text('ELIMINAR', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // La función _deleteSelectedUsers para borrado múltiple se mantiene pero sigue sin usarse
 
   @override
   Widget build(BuildContext context) {
@@ -62,18 +176,20 @@ class _UsersState extends State<Users> {
       appBar: CustomAppBar(title: 'Usuarios'),
       body: Column(
         children: [
-          // Barra de búsqueda
+          // Barra de búsqueda y filtros
           Padding(
               padding: const EdgeInsets.all(12.0),
               child: isMobile
                   ? Column(children: [
                       SizedBox(height: 10, width: 10),
                       UserTextFormField(
-                          text: 'Usuario',
-                          onChanged: _applySearch,
-                          controller: _searchController),
+                        text: 'Buscar Usuario',
+                        controller: _usernameController,
+                        // Asignar controller
+                      ),
                       SizedBox(height: 10),
                       Row(
+                        // Desplegables Status/Type
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
@@ -82,18 +198,21 @@ class _UsersState extends State<Users> {
                           Type(),
                         ],
                       ),
-                      SizedBox(
-                        height: 10,
-                      ),
+                      SizedBox(height: 10),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          FilterButton(
-                            onPressed: _applySearchWrapper,
-                          ),
                           SizedBox(width: 10),
                           AddButton(
-                              onPressed: () {},
+                              // Botón Añadir
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => UserModelo(),
+                                  ),
+                                );
+                              },
                               text: 'Usuario',
                               size: Size(
                                   isMobile
@@ -105,21 +224,23 @@ class _UsersState extends State<Users> {
                       SizedBox(height: 10),
                     ])
                   : Row(
-                      children: _buildTextFormField(),
+                      // --- Layout Desktop ---
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      // --- Layout Desktop ---
+                      children: _buildTextFormField(isMobile),
                     )),
 
           // Encabezados de la tabla
-          isMobile ? _buildHeaderMobile() : _buildHeaderRow(isMobile),
+          isMobile ? _buildHeaderMobile() : _buildHeaderRow(),
 
           // Lista de usuarios
           SizedBox(height: 10),
           Expanded(
             child: ListView.builder(
-              itemCount: _filteredUsers.length,
+              itemCount: _filteredUsers.length, // Usar lista filtrada
               itemBuilder: (context, index) {
-                final user = _filteredUsers[index];
+                final user = _filteredUsers[index]; // Usar lista filtrada
                 return Column(
                   children: [
                     SingleChildScrollView(
@@ -135,6 +256,7 @@ class _UsersState extends State<Users> {
         ],
       ),
       bottomNavigationBar: Pagination(
+        // Paginación (sin cambios funcionales aquí)
         itemBuilder: (context, item) {
           return ListTile(
             title: Text(item as String),
@@ -144,406 +266,283 @@ class _UsersState extends State<Users> {
     );
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _filteredUsers = List.from(_users);
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  // Función para aplicar el filtro de búsqueda
-  void _applySearch(String query) {
-    setState(() {
-      _filteredUsers = _users.where((user) {
-        return user['username'].toLowerCase().contains(query.toLowerCase());
-      }).toList();
-    });
-  }
-
-  void _applySearchWrapper() {
-    _applySearch('');
-  }
-
-  // Filtrar usuarios según el estado y tipo seleccionados
-  void _filterUsers() {
-    setState(() {
-      _filteredUsers = _users.where((user) {
-        bool matchesStatus = selectedStatus == 'Todos' ||
-            user['active'] == (selectedStatus == 'Activo');
-        bool matchesUserType =
-            selectedUserType == 'Todos' || user['role'] == selectedUserType;
-
-        return matchesStatus && matchesUserType;
-      }).toList();
-    });
-  }
-
-  // Función para eliminar usuarios seleccionados
-  void _deleteSelectedUsers() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Confirmar Eliminación'),
-        content: Text('¿Eliminar ${_selectedUserIds.length} usuarios?'),
-        actions: [
-          TextButton(
-            onPressed: Navigator.of(context).pop,
-            child: Text('CANCELAR'),
-          ),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                _users.removeWhere(
-                    (user) => _selectedUserIds.contains(user['id']));
-                _filteredUsers = List.from(_users);
-                _selectedUserIds.clear();
-              });
-              Navigator.of(context).pop();
-            },
-            child: Text('ELIMINAR', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  List<Widget> _buildTextFormField() {
-    bool isMobile = MediaQuery.of(context).size.width < 600;
-
+  List<Widget> _buildTextFormField(isMobile) {
     return [
-      SizedBox(height: isMobile ? 10 : 15, width: isMobile ? 10 : 5),
-      UserTextFormField(
-        text: 'Usuario',
-        onChanged: _applySearch,
-        controller: _searchController,
+      SizedBox(width: 5), // Espacio inicial
+      Expanded(
+        child: UserTextFormField(
+          text: 'Usuario',
+          // onChanged: _applySearch, // ELIMINADO
+          controller: _usernameController, // Asignar controller correcto
+        ),
       ),
-      SizedBox(height: 10, width: isMobile ? 10 : 0),
-      UserTextFormField(
-        text: 'Nombre',
-        onChanged: _applySearch,
-        controller: _searchController,
+      SizedBox(width: 10),
+      Expanded(
+        child: UserTextFormField(
+          text: 'Nombre',
+          // onChanged: _applySearch, // ELIMINADO
+          controller: _nameController, // Asignar controller correcto
+        ),
       ),
-      SizedBox(height: 10, width: isMobile ? 10 : 0),
-      UserTextFormField(
-        text: 'Apellido',
-        onChanged: _applySearch,
-        controller: _searchController,
+      SizedBox(width: 10),
+      Expanded(
+        child: UserTextFormField(
+          text: 'Apellido',
+          // onChanged: _applySearch, // ELIMINADO
+          controller: _lastnameController, // Asignar controller correcto
+        ),
       ),
-      SizedBox(height: 10, width: isMobile ? 10 : 0),
-      UserTextFormField(
+      SizedBox(width: 10),
+      Expanded(
+        child: UserTextFormField(
           text: 'Correo',
-          onChanged: _applySearch,
-          controller: _searchController),
-      SizedBox(height: 10, width: isMobile ? 10 : 0),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Status(),
-          SizedBox(height: 20, width: 20),
-          Type(),
-        ],
+          // onChanged: _applySearch, // ELIMINADO
+          controller: _emailController, // Asignar controller correcto
+        ),
       ),
-      SizedBox(height: 10, width: isMobile ? 10 : 0),
-      FilterButton(onPressed: _applySearchWrapper),
-      SizedBox(
-        height: 20,
-        width: isMobile ? 10 : 0,
-      ),
+      SizedBox(width: 10),
+      // Widgets de Status y Type (sin cambios internos)
+      Status(),
+      SizedBox(width: 10),
+      Type(),
+      SizedBox(width: 10),
+      // Botón de Filtro
+      SizedBox(width: 5), // Espacio final
     ];
   }
 
+  // Widget para desplegable de Tipo (Corregido: Quitar llamada a _filterUsers)
   Widget Type() {
-    bool isMobile = MediaQuery.of(context).size.width < 600;
-    return SizedBox(
-      width: isMobile
-          ? MediaQuery.of(context).size.width * 0.4
-          : MediaQuery.of(context).size.width * 0.1,
-      height: isMobile
-          ? MediaQuery.of(context).size.height * 0.05
-          : MediaQuery.of(context).size.height * 0.08,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            'Tipo:',
-            style: TextStyle(
-                fontSize: isMobile ? 14 : 16, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(width: 10),
-          DropdownButton<String>(
-            value: selectedUserType,
-            onChanged: (String? newValue) {
-              setState(() {
-                selectedUserType = newValue!;
-              });
-              _filterUsers(); // Aplicar filtro al cambiar el valor
-            },
-            items: ['Todos', 'System', 'Employee']
-                .map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
-          ),
-        ],
-      ),
+    // Simplificado un poco el SizedBox, ajusta si es necesario
+    return TypeDropDown(
+      selectedValue: selectedUserType,
+      onChanged: (String? newValue) {
+        setState(() {
+          selectedUserType = newValue!;
+        });
+        _applyAllFilters();
+      },
     );
   }
 
+  // Widget para desplegable de Estado (Corregido: Quitar llamada a _filterUsers)
   Widget Status() {
-    bool isMobile = MediaQuery.of(context).size.width < 600;
-    return SizedBox(
-      width: isMobile
-          ? MediaQuery.of(context).size.width * 0.4
-          : MediaQuery.of(context).size.width * 0.1,
-      height: isMobile
-          ? MediaQuery.of(context).size.height * 0.05
-          : MediaQuery.of(context).size.height * 0.08,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            'Estado:',
-            style: TextStyle(
-                fontSize: isMobile ? 14 : 16, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(width: 10),
-          DropdownButton<String>(
-            value: selectedStatus,
-            onChanged: (String? newValue) {
-              setState(() {
-                selectedStatus = newValue!;
-              });
-              _filterUsers(); // Aplicar filtro al cambiar el valor
-            },
-            items: ['Todos', 'Activo', 'Inactivo']
-                .map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
-          ),
-        ],
-      ),
+    return StatusDropDown(
+      selectedValue: selectedStatus,
+      onChanged: (String? newValue) {
+        setState(() {
+          selectedStatus = newValue!;
+        });
+        _applyAllFilters();
+      },
     );
   }
 
-  // Encabezados responsivos
-  Widget _buildHeaderRow(bool isMobile) {
+  // --- Widgets de Cabecera y Fila (Ajustes menores) ---
+
+  // Encabezados Desktop (Corregido: Quitar AddButton duplicado)
+  Widget _buildHeaderRow() {
+    // isMobile no se usa aquí realmente
     return Container(
       color: Colors.grey[200],
       padding: EdgeInsets.all(10),
       child: Row(
         children: [
-          SizedBox(
-            width: MediaQuery.of(context).size.width * 0.02,
+          SizedBox(width: MediaQuery.of(context).size.width * 0.01),
+          _headerCell('Usuario', 0.15),
+          _headerCell('Nombre', 0.15),
+          _headerCell('Apellidos', 0.15),
+          _headerCell('Correo', 0.15),
+          _headerCell('Estado', 0.1),
+          _headerCell('Tipo', 0.1),
+          Spacer(), // Ocupa espacio restante
+          // AddButton ELIMINADO de aquí
+          Padding(
+            // Botón Añadir al final de la cabecera
+            padding: const EdgeInsets.only(right: 20.0),
+            // Añadir padding a la derecha
+            child: AddButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => UserModelo(),
+                    ),
+                  );
+                },
+                text: 'Usuario',
+                size: Size(150, 40) // Tamaño ajustado
+                ),
           ),
-          SizedBox(
-            child: Text('Usuario', style: _headerStyle()),
-            width: MediaQuery.of(context).size.width * 0.15,
-            height: 25,
-          ),
-          SizedBox(
-            child: Text('Nombre', style: _headerStyle()),
-            width: MediaQuery.of(context).size.width * 0.15,
-            height: 25,
-          ),
-          SizedBox(
-            child: Text('Apellidos', style: _headerStyle()),
-            width: MediaQuery.of(context).size.width * 0.15,
-            height: 25,
-          ),
-          SizedBox(
-            child: Text('Correo', style: _headerStyle()),
-            width: MediaQuery.of(context).size.width * 0.15,
-            height: 25,
-          ),
-          SizedBox(
-            child: Text('Estado', style: _headerStyle()),
-            width: MediaQuery.of(context).size.width * 0.1,
-            height: 25,
-          ),
-          SizedBox(
-            child: Text('Tipo', style: _headerStyle()),
-            width: MediaQuery.of(context).size.width * 0.1,
-            height: 25,
-          ),
-          SizedBox(
-            width: MediaQuery.of(context).size.width * 0.03,
-          ),
-          AddButton(
-              onPressed: () {},
-              text: 'Usuario',
-              size: Size(
-                  isMobile ? MediaQuery.of(context).size.width * 0.35 : 150,
-                  50))
         ],
       ),
     );
   }
 
-  // Encabezados responsivos
+  // Helper para celdas de cabecera
+  Widget _headerCell(String title, double widthFactor) {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width * widthFactor,
+      height: 25, // Altura fija
+      child: Text(title, style: _headerStyle()),
+    );
+  }
+
+  // Encabezados Móvil (Sin cambios mayores necesarios)
   Widget _buildHeaderMobile() {
     return Container(
       color: Colors.grey[200],
-      padding: EdgeInsets.symmetric(vertical: 20),
+      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+      // Ajustar padding
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween, // Distribuir espacio
         children: [
-          SizedBox(
-            width: MediaQuery.of(context).size.width * 0.04,
-          ),
-          SizedBox(
-            child: Text('Usuario', style: _headerStyle()),
-            width: MediaQuery.of(context).size.width * 0.25,
-            height: 25,
-          ),
-          SizedBox(
-            child: Text('Estado', style: _headerStyle()),
-            width: MediaQuery.of(context).size.width * 0.25,
-            height: 25,
-          ),
-          SizedBox(
-            child: Text('Tipo', style: _headerStyle()),
-            width: MediaQuery.of(context).size.width * 0.20,
-            height: 25,
-          ),
-          SizedBox(
-            child: Text('Acciones', style: _headerStyle()),
-            width: MediaQuery.of(context).size.width * 0.20,
-            height: 25,
-          ),
+          Expanded(flex: 3, child: Text('Usuario', style: _headerStyle())),
+          // Usar Expanded con flex
+          Expanded(
+              flex: 2,
+              child: Text('Estado',
+                  style: _headerStyle(), textAlign: TextAlign.center)),
+          Expanded(
+              flex: 3,
+              child: Text('Tipo',
+                  style: _headerStyle(), textAlign: TextAlign.center)),
+          Expanded(
+              flex: 3,
+              child: Text('Acciones',
+                  style: _headerStyle(), textAlign: TextAlign.center)),
         ],
       ),
     );
   }
 
+  // Fila de Usuario Móvil (Ajustado para usar _deleteUser con ID)
   Widget _buildUserRowMobile(Map<String, dynamic> user) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            SizedBox(width: MediaQuery.of(context).size.width * 0.03),
-            SizedBox(
-              child: Text(user['username']),
-              width: MediaQuery.of(context).size.width * 0.25,
-              height: 20,
-            ),
-            SizedBox(
-              child: Text(user['status']),
-              width: MediaQuery.of(context).size.width * 0.25,
-              height: 20,
-            ),
-            SizedBox(
-              child: Text(user['type']),
-              width: MediaQuery.of(context).size.width * 0.20,
-              height: 20,
-            ),
-            SizedBox(width: 3),
-            SizedBox(
+    final int userId =
+        user['id'] ?? -1; // Obtener ID (o valor por defecto si falta)
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+              flex: 3,
+              child: Text(user['username'] ?? 'N/A',
+                  overflow: TextOverflow.ellipsis)),
+          Expanded(
+              flex: 2,
+              child:
+                  Text(user['status'] ?? 'N/A', textAlign: TextAlign.center)),
+          Expanded(
+              flex: 3,
+              child: Text(user['type'] ?? 'N/A', textAlign: TextAlign.center)),
+          Expanded(
+              flex: 3,
               child: Row(
+                // Botones de acción
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   IconButton(
-                    icon: Icon(Icons.edit, color: Colors.grey.shade500),
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/edit-user/${user['id']}');
-                    },
+                    // Botón Editar
+                    icon:
+                        Icon(Icons.edit, color: Colors.grey.shade500, size: 20),
+                    // Tamaño ajustado
+                    padding: EdgeInsets.zero,
+                    // Quitar padding extra
+                    constraints: BoxConstraints(),
+                    // Quitar constraints extra
+                    onPressed: userId == -1
+                        ? null
+                        : () {
+                            // Deshabilitar si no hay ID
+                            // TODO: Implementar navegación a Editar Usuario pasando ID/datos
+                            print('Editar usuario ID: $userId');
+                            // Navigator.pushNamed(context, '/edit-user/$userId');
+                          },
                   ),
                   IconButton(
-                    icon: Icon(Icons.delete, color: Colors.red),
-                    onPressed: () {
-                      setState(() {
-                        _users.removeWhere((u) => u['id'] == user['id']);
-                        _filteredUsers = List.from(_users);
-                      });
-                    },
+                    // Botón Borrar
+                    icon: Icon(Icons.delete, color: Colors.red, size: 20),
+                    // Tamaño ajustado
+                    padding: EdgeInsets.zero,
+                    constraints: BoxConstraints(),
+                    onPressed: userId == -1
+                        ? null
+                        : () {
+                            // Deshabilitar si no hay ID
+                            _deleteUser(userId); // Llamar a borrar con ID
+                          },
                   ),
                 ],
-              ),
-            ),
-          ],
-        ),
-      ],
+              )),
+        ],
+      ),
     );
   }
 
-  // Fila de usuario
+  // Fila de Usuario Desktop (Ajustado para usar _deleteUser con ID)
   Widget _buildUserRow(Map<String, dynamic> user) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        SizedBox(width: MediaQuery.of(context).size.width * 0.02),
-        SizedBox(
-          child: Text(user['username']),
-          width: MediaQuery.of(context).size.width * 0.15,
-          height: 20,
-        ),
-        SizedBox(
-          child: Text(user['name']),
-          width: MediaQuery.of(context).size.width * 0.15,
-          height: 20,
-        ),
-        SizedBox(
-          child: Text(user['lastname']),
-          width: MediaQuery.of(context).size.width * 0.15,
-          height: 20,
-        ),
-        SizedBox(
-          child: Text(user['email']),
-          width: MediaQuery.of(context).size.width * 0.15,
-          height: 20,
-        ),
-        SizedBox(
-          child: Text(user['status']),
-          width: MediaQuery.of(context).size.width * 0.1,
-          height: 20,
-        ),
-        SizedBox(
-          child: Text(user['type']),
-          width: MediaQuery.of(context).size.width * 0.1,
-          height: 20,
-        ),
-        SizedBox(
-          width: MediaQuery.of(context).size.width * 0.15,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              IconButton(
-                icon: Icon(Icons.edit, color: Colors.grey.shade500),
-                onPressed: () {
-                  // Lógica para editar usuario
-                  Navigator.pushNamed(context, '/edit-user/${user['id']}');
-                },
-              ),
-              SizedBox(width: 15),
-              IconButton(
-                icon: Icon(Icons.delete, color: Colors.red),
-                onPressed: () {
-                  setState(() {
-                    _users.removeWhere((u) => u['id'] == user['id']);
-                    _filteredUsers = List.from(_users);
-                  });
-                },
-              ),
-            ],
+    final int userId = user['id'] ?? -1; // Obtener ID
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
+      child: Row(
+        // Usar Expanded para las celdas para mejor alineación con cabecera flexible
+        children: [
+          SizedBox(
+              width: MediaQuery.of(context).size.width *
+                  0.01), // Espacio inicial pequeño
+          _userCell(user['username'], 0.15),
+          _userCell(user['name'], 0.15),
+          _userCell(user['lastname'], 0.15),
+          _userCell(user['email'], 0.15),
+          _userCell(user['status'], 0.1),
+          _userCell(user['type'], 0.1),
+          Spacer(), // Ocupa espacio hasta los botones
+          // Botones de Acción
+          SizedBox(
+            width: MediaQuery.of(context).size.width *
+                0.1, // Ancho fijo para botones
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.edit, color: Colors.grey.shade500),
+                  onPressed: userId == -1
+                      ? null
+                      : () {
+                          print('Editar usuario ID: $userId');
+                          // Navigator.pushNamed(context, '/edit-user/$userId');
+                        },
+                ),
+                // SizedBox(width: 5), // Espacio entre botones
+                IconButton(
+                  icon: Icon(Icons.delete, color: Colors.red),
+                  onPressed: userId == -1
+                      ? null
+                      : () {
+                          _deleteUser(userId);
+                        },
+                ),
+              ],
+            ),
           ),
-        ),
-        SizedBox(width: MediaQuery.of(context).size.width * 0.02)
-      ],
+          SizedBox(
+              width: MediaQuery.of(context).size.width *
+                  0.01), // Espacio final pequeño
+        ],
+      ),
     );
   }
 
-  // Estilo para encabezados
+  // Helper para celdas de datos de usuario
+  Widget _userCell(String? text, double widthFactor) {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width * widthFactor,
+      child: Text(text ?? 'N/A', overflow: TextOverflow.ellipsis),
+    );
+  }
+
+  // Estilo para encabezados (Sin cambios)
   TextStyle _headerStyle() {
     return TextStyle(
       fontWeight: FontWeight.bold,

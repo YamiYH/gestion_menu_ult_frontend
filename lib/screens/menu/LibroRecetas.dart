@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/widgets/AddButton.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 
-import '../../widgets/Button.dart';
 import 'RecetaModelo.dart';
 
 class LibroRecetas extends StatefulWidget {
@@ -12,13 +11,55 @@ class LibroRecetas extends StatefulWidget {
   State<LibroRecetas> createState() => _LibroRecetasState();
 }
 
-// Lista simulada de recetas
-final List<Map<String, dynamic>> recetas = [
-  {'nombre': 'Ensalada de acelga'},
-  {'nombre': 'Ensalada de aguacate'},
-];
-
 class _LibroRecetasState extends State<LibroRecetas> {
+  final List<Map<String, dynamic>> recetas = [
+    {'nombre': 'Ensalada de acelga'},
+    {'nombre': 'Ensalada de aguacate'},
+    {'nombre': 'Arroz con Pollo'},
+    {'nombre': 'Potaje de Frijoles Negros'},
+    {'nombre': 'Picadillo de Res'},
+    // Añade más recetas si quieres probar mejor el filtro
+  ];
+
+  List<Map<String, dynamic>> _filteredRecetas = [];
+  final TextEditingController _searchController = TextEditingController();
+
+  // --- PASO 2: Implementar initState y dispose ---
+  @override
+  void initState() {
+    super.initState();
+    // Inicializar la lista filtrada con todas las recetas
+    _filteredRecetas = List.from(recetas);
+    // Añadir listener para filtrar en tiempo real
+    _searchController.addListener(_applyFilters);
+  }
+
+  @override
+  void dispose() {
+    // Quitar el listener y liberar el controlador
+    _searchController.removeListener(_applyFilters);
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  // --- PASO 3: Crear la función _applyFilters ---
+  void _applyFilters() {
+    final searchTerm = _searchController.text.trim().toLowerCase();
+    setState(() {
+      if (searchTerm.isEmpty) {
+        // Si no hay término de búsqueda, mostrar todas las recetas
+        _filteredRecetas = List.from(recetas);
+      } else {
+        // Filtrar la lista principal 'recetas'
+        _filteredRecetas = recetas.where((receta) {
+          final nombre =
+              receta['nombre'] as String? ?? ''; // Manejo seguro de null
+          return nombre.toLowerCase().contains(searchTerm);
+        }).toList();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     bool isMobile = MediaQuery.of(context).size.width < 600;
@@ -31,26 +72,30 @@ class _LibroRecetasState extends State<LibroRecetas> {
               padding: EdgeInsets.all(16.0),
               child: isMobile
                   ? Column(
-                      children: SearchRecipes(isMobile, context),
+                      children: SearchRecipes(
+                          isMobile, context, _searchController, _applyFilters),
                     )
                   : Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: SearchRecipes(isMobile, context),
+                      children: SearchRecipes(
+                          isMobile, context, _searchController, _applyFilters),
                     )),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ListView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: recetas.length,
-              itemBuilder: (context, index) {
-                final receta = recetas[index];
-                return _buildRecetaCard(receta, context, () {
-                  setState(() {
-                    recetas.remove(receta);
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
+              child: ListView.builder(
+                itemCount: _filteredRecetas.length,
+                itemBuilder: (context, index) {
+                  final receta = _filteredRecetas[index];
+                  return _buildRecetaCard(receta, context, () {
+                    setState(() {
+                      recetas.remove(receta);
+                      _applyFilters();
+                    });
+                    print("Borrado (temporal) de ${receta['nombre']}");
                   });
-                });
-              },
+                },
+              ),
             ),
           ),
         ],
@@ -59,17 +104,19 @@ class _LibroRecetasState extends State<LibroRecetas> {
   }
 }
 
-Widget SearchTextField(bool isMobile, BuildContext context) {
+Widget SearchTextField(
+    bool isMobile, BuildContext context, TextEditingController controller) {
   return SizedBox(
     width: isMobile
         ? MediaQuery.of(context).size.width * 0.9
         : 220, // Mismo ancho que el botón
     height: 50, // Mismo alto que el botón
     child: TextFormField(
+      controller: controller,
       decoration: InputDecoration(
-          prefixIcon: Icon(Icons.restaurant_menu),
+          suffixIcon: Icon(Icons.search),
           prefixIconColor: Colors.red.shade900,
-          labelText: 'Plato',
+          labelText: 'Buscar Plato',
           labelStyle: TextStyle(color: Colors.red.shade900),
           border: OutlineInputBorder(
             borderRadius:
@@ -79,45 +126,32 @@ Widget SearchTextField(bool isMobile, BuildContext context) {
               borderSide: BorderSide(color: Colors.red[900]!),
               borderRadius: BorderRadius.circular(10)),
           contentPadding: EdgeInsets.all(15)),
-      onChanged: (value) {},
     ),
   );
 }
 
-List<Widget> SearchRecipes(bool isMobile, BuildContext context) {
+List<Widget> SearchRecipes(bool isMobile, BuildContext context,
+    TextEditingController searchController, VoidCallback onSearchPressed) {
   return [
-    SearchTextField(isMobile, context),
+    SearchTextField(isMobile, context, searchController),
     SizedBox(height: 15, width: 15),
-    Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Button(
-          onPressed: () {},
-          icon: Icons.search,
-          text: 'Buscar',
-          size: Size(
-              isMobile ? MediaQuery.of(context).size.width * 0.40 : 220, 50),
-        ),
-        SizedBox(height: 15, width: isMobile ? 5 : 15),
-        AddButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => RecetaModelo(
-                    receta: null,
-                    // No hay receta inicial porque estamos creando una nueva
-                    isEditMode:
-                        true, // Modo edición activado para crear una nueva receta
-                  ),
-                ),
-              );
-            },
-            text: 'Receta',
-            size: Size(
-                isMobile ? MediaQuery.of(context).size.width * 0.40 : 220, 50)),
-      ],
-    ),
+    AddButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => RecetaModelo(
+                receta: null,
+                // No hay receta inicial porque estamos creando una nueva
+                isEditMode:
+                    true, // Modo edición activado para crear una nueva receta
+              ),
+            ),
+          );
+        },
+        text: 'Receta',
+        size: Size(
+            isMobile ? MediaQuery.of(context).size.width * 0.40 : 220, 50)),
   ];
 }
 

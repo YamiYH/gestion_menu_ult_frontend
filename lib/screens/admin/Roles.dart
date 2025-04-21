@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:gestion_menu_ult_frontend/widgets/AccessDropDown.dart';
 import 'package:gestion_menu_ult_frontend/widgets/AddButton.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 import 'package:gestion_menu_ult_frontend/widgets/Pagination.dart';
+import 'package:gestion_menu_ult_frontend/widgets/StatusDropDown.dart';
 
-import '../../widgets/FilterButton.dart';
 import '../../widgets/UserTextFormField.dart';
 
 class Roles extends StatefulWidget {
@@ -14,24 +15,27 @@ class Roles extends StatefulWidget {
 }
 
 class _RolesState extends State<Roles> {
-  String selectedStatus = 'Todos'; // Estado seleccionado
-  String selectedUserType = 'Todos'; // Tipo de usuario seleccionado
+  String selectedStatus = 'Todos';
+  String selectedAccess = 'Todos';
 
   // Lista de usuarios simulada
   final List<Map<String, dynamic>> _roles = [
     {
+      'id': 1,
       'role': 'Administrador',
       'status': 'Activo',
       'description': 'Admin del sistema',
       'access': ['Todos']
     },
     {
+      'id': 2,
       'role': 'Tecnico',
       'status': 'Inactivo',
       'description': 'Gestiona menus',
       'access': ['Inventario', 'Menu']
     },
     {
+      'id': 3,
       'role': 'Contador',
       'status': 'Activo',
       'description': 'Aprueba menus',
@@ -48,8 +52,71 @@ class _RolesState extends State<Roles> {
 
   // Lista filtrada y control de selección múltiple
   List<Map<String, dynamic>> _filteredRoles = [];
-
   final TextEditingController _searchController = TextEditingController();
+
+  // Opciones para el desplegable de Permisos
+  final List<String> _accessOptions = [
+    'Todos',
+    'Menu',
+    'Tickets',
+    'Inventario',
+    'Ventas'
+  ]; // Asegúrate que estas opciones cubran tus casos
+
+  @override
+  void initState() {
+    super.initState();
+    _filteredRoles = List.from(_roles);
+    // Listener para búsqueda en tiempo real
+    _searchController.addListener(_applyAllFilters);
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_applyAllFilters);
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  // --- PASO 2: Implementar Filtro Combinado ---
+  void _applyAllFilters() {
+    final nameQuery = _searchController.text.trim().toLowerCase();
+
+    setState(() {
+      _filteredRoles = _roles.where((role) {
+        // Filtro por Nombre (role['role'])
+        final nameMatch = nameQuery.isEmpty ||
+            (role['role'] as String? ?? '').toLowerCase().contains(nameQuery);
+
+        // Filtro por Estado (role['status'])
+        final statusMatch = selectedStatus == 'Todos' ||
+            (role['status'] as String? ?? '') == selectedStatus;
+
+        // Filtro por Permiso (role['access'])
+        final accessMatch;
+        if (selectedAccess == 'Todos') {
+          accessMatch =
+              true; // Si se selecciona 'Todos', coincide con cualquier permiso
+        } else {
+          final roleAccess = role['access'];
+          if (roleAccess is List) {
+            // Si el rol tiene 'Todos' o la lista contiene el permiso seleccionado
+            accessMatch = roleAccess.contains('Todos') ||
+                roleAccess.contains(selectedAccess);
+          } else if (roleAccess is String && roleAccess == 'Todos') {
+            // Si el rol solo tiene 'Todos' como string
+            accessMatch = true;
+          } else {
+            // Si no es lista y no es 'Todos', no coincide a menos que se seleccione 'Todos'
+            accessMatch = false;
+          }
+        }
+
+        // El rol pasa si cumple todas las condiciones
+        return nameMatch && statusMatch && accessMatch;
+      }).toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,20 +133,13 @@ class _RolesState extends State<Roles> {
                   ? Column(children: [
                       SizedBox(height: 10, width: 10),
                       UserTextFormField(
-                          text: 'Nombre',
-                          onChanged: _applySearch,
-                          controller: _searchController),
-                      SizedBox(height: 15),
-                      Status(),
+                          text: 'Buscar rol', controller: _searchController),
                       SizedBox(height: 15),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          FilterButton(
-                            onPressed: _applySearchWrapper,
-                          ),
-                          SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.07),
+                          Status(),
+                          SizedBox(width: 10),
                           AddButton(
                               onPressed: () {},
                               text: 'Rol',
@@ -132,51 +192,9 @@ class _RolesState extends State<Roles> {
     );
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _filteredRoles = List.from(_roles);
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  // Función para aplicar el filtro de búsqueda
-  void _applySearch(String query) {
-    setState(() {
-      _filteredRoles = _roles.where((user) {
-        return user['username'].toLowerCase().contains(query.toLowerCase());
-      }).toList();
-    });
-  }
-
-  void _applySearchWrapper() {
-    _applySearch('');
-  }
-
-  // Filtrar usuarios según el estado y tipo seleccionados
-  void _filterUsers() {
-    setState(() {
-      _filteredRoles = _roles.where((user) {
-        bool matchesStatus = selectedStatus == 'Todos' ||
-            user['active'] == (selectedStatus == 'Activo');
-        bool matchesUserType =
-            selectedUserType == 'Todos' || user['role'] == selectedUserType;
-
-        return matchesStatus && matchesUserType;
-      }).toList();
-    });
-  }
-
   List<Widget> _buildTextFormField() {
     return [
-      UserTextFormField(
-          text: 'Nombre',
-          onChanged: _applySearch,
-          controller: _searchController),
+      UserTextFormField(text: 'Buscar rol', controller: _searchController),
       SizedBox(width: MediaQuery.of(context).size.width * 0.02),
       Row(
         //mainAxisAlignment: MainAxisAlignment.center,
@@ -187,89 +205,34 @@ class _RolesState extends State<Roles> {
           Status(),
         ],
       ),
-      SizedBox(width: MediaQuery.of(context).size.width * 0.04),
-      FilterButton(
-        onPressed: _applySearchWrapper,
-      ),
     ];
   }
 
   Widget Status() {
-    bool isMobile = MediaQuery.of(context).size.width < 600;
-    return SizedBox(
-      width: isMobile
-          ? MediaQuery.of(context).size.width * 0.50
-          : MediaQuery.of(context).size.width * 0.1,
-      height: isMobile
-          ? MediaQuery.of(context).size.height * 0.05
-          : MediaQuery.of(context).size.height * 0.08,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            'Estado:',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(width: 10),
-          DropdownButton<String>(
-            value: selectedStatus,
-            onChanged: (String? newValue) {
-              setState(() {
-                selectedStatus = newValue!;
-              });
-              _filterUsers(); // Aplicar filtro al cambiar el valor
-            },
-            items: ['Todos', 'Activo', 'Inactivo']
-                .map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
-          ),
-        ],
-      ),
+    return StatusDropDown(
+      selectedValue: selectedStatus,
+      onChanged: (String? newValue) {
+        if (newValue != null) {
+          setState(() {
+            // Llamas a setState de _UsersState
+            selectedStatus = newValue;
+          });
+
+          _applyAllFilters();
+        }
+      },
     );
   }
 
   Widget Access() {
-    bool isMobile = MediaQuery.of(context).size.width < 600;
-    return SizedBox(
-      width: isMobile
-          ? MediaQuery.of(context).size.width * 0.50
-          : MediaQuery.of(context).size.width * 0.15,
-      height: isMobile
-          ? MediaQuery.of(context).size.height * 0.05
-          : MediaQuery.of(context).size.height * 0.08,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            'Permisos:',
-            style: TextStyle(
-                fontSize: isMobile ? 14 : 16, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(width: 10),
-          DropdownButton<String>(
-            value: selectedStatus,
-            onChanged: (String? newValue) {
-              setState(() {
-                selectedStatus = newValue!;
-              });
-              _filterUsers(); // Aplicar filtro al cambiar el valor
-            },
-            items: ['Todos', 'Menu', 'Tickets', 'Inventario']
-                .map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
-          ),
-        ],
-      ),
+    return AccessDropDown(
+      selectedValue: selectedAccess,
+      onChanged: (String? newValue) {
+        setState(() {
+          selectedAccess = newValue!;
+        });
+        _applyAllFilters(); // Aplicar filtro al cambiar el valor
+      },
     );
   }
 

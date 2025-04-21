@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/screens/admin/Config.dart';
 import 'package:gestion_menu_ult_frontend/screens/admin/ModulosAdmin.dart';
 import 'package:gestion_menu_ult_frontend/screens/admin/Payment.dart';
+import 'package:gestion_menu_ult_frontend/screens/admin/UserModelo.dart';
 import 'package:gestion_menu_ult_frontend/screens/admin/Users.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/LibroRecetas.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/MenuPropuesta.dart';
@@ -26,8 +27,7 @@ class AppRoutes {
 
   static const String options = '/options';
   static const String gestionarTicket = '/gestionar_ticket';
-
-  static const String gestionarAlmacen = '/gestionar_almacen';
+  static const String inventario = '/gestionar_almacen';
   static const String modulosMenu = '/modulos_menu';
   static const String logs = '/logs';
   static const String modulosAdmin = '/modulos_admin';
@@ -43,6 +43,7 @@ class AppRoutes {
   static const String libroRecetas = '/libro_recetas';
   static const String recetaModelo = '/receta_modelo';
   static const String comedorAcceso = '/comedor_acceso';
+  static const String userModelo = '/user_modelo';
 
   // Mapeamos las rutas a las pantallas correspondientes
   static Map<String, WidgetBuilder> getRoutes() {
@@ -50,7 +51,7 @@ class AppRoutes {
       login: (context) => Login(),
       options: (context) => Options(),
       gestionarTicket: (context) => GestionarTicket(),
-      gestionarAlmacen: (context) => GestionarAlmacen(),
+      inventario: (context) => Inventario(),
       modulosMenu: (context) => ModulosMenu(),
       logs: (context) => Logs(),
       modulosAdmin: (context) => ModulosAdmin(),
@@ -66,6 +67,7 @@ class AppRoutes {
       libroRecetas: (context) => LibroRecetas(),
       recetaModelo: (context) => RecetaModelo(isEditMode: true, receta: null),
       comedorAcceso: (context) => ComedorAcceso(),
+      userModelo: (context) => UserModelo(),
     };
   }
 }
