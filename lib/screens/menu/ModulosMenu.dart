@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gestion_menu_ult_frontend/routes/PageRouteBuilder.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/MenuPropuesta.dart';
 import 'package:gestion_menu_ult_frontend/widgets/BuildCard.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
@@ -61,12 +62,7 @@ class ModulosMenu extends StatelessWidget {
         padding: EdgeInsets.all(5),
         child: BuildCard(
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Inventario(),
-              ),
-            );
+            Navigator.push(context, createFadeRoute(Inventario()));
           },
           title: 'Inventario',
           icon: Icons.inventory,
@@ -78,9 +74,7 @@ class ModulosMenu extends StatelessWidget {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => MenuPropuesta(),
-              ),
+              createFadeRoute(MenuPropuesta()),
             );
           },
           title: 'Propuestas de Menú',
@@ -91,12 +85,7 @@ class ModulosMenu extends StatelessWidget {
         padding: EdgeInsets.all(5),
         child: BuildCard(
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ModulosVenta(),
-              ),
-            );
+            Navigator.push(context, createFadeRoute(ModulosVenta()));
           },
           title: 'Ventas',
           icon: Icons.attach_money,
@@ -106,12 +95,7 @@ class ModulosMenu extends StatelessWidget {
         padding: EdgeInsets.all(5),
         child: BuildCard(
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => LibroRecetas(),
-              ),
-            );
+            Navigator.push(context, createFadeRoute(LibroRecetas()));
           },
           title: 'Libro de Recetas',
           icon: Icons.book,
@@ -123,12 +107,7 @@ class ModulosMenu extends StatelessWidget {
           title: 'Configuración',
           icon: Icons.settings,
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => MenuConfig(),
-              ),
-            );
+            Navigator.push(context, createFadeRoute(MenuConfig()));
           },
         ),
       ),

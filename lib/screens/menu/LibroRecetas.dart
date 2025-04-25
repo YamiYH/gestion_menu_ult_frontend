@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gestion_menu_ult_frontend/routes/PageRouteBuilder.dart';
 import 'package:gestion_menu_ult_frontend/widgets/AddButton.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 
@@ -139,14 +140,7 @@ List<Widget> SearchRecipes(bool isMobile, BuildContext context,
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (context) => RecetaModelo(
-                receta: null,
-                // No hay receta inicial porque estamos creando una nueva
-                isEditMode:
-                    true, // Modo edición activado para crear una nueva receta
-              ),
-            ),
+            createFadeRoute(RecetaModelo(isEditMode: true, receta: null)),
           );
         },
         text: 'Receta',
@@ -169,13 +163,7 @@ Widget _buildRecetaCard(
       onTap: () {
         // Navegar a la pantalla de consulta
         Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => RecetaModelo(
-              isEditMode: false, // Modo consulta
-            ),
-          ),
-        );
+            context, createFadeRoute(RecetaModelo(isEditMode: false)));
       },
       child: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -201,14 +189,8 @@ Widget _buildRecetaCard(
                   icon: Icon(Icons.edit, color: Colors.red[900], size: 25),
                   onPressed: () {
                     // Navegar a la pantalla de edición
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => RecetaModelo(
-                          isEditMode: true, // Modo edición
-                        ),
-                      ),
-                    );
+                    Navigator.push(context,
+                        createFadeRoute(RecetaModelo(isEditMode: true)));
                   },
                 ),
                 IconButton(

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
 class StatusDropDown extends StatelessWidget {
-  /// El valor ('Todos', 'Activo', 'Inactivo') actualmente seleccionado.
-  final String selectedValue;
+  final String? selectedValue;
   final ValueChanged<String?> onChanged;
 
   const StatusDropDown({
@@ -30,13 +29,13 @@ class StatusDropDown extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 20),
           Expanded(
             child: DropdownButton<String>(
               isExpanded: true,
               value: selectedValue,
               onChanged: onChanged,
-              items: const ['Todos', 'Activo', 'Inactivo']
+              items: ['Todos', 'Activo', 'Inactivo']
                   .map<DropdownMenuItem<String>>((String itemValue) {
                 return DropdownMenuItem<String>(
                   value: itemValue,

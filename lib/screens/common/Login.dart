@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/models/Login/UserLoginRequest.dart';
+import 'package:gestion_menu_ult_frontend/routes/PageRouteBuilder.dart';
 import 'package:gestion_menu_ult_frontend/screens/common/Options.dart';
 
 import '../../controllers/LoginController.dart';
@@ -49,8 +50,7 @@ class _LoginState extends State<Login> {
       _isLoading = false;
       if (success) {
         _message = 'Inicio de sesión exitoso.';
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => Options()));
+        Navigator.push(context, createFadeRoute(Options()));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error al iniciar sesión')),

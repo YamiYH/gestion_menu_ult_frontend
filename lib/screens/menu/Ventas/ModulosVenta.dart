@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gestion_menu_ult_frontend/routes/PageRouteBuilder.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/Ventas/ComedorAcceso.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/Ventas/InformesVentas.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/Ventas/Ventas.dart';
@@ -75,9 +76,7 @@ class ModulosVenta extends StatelessWidget {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => Ventas(),
-              ),
+              createFadeRoute(Ventas()),
             );
           },
           title: 'Iniciar Ventas',
@@ -88,12 +87,7 @@ class ModulosVenta extends StatelessWidget {
         padding: EdgeInsets.all(5),
         child: BuildCard(
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => InformesVentas(),
-              ),
-            );
+            Navigator.push(context, createFadeRoute(InformesVentas()));
           },
           title: 'Informes de Ventas',
           icon: Icons.bar_chart,

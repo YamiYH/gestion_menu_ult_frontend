@@ -3,6 +3,7 @@ import 'package:gestion_menu_ult_frontend/screens/admin/ModulosAdmin.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/ModulosMenu.dart';
 import 'package:gestion_menu_ult_frontend/screens/ticket/GestionarTicket.dart';
 
+import '../../routes/PageRouteBuilder.dart';
 import '../../widgets/BuildCard.dart';
 import '../../widgets/CustomAppbar.dart';
 
@@ -63,8 +64,8 @@ class Options extends StatelessWidget {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => ModulosMenu(),
+              createFadeRoute(
+                ModulosMenu(),
               ),
             );
           },
@@ -76,12 +77,7 @@ class Options extends StatelessWidget {
           title: 'Tickets',
           icon: Icons.qr_code,
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => GestionarTicket(),
-              ),
-            );
+            Navigator.push(context, createFadeRoute(GestionarTicket()));
           },
         ),
       ),
@@ -91,12 +87,7 @@ class Options extends StatelessWidget {
           title: 'Administración',
           icon: Icons.admin_panel_settings,
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ModulosAdmin(),
-              ),
-            );
+            Navigator.push(context, createFadeRoute(ModulosAdmin()));
           },
         ),
       ),

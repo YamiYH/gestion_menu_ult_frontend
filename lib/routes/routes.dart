@@ -11,6 +11,7 @@ import 'package:gestion_menu_ult_frontend/screens/menu/Ventas/ComedorAcceso.dart
 import 'package:gestion_menu_ult_frontend/screens/menu/Ventas/ModulosVenta.dart';
 
 import '../screens/admin/Logs.dart';
+import '../screens/admin/RolModelo.dart';
 import '../screens/admin/Roles.dart';
 import '../screens/common/Login.dart';
 import '../screens/common/Options.dart';
@@ -44,6 +45,7 @@ class AppRoutes {
   static const String recetaModelo = '/receta_modelo';
   static const String comedorAcceso = '/comedor_acceso';
   static const String userModelo = '/user_modelo';
+  static const String rolModelo = '/rol_modelo';
 
   // Mapeamos las rutas a las pantallas correspondientes
   static Map<String, WidgetBuilder> getRoutes() {
@@ -68,6 +70,7 @@ class AppRoutes {
       recetaModelo: (context) => RecetaModelo(isEditMode: true, receta: null),
       comedorAcceso: (context) => ComedorAcceso(),
       userModelo: (context) => UserModelo(),
+      rolModelo: (context) => RolModelo(),
     };
   }
 }

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:gestion_menu_ult_frontend/routes/PageRouteBuilder.dart';
+import 'package:gestion_menu_ult_frontend/screens/admin/RolModelo.dart';
 import 'package:gestion_menu_ult_frontend/widgets/AccessDropDown.dart';
 import 'package:gestion_menu_ult_frontend/widgets/AddButton.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
-import 'package:gestion_menu_ult_frontend/widgets/Pagination.dart';
 import 'package:gestion_menu_ult_frontend/widgets/StatusDropDown.dart';
 
 import '../../widgets/UserTextFormField.dart';
@@ -43,6 +44,93 @@ class _RolesState extends State<Roles> {
     },
   ];
 
+  // --- Método para Editar Rol ---
+  void _editRole(Map<String, dynamic> roleData) async {
+    // Marcar como async
+    // Navega a RolModelo pasando los datos y ESPERA un resultado
+    final result = await Navigator.push(
+      context,
+      // Usa tu transición preferida
+      createFadeRoute(RolModelo(initialData: roleData)), // Pasa initialData
+    );
+
+    // --- Procesa el resultado si el usuario guardó cambios ---
+    if (result != null && result is Map<String, dynamic> && mounted) {
+      // Busca el índice del rol original en la lista _roles
+      final index = _roles.indexWhere((role) => role['id'] == result['id']);
+
+      if (index != -1) {
+        // Si se encontró, actualiza el rol en la lista principal
+        setState(() {
+          _roles[index] = result; // Reemplaza con los datos devueltos
+          // Aplica filtros para que la lista visible se actualice
+          _applyAllFilters();
+        });
+        // Opcional: Mostrar un SnackBar de éxito
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('Rol "${result['name']}" actualizado con éxito.')),
+        );
+      }
+    }
+  }
+
+  // --- Método para Eliminar Rol (con confirmación) ---
+  void _deleteRole(int roleId, String roleName) {
+    bool isMobile = MediaQuery.of(context).size.width < 600;
+    // Recibe ID y nombre para el mensaje
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        // Usar un contexto diferente para el diálogo
+        return AlertDialog(
+          title: Center(
+            child: Text('Confirmar Eliminación',
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, fontSize: isMobile ? 18 : 20)),
+          ),
+          content:
+              Text('¿Estás seguro de que quieres eliminar el rol "$roleName"?'),
+          // Mensaje más específico
+          actions: <Widget>[
+            TextButton(
+              child: Text(
+                'CANCELAR',
+                style: TextStyle(
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.bold,
+                    fontSize: isMobile ? 14 : 16),
+              ),
+              onPressed: () {
+                Navigator.of(dialogContext).pop(); // Cierra el diálogo
+              },
+            ),
+            TextButton(
+              style: TextButton.styleFrom(foregroundColor: Colors.red[800]),
+              // Estilo para el botón de eliminar
+              child: Text('ELIMINAR',
+                  style: TextStyle(
+                      color: Colors.red[800],
+                      fontWeight: FontWeight.bold,
+                      fontSize: isMobile ? 14 : 16)),
+              onPressed: () {
+                setState(() {
+                  // Elimina de la lista principal usando el ID
+                  _roles.removeWhere((role) => role['id'] == roleId);
+                  // Vuelve a aplicar los filtros para actualizar la lista visible
+                  // Es importante llamar a _applyAllFilters para que la UI refleje
+                  // tanto la eliminación como los filtros activos.
+                  _applyAllFilters();
+                });
+                Navigator.of(dialogContext).pop(); // Cierra el diálogo
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   String formatAccess(dynamic access) {
     if (access is List) {
       return access.join(', '); // Formato simple
@@ -53,15 +141,6 @@ class _RolesState extends State<Roles> {
   // Lista filtrada y control de selección múltiple
   List<Map<String, dynamic>> _filteredRoles = [];
   final TextEditingController _searchController = TextEditingController();
-
-  // Opciones para el desplegable de Permisos
-  final List<String> _accessOptions = [
-    'Todos',
-    'Menu',
-    'Tickets',
-    'Inventario',
-    'Ventas'
-  ]; // Asegúrate que estas opciones cubran tus casos
 
   @override
   void initState() {
@@ -124,70 +203,77 @@ class _RolesState extends State<Roles> {
 
     return Scaffold(
       appBar: CustomAppBar(title: 'Roles'),
-      body: Column(
-        children: [
-          // Barra de búsqueda
-          Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: isMobile
-                  ? Column(children: [
-                      SizedBox(height: 10, width: 10),
-                      UserTextFormField(
-                          text: 'Buscar rol', controller: _searchController),
-                      SizedBox(height: 15),
-                      Row(
+      body: Container(
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
+        decoration: BoxDecoration(
+            image: DecorationImage(
+                image: isMobile
+                    ? AssetImage('assets/img/background2.png')
+                    : AssetImage('assets/img/background0.png'),
+                fit: isMobile ? BoxFit.cover : BoxFit.fill)),
+        child: Column(
+          children: [
+            // Barra de búsqueda
+            Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: isMobile
+                    ? Column(children: [
+                        SizedBox(height: 10, width: 10),
+                        UserTextFormField(
+                            text: 'Buscar rol', controller: _searchController),
+                        SizedBox(height: 15),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Status(),
+                            SizedBox(width: 10),
+                            AddButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                      context, createFadeRoute(RolModelo()));
+                                },
+                                text: 'Rol',
+                                size: Size(
+                                    isMobile
+                                        ? MediaQuery.of(context).size.width *
+                                            0.35
+                                        : 150,
+                                    50))
+                          ],
+                        ),
+                        SizedBox(height: 10),
+                      ])
+                    : Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Status(),
-                          SizedBox(width: 10),
-                          AddButton(
-                              onPressed: () {},
-                              text: 'Rol',
-                              size: Size(
-                                  isMobile
-                                      ? MediaQuery.of(context).size.width * 0.35
-                                      : 150,
-                                  50))
-                        ],
-                      ),
-                      SizedBox(height: 10),
-                    ])
-                  : Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: _buildTextFormField(),
-                    )),
+                        children: _buildTextFormField(),
+                      )),
 
-          // Encabezados de la tabla
-          isMobile ? _buildHeaderMobile() : _buildHeaderRow(isMobile),
+            // Encabezados de la tabla
+            isMobile ? _buildHeaderMobile() : _buildHeaderRow(isMobile),
 
-          // Lista de usuarios
-          SizedBox(height: 10),
-          Expanded(
-            child: ListView.builder(
-              itemCount: _filteredRoles.length,
-              itemBuilder: (context, index) {
-                final role = _filteredRoles[index];
-                return Column(
-                  children: [
-                    SingleChildScrollView(
-                        child: isMobile
-                            ? _buildUserRowMobile(role)
-                            : _buildUserRow(role)),
-                    Divider()
-                  ],
-                );
-              },
+            // Lista de usuarios
+            SizedBox(height: 10),
+            Expanded(
+              child: ListView.builder(
+                itemCount: _filteredRoles.length,
+                itemBuilder: (context, index) {
+                  final role = _filteredRoles[index];
+                  return Column(
+                    children: [
+                      SingleChildScrollView(
+                          child: isMobile
+                              ? _buildUserRowMobile(role)
+                              : _buildUserRow(role)),
+                      Divider()
+                    ],
+                  );
+                },
+              ),
             ),
-          ),
-        ],
-      ),
-      bottomNavigationBar: Pagination(
-        itemBuilder: (context, item) {
-          return ListTile(
-            title: Text(item as String),
-          );
-        },
+          ],
+        ),
       ),
     );
   }
@@ -210,17 +296,15 @@ class _RolesState extends State<Roles> {
 
   Widget Status() {
     return StatusDropDown(
-      selectedValue: selectedStatus,
-      onChanged: (String? newValue) {
-        if (newValue != null) {
-          setState(() {
-            // Llamas a setState de _UsersState
-            selectedStatus = newValue;
-          });
-
-          _applyAllFilters();
-        }
+      selectedValue: selectedStatus, // La variable de estado de Roles
+      onChanged: (newValue) {
+        setState(() {
+          selectedStatus = selectedStatus;
+        });
+        _applyAllFilters(); // Llama a tu función de filtrar roles
       },
+      // No necesitas pasar 'options', usará ['Todos', 'Activo', 'Inactivo'] por defecto
+      // validator: ... (añade si necesitas validar en la búsqueda)
     );
   }
 
@@ -254,7 +338,7 @@ class _RolesState extends State<Roles> {
           SizedBox(
             width: MediaQuery.of(context).size.width * 0.20,
             height: 25,
-            child: Text('Permisos', style: _headerStyle()),
+            child: Text('Accesos', style: _headerStyle()),
           ),
           SizedBox(
             width: MediaQuery.of(context).size.width * 0.20,
@@ -271,7 +355,9 @@ class _RolesState extends State<Roles> {
             height: 25,
           ),
           AddButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(context, createFadeRoute(RolModelo()));
+              },
               text: 'Rol',
               size: Size(
                   isMobile ? MediaQuery.of(context).size.width * 0.35 : 150,
@@ -313,16 +399,13 @@ class _RolesState extends State<Roles> {
               IconButton(
                 icon: Icon(Icons.edit, color: Colors.grey.shade500),
                 onPressed: () {
-                  Navigator.pushNamed(context, '/edit-user/${role['id']}');
+                  _editRole(role);
                 },
               ),
               IconButton(
                 icon: Icon(Icons.delete, color: Colors.red),
                 onPressed: () {
-                  setState(() {
-                    _roles.removeWhere((u) => u['id'] == role['id']);
-                    _filteredRoles = List.from(_roles);
-                  });
+                  _deleteRole(role['id'], role['role']);
                 },
               ),
             ],
@@ -389,16 +472,13 @@ class _RolesState extends State<Roles> {
                   IconButton(
                     icon: Icon(Icons.edit, color: Colors.grey.shade500),
                     onPressed: () {
-                      Navigator.pushNamed(context, '/edit-user/${role['id']}');
+                      _editRole(role);
                     },
                   ),
                   IconButton(
                     icon: Icon(Icons.delete, color: Colors.red),
                     onPressed: () {
-                      setState(() {
-                        _roles.removeWhere((u) => u['id'] == role['id']);
-                        _filteredRoles = List.from(_roles);
-                      });
+                      _deleteRole(role['id'], role['role']);
                     },
                   ),
                 ],

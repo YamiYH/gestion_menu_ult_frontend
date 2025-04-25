@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gestion_menu_ult_frontend/routes/PageRouteBuilder.dart';
 import 'package:gestion_menu_ult_frontend/screens/admin/Config.dart';
 import 'package:gestion_menu_ult_frontend/screens/admin/Payment.dart';
 import 'package:gestion_menu_ult_frontend/screens/admin/Roles.dart';
@@ -28,7 +29,6 @@ class _ModulosAdminState extends State<ModulosAdmin> {
         height: MediaQuery.of(context).size.height,
         decoration: BoxDecoration(
             image: DecorationImage(
-                //opacity: 0.9,
                 image: isMobile
                     ? AssetImage('assets/img/background2.png')
                     : AssetImage('assets/img/background0.png'),
@@ -72,12 +72,7 @@ class _ModulosAdminState extends State<ModulosAdmin> {
           title: 'Usuarios',
           icon: Icons.people,
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Users(),
-              ),
-            );
+            Navigator.push(context, createFadeRoute(Users()));
           },
         ),
       ),
@@ -87,12 +82,7 @@ class _ModulosAdminState extends State<ModulosAdmin> {
           title: 'Roles',
           icon: Icons.admin_panel_settings,
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Roles(),
-              ),
-            );
+            Navigator.push(context, createFadeRoute(Roles()));
           },
         ),
       ),
@@ -102,12 +92,7 @@ class _ModulosAdminState extends State<ModulosAdmin> {
           title: 'Pasarelas de Pago',
           icon: Icons.payment,
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Payment(),
-              ),
-            );
+            Navigator.push(context, createFadeRoute(Payment()));
           },
         ),
       ),
@@ -117,12 +102,7 @@ class _ModulosAdminState extends State<ModulosAdmin> {
           title: 'Auditoría',
           icon: Icons.security,
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Logs(),
-              ),
-            );
+            Navigator.push(context, createFadeRoute(Logs()));
           },
         ),
       ),
@@ -132,12 +112,7 @@ class _ModulosAdminState extends State<ModulosAdmin> {
           title: 'Configuración',
           icon: Icons.settings,
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Config(),
-              ),
-            );
+            Navigator.push(context, createFadeRoute(Config()));
           },
         ),
       ),

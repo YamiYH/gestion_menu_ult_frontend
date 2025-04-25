@@ -239,7 +239,6 @@ class _UserModeloState extends State<UserModelo> {
       ),
     ];
 
-    // --- PASO 2: Implementar Layout Responsivo en build ---
     return Scaffold(
       appBar: CustomAppBar(title: 'Añadir Usuario'),
       body: SingleChildScrollView(
@@ -253,11 +252,8 @@ class _UserModeloState extends State<UserModelo> {
               child: Form(
                 key: _formKey,
                 child: isMobile
-                    ? // --- Layout Móvil: Una Columna ---
-                    _buildMobileLayout(
-                        formFields, isMobile) // Llama a helper móvil
-                    : // --- Layout Desktop: 3 Columnas ---
-                    Column(
+                    ? _buildMobileLayout(formFields, isMobile)
+                    : Column(
                         children: [
                           SizedBox(height: isMobile ? 0 : 40),
                           _buildWebLayout(formFields, isMobile),

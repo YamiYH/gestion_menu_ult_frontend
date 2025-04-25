@@ -6,6 +6,7 @@ import 'package:gestion_menu_ult_frontend/widgets/Pagination.dart';
 import 'package:gestion_menu_ult_frontend/widgets/StatusDropDown.dart';
 import 'package:gestion_menu_ult_frontend/widgets/TypeDropDown.dart';
 
+import '../../routes/PageRouteBuilder.dart';
 import '../../widgets/UserTextFormField.dart';
 
 class Users extends StatefulWidget {
@@ -209,8 +210,7 @@ class _UsersState extends State<Users> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => UserModelo(),
-                                  ),
+                                      builder: (context) => UserModelo()),
                                 );
                               },
                               text: 'Usuario',
@@ -306,8 +306,6 @@ class _UsersState extends State<Users> {
       SizedBox(width: 10),
       Type(),
       SizedBox(width: 10),
-      // Botón de Filtro
-      SizedBox(width: 5), // Espacio final
     ];
   }
 
@@ -365,8 +363,8 @@ class _UsersState extends State<Users> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => UserModelo(),
+                    createFadeRoute(
+                      UserModelo(),
                     ),
                   );
                 },
