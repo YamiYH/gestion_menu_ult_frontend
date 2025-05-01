@@ -17,9 +17,7 @@ class TypeDropDown extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8),
-      // Añadir algo de padding
       constraints: BoxConstraints(maxWidth: isMobile ? 150 : 200),
-      // Limitar ancho
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -28,16 +26,11 @@ class TypeDropDown extends StatelessWidget {
                   fontSize: isMobile ? 14 : 16, fontWeight: FontWeight.bold)),
           SizedBox(width: 10),
           Expanded(
-            // Permitir que el Dropdown se expanda
             child: DropdownButton<String>(
-              isExpanded: true, // Para que ocupe el espacio de Expanded
+              isExpanded: true,
               value: selectedValue,
               onChanged: onChanged,
-              items: [
-                'Todos',
-                'System',
-                'Employee'
-              ] // Asegúrate que estos valores coincidan con user['type']
+              items: ['Todos', 'System', 'Employee']
                   .map<DropdownMenuItem<String>>((String value) {
                 return DropdownMenuItem<String>(
                     value: value,

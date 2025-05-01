@@ -12,13 +12,11 @@ class StatusDropDown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Mantenemos la lógica de isMobile para el estilo del texto
     bool isMobile = MediaQuery.of(context).size.width < 600;
 
-    // Usamos la estructura exacta que proporcionaste (Container > Row > Text > SizedBox > Expanded > DropdownButton)
     return Container(
+      padding: EdgeInsets.symmetric(horizontal: 4),
       constraints: BoxConstraints(maxWidth: isMobile ? 150 : 200),
-      padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -29,7 +27,7 @@ class StatusDropDown extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(width: 20),
+          const SizedBox(width: 10),
           Expanded(
             child: DropdownButton<String>(
               isExpanded: true,

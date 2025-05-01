@@ -3,6 +3,7 @@ import 'package:gestion_menu_ult_frontend/routes/PageRouteBuilder.dart';
 import 'package:gestion_menu_ult_frontend/widgets/AddButton.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 
+import '../../widgets/Confirm.dart';
 import 'RecetaModelo.dart';
 
 class LibroRecetas extends StatefulWidget {
@@ -152,16 +153,16 @@ List<Widget> SearchRecipes(bool isMobile, BuildContext context,
 Widget _buildRecetaCard(
   Map<String, dynamic> receta,
   BuildContext context,
-  VoidCallback onDelete, // Añadir este parámetro
+  VoidCallback onDelete,
 ) {
   bool isMobile = MediaQuery.of(context).size.width < 600;
+  final String recetaName = receta['nombre'] as String? ?? 'Receta sin nombre';
 
   return Card(
     elevation: 3,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
     child: InkWell(
       onTap: () {
-        // Navegar a la pantalla de consulta
         Navigator.push(
             context, createFadeRoute(RecetaModelo(isEditMode: false)));
       },
@@ -171,12 +172,11 @@ Widget _buildRecetaCard(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // Nombre de la receta
             Expanded(
               child: Text(
                 receta['nombre'],
                 style: TextStyle(
-                  fontSize: isMobile ? 18 : 16,
+                  fontSize: isMobile ? 16 : 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.red[900],
                 ),
@@ -194,33 +194,14 @@ Widget _buildRecetaCard(
                   },
                 ),
                 IconButton(
+                  tooltip: 'Eliminar Receta',
                   icon: Icon(Icons.delete, color: Colors.red[900], size: 25),
                   onPressed: () {
-                    // Mostrar mensaje de confirmación antes de eliminar
-                    showDialog(
+                    showConfirmDeleteDialog(
                       context: context,
-                      builder: (context) => AlertDialog(
-                        title: Text('Confirmar eliminación'),
-                        content: Text(
-                            '¿Estás seguro de que deseas eliminar esta receta?'),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pop(context); // Cerrar el diálogo
-                            },
-                            child: Text('Cancelar'),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              // Llamar a la función onDelete para eliminar la receta
-                              onDelete();
-                              Navigator.pop(context); // Cerrar el diálogo
-                            },
-                            child: Text('Eliminar',
-                                style: TextStyle(color: Colors.red)),
-                          ),
-                        ],
-                      ),
+                      itemName: recetaName,
+                      itemType: 'la receta',
+                      onConfirm: onDelete,
                     );
                   },
                 ),

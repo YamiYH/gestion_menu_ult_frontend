@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/widgets/Button.dart'; // Ajusta la ruta (Usando tu Button)
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart'; // Ajusta la ruta
+import 'package:gestion_menu_ult_frontend/widgets/StatusCheckboxRow.dart';
 
 import '../../widgets/CustomTextFormField.dart'; // Ajusta la ruta
 
 class UserModelo extends StatefulWidget {
-  const UserModelo({super.key /*, this.user*/
-      });
+  const UserModelo({super.key});
 
   @override
   State<UserModelo> createState() => _UserModeloState();
@@ -14,6 +14,7 @@ class UserModelo extends StatefulWidget {
 
 class _UserModeloState extends State<UserModelo> {
   final _formKey = GlobalKey<FormState>();
+  final Map<String, dynamic>? initialData = Map();
 
   // Controladores
   final _usernameController = TextEditingController();
@@ -111,7 +112,8 @@ class _UserModeloState extends State<UserModelo> {
     return Padding(
       padding: const EdgeInsets.only(top: 30.0),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisAlignment:
+            isMobile ? MainAxisAlignment.center : MainAxisAlignment.end,
         children: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -135,11 +137,8 @@ class _UserModeloState extends State<UserModelo> {
 
   @override
   Widget build(BuildContext context) {
-    bool isMobile = MediaQuery.of(context).size.width <
-        850; // Ajusta breakpoint si es necesario
+    bool isMobile = MediaQuery.of(context).size.width < 600;
 
-    // --- Definir la lista de widgets de formulario ---
-    // (Movido aquí desde _buildRegister para mayor claridad y acceso a estado)
     final List<Widget> formFields = [
       CustomTextFormField(
         controller: _usernameController,
@@ -212,19 +211,6 @@ class _UserModeloState extends State<UserModelo> {
         validator: (v) => v == null ? 'Seleccione un rol' : null,
       ),
       DropdownButtonFormField<String>(
-        value: _selectedStatus,
-        decoration: _inputDecoration(
-          'Estado',
-        ),
-        // Añadido icono
-        items: _statuses
-            .map((String status) =>
-                DropdownMenuItem<String>(value: status, child: Text(status)))
-            .toList(),
-        onChanged: (v) => setState(() => _selectedStatus = v),
-        validator: (v) => v == null ? 'Seleccione un estado' : null,
-      ),
-      DropdownButtonFormField<String>(
         value: _selectedType,
         decoration: _inputDecoration(
           'Tipo',
@@ -237,28 +223,41 @@ class _UserModeloState extends State<UserModelo> {
         onChanged: (v) => setState(() => _selectedType = v),
         validator: (v) => v == null ? 'Seleccione un tipo' : null,
       ),
+      StatusCheckboxRow(
+          currentStatus: _selectedStatus,
+          onStatusChanged: (v) => setState(() => _selectedStatus = v)),
     ];
 
     return Scaffold(
       appBar: CustomAppBar(title: 'Añadir Usuario'),
-      body: SingleChildScrollView(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: isMobile ? 600 : 1000),
-            // Ancho máx
-            child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
-              child: Form(
-                key: _formKey,
-                child: isMobile
-                    ? _buildMobileLayout(formFields, isMobile)
-                    : Column(
-                        children: [
-                          SizedBox(height: isMobile ? 0 : 40),
-                          _buildWebLayout(formFields, isMobile),
-                        ],
-                      ), // Llama a helper desktop
+      body: Container(
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
+        decoration: BoxDecoration(
+            image: DecorationImage(
+                image: isMobile
+                    ? AssetImage('')
+                    : AssetImage('assets/img/background0.png'),
+                fit: isMobile ? BoxFit.cover : BoxFit.fill)),
+        child: SingleChildScrollView(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: isMobile ? 600 : 1000),
+              // Ancho máx
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 20.0, vertical: 24.0),
+                child: Form(
+                  key: _formKey,
+                  child: isMobile
+                      ? _buildMobileLayout(formFields, isMobile)
+                      : Column(
+                          children: [
+                            SizedBox(height: isMobile ? 0 : 40),
+                            _buildWebLayout(formFields, isMobile),
+                          ],
+                        ), // Llama a helper desktop
+                ),
               ),
             ),
           ),
@@ -274,7 +273,7 @@ class _UserModeloState extends State<UserModelo> {
       children: [
         // Añade espacio vertical entre cada campo
         ...fields.expand((widget) => [widget, SizedBox(height: 16)]),
-        // Añade la fila de botones al final
+        SizedBox(height: 5),
         _buildButtonRow(isMobile), // Llama al helper de botones
       ],
     );
@@ -282,17 +281,11 @@ class _UserModeloState extends State<UserModelo> {
 
   // --- Helper para construir layout desktop ---
   Widget _buildWebLayout(List<Widget> fields, bool isMobile) {
-    // Asegurarse de que hay exactamente 9 campos para distribuir
     if (fields.length != 9) {
-      // Manejar error o devolver un layout por defecto
       print(
           "Error: Se esperaban 9 campos para el layout de 3 columnas, pero se recibieron ${fields.length}");
       return _buildMobileLayout(fields, isMobile); // Fallback a layout móvil
     }
-    // Ancho del espacio entre columnas (REDUCIDO)
-    const double columnSpacing =
-        25.0; // <-- Puedes ajustar este valor (antes era 20)
-
     return Column(
       // Columna principal: Fila de campos + Fila de botones
       children: [
@@ -333,13 +326,14 @@ class _UserModeloState extends State<UserModelo> {
                   fields[6],
                   SizedBox(height: 16),
                   fields[7],
-                  SizedBox(height: 16),
+                  SizedBox(height: 30),
                   fields[8],
                 ],
               ),
             ),
           ],
         ),
+        SizedBox(height: 40),
         // Fila de botones separada debajo
         _buildButtonRow(isMobile), // Llama al helper de botones
       ],

@@ -67,6 +67,7 @@ class _LoginState extends State<Login> {
 
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         centerTitle: true,
         titleTextStyle: TextStyle(),
         title: Text('Bienvenido al Menú Digital ULT',

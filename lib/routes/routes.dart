@@ -14,7 +14,9 @@ import '../screens/admin/Logs.dart';
 import '../screens/admin/RolModelo.dart';
 import '../screens/admin/Roles.dart';
 import '../screens/common/Login.dart';
+import '../screens/common/Notifications.dart';
 import '../screens/common/Options.dart';
+import '../screens/common/Perfil.dart';
 import '../screens/menu/Inventario.dart';
 import '../screens/menu/MenuConfig.dart';
 import '../screens/menu/ModulosMenu.dart';
@@ -46,6 +48,8 @@ class AppRoutes {
   static const String comedorAcceso = '/comedor_acceso';
   static const String userModelo = '/user_modelo';
   static const String rolModelo = '/rol_modelo';
+  static const String perfil = '/perfil';
+  static const String notifications = '/notifications';
 
   // Mapeamos las rutas a las pantallas correspondientes
   static Map<String, WidgetBuilder> getRoutes() {
@@ -71,6 +75,8 @@ class AppRoutes {
       comedorAcceso: (context) => ComedorAcceso(),
       userModelo: (context) => UserModelo(),
       rolModelo: (context) => RolModelo(),
+      perfil: (context) => Perfil(),
+      notifications: (context) => Notifications(),
     };
   }
 }

@@ -6,6 +6,7 @@ import 'package:gestion_menu_ult_frontend/widgets/AddButton.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 import 'package:gestion_menu_ult_frontend/widgets/StatusDropDown.dart';
 
+import '../../widgets/Confirm.dart';
 import '../../widgets/UserTextFormField.dart';
 
 class Roles extends StatefulWidget {
@@ -76,57 +77,26 @@ class _RolesState extends State<Roles> {
   }
 
   // --- Método para Eliminar Rol (con confirmación) ---
-  void _deleteRole(int roleId, String roleName) {
-    bool isMobile = MediaQuery.of(context).size.width < 600;
-    // Recibe ID y nombre para el mensaje
-    showDialog(
+  void _deleteRole(int roleId, String roleName) async {
+    await showConfirmDeleteDialog(
+      // Espera el resultado (opcional)
       context: context,
-      builder: (BuildContext dialogContext) {
-        // Usar un contexto diferente para el diálogo
-        return AlertDialog(
-          title: Center(
-            child: Text('Confirmar Eliminación',
-                style: TextStyle(
-                    fontWeight: FontWeight.bold, fontSize: isMobile ? 18 : 20)),
-          ),
-          content:
-              Text('¿Estás seguro de que quieres eliminar el rol "$roleName"?'),
-          // Mensaje más específico
-          actions: <Widget>[
-            TextButton(
-              child: Text(
-                'CANCELAR',
-                style: TextStyle(
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.bold,
-                    fontSize: isMobile ? 14 : 16),
-              ),
-              onPressed: () {
-                Navigator.of(dialogContext).pop(); // Cierra el diálogo
-              },
-            ),
-            TextButton(
-              style: TextButton.styleFrom(foregroundColor: Colors.red[800]),
-              // Estilo para el botón de eliminar
-              child: Text('ELIMINAR',
-                  style: TextStyle(
-                      color: Colors.red[800],
-                      fontWeight: FontWeight.bold,
-                      fontSize: isMobile ? 14 : 16)),
-              onPressed: () {
-                setState(() {
-                  // Elimina de la lista principal usando el ID
-                  _roles.removeWhere((role) => role['id'] == roleId);
-                  // Vuelve a aplicar los filtros para actualizar la lista visible
-                  // Es importante llamar a _applyAllFilters para que la UI refleje
-                  // tanto la eliminación como los filtros activos.
-                  _applyAllFilters();
-                });
-                Navigator.of(dialogContext).pop(); // Cierra el diálogo
-              },
-            ),
-          ],
-        );
+      itemName: roleName, // Pasa el nombre del rol
+      itemType: 'el rol', // Pasa el tipo de ítem para el mensaje
+      onConfirm: () {
+        // Pasa la LÓGICA de borrado específica para roles aquí
+        setState(() {
+          // Elimina de la lista principal usando el ID
+          _roles.removeWhere((role) => role['id'] == roleId);
+          // Vuelve a aplicar los filtros para actualizar la lista visible
+          _applyAllFilters();
+        });
+        // El SnackBar se puede mostrar aquí o después de que el diálogo se cierre
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Rol "$roleName" eliminado.')),
+          );
+        }
       },
     );
   }

@@ -7,6 +7,7 @@ import 'package:gestion_menu_ult_frontend/widgets/StatusDropDown.dart';
 import 'package:gestion_menu_ult_frontend/widgets/TypeDropDown.dart';
 
 import '../../routes/PageRouteBuilder.dart';
+import '../../widgets/Confirm.dart';
 import '../../widgets/UserTextFormField.dart';
 
 class Users extends StatefulWidget {
@@ -53,8 +54,6 @@ class _UsersState extends State<Users> {
   ];
 
   List<Map<String, dynamic>> _filteredUsers = [];
-  List<int> _selectedUserIds =
-      []; // Para selección múltiple (no implementada aún)
 
   // Controladores para cada campo de texto
   final TextEditingController _usernameController = TextEditingController();
@@ -65,7 +64,6 @@ class _UsersState extends State<Users> {
   String selectedStatus = 'Todos'; // Estado seleccionado
   String selectedUserType = 'Todos'; // Tipo de usuario seleccionado
 
-  // --- PASO 2: Implementar initState y dispose ---
   @override
   void initState() {
     super.initState();
@@ -78,13 +76,11 @@ class _UsersState extends State<Users> {
 
   @override
   void dispose() {
-    // --- PASO 2: Quitar Listeners y liberar ---
     _usernameController.removeListener(_applyAllFilters);
     _nameController.removeListener(_applyAllFilters);
     _lastnameController.removeListener(_applyAllFilters);
     _emailController.removeListener(_applyAllFilters);
 
-    // Liberar todos los controladores
     _usernameController.dispose();
     _nameController.dispose();
     _lastnameController.dispose();
@@ -92,7 +88,6 @@ class _UsersState extends State<Users> {
     super.dispose();
   }
 
-  // --- PASO 4: Implementar _applyAllFilters ---
   void _applyAllFilters() {
     final usernameQuery = _usernameController.text.trim().toLowerCase();
     final nameQuery = _nameController.text.trim().toLowerCase();
@@ -136,38 +131,74 @@ class _UsersState extends State<Users> {
         'Filtros aplicados. Resultados: ${_filteredUsers.length}'); // Opcional: Debug
   }
 
-  // --- Función para eliminar (necesita ID, ajustada temporalmente) ---
-  void _deleteUser(int userId) {
-    // Recibe ID
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Confirmar Eliminación'),
-        content: Text('¿Eliminar este usuario?'), // Mensaje genérico
-        actions: [
-          TextButton(
-            onPressed: Navigator.of(context).pop,
-            child: Text('CANCELAR'),
-          ),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                // Eliminar de la lista principal usando el ID
-                _users.removeWhere((user) => user['id'] == userId);
-                // Volver a aplicar TODOS los filtros para actualizar la lista visible
-                _applyAllFilters();
-                // _selectedUserIds.clear(); // Limpiar selección si se usa
-              });
-              Navigator.of(context).pop();
-            },
-            child: Text('ELIMINAR', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
+  // --- Método para Editar Usuario ---
+  void _editUser(Map<String, dynamic> userData) async {
+    final result = await Navigator.push(
+      context,
+
+      createFadeRoute(UserModelo()), // Navega a UserModelo y pasa initialData
     );
+
+    if (result != null && result is Map<String, dynamic> && mounted) {
+      final index = _users.indexWhere((user) => user['id'] == result['id']);
+
+      if (index != -1) {
+        setState(() {
+          _users[index] = result;
+
+          _applyAllFilters(); // Llama a la función de filtrado de USUARIOS
+        });
+        // Opcional: Mostrar un SnackBar de éxito
+        // Usa un campo apropiado como 'username' o 'name' para el mensaje
+        final displayName =
+            result['username'] ?? result['name'] ?? 'ID: ${result['id']}';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('Usuario "$displayName" actualizado con éxito.')),
+        );
+      } else {
+        // Opcional: Manejar caso si el usuario original no se encontró (poco probable)
+        print(
+            "Usuario original con ID ${result['id']} no encontrado para actualizar.");
+        // Podrías añadir el usuario 'result' como nuevo si esa fuera la lógica deseada
+        // setState(() {
+        //   _users.add(result);
+        //   _applyAllFilters();
+        // });
+      }
+    }
   }
 
-  // La función _deleteSelectedUsers para borrado múltiple se mantiene pero sigue sin usarse
+  void _deleteUser(int userId, String userName) async {
+    // Marcar como async
+    // Llama a la función reutilizable del diálogo
+    final bool? confirmed = await showConfirmDeleteDialog(
+      context: context,
+      itemName: userName, // Pasa el nombre/username del usuario
+      itemType: 'al usuario', // Pasa el tipo de ítem para el mensaje
+      onConfirm: () {
+        setState(() {
+          final int initialLength = _users.length;
+          _users.removeWhere((user) => user['id'] == userId);
+          final bool wasRemoved = _users.length < initialLength;
+          if (wasRemoved) {
+            print('Usuario con ID $userId eliminado.');
+
+            _applyAllFilters(); // Llama a la función de filtrado de USUARIOS
+          }
+        });
+      },
+    );
+
+    if (!mounted) return; // Verifica si el widget sigue montado
+
+    if (confirmed == true) {
+      print('Confirmada la eliminación del usuario: $userName');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Usuario "$userName" eliminado con éxito.')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -177,7 +208,6 @@ class _UsersState extends State<Users> {
       appBar: CustomAppBar(title: 'Usuarios'),
       body: Column(
         children: [
-          // Barra de búsqueda y filtros
           Padding(
               padding: const EdgeInsets.all(12.0),
               child: isMobile
@@ -205,13 +235,9 @@ class _UsersState extends State<Users> {
                         children: [
                           SizedBox(width: 10),
                           AddButton(
-                              // Botón Añadir
                               onPressed: () {
                                 Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => UserModelo()),
-                                );
+                                    context, createFadeRoute(UserModelo()));
                               },
                               text: 'Usuario',
                               size: Size(
@@ -441,35 +467,22 @@ class _UsersState extends State<Users> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   IconButton(
-                    // Botón Editar
                     icon:
                         Icon(Icons.edit, color: Colors.grey.shade500, size: 20),
-                    // Tamaño ajustado
                     padding: EdgeInsets.zero,
-                    // Quitar padding extra
                     constraints: BoxConstraints(),
-                    // Quitar constraints extra
-                    onPressed: userId == -1
-                        ? null
-                        : () {
-                            // Deshabilitar si no hay ID
-                            // TODO: Implementar navegación a Editar Usuario pasando ID/datos
-                            print('Editar usuario ID: $userId');
-                            // Navigator.pushNamed(context, '/edit-user/$userId');
-                          },
+                    onPressed: () {
+                      _editUser(user);
+                    },
                   ),
                   IconButton(
-                    // Botón Borrar
                     icon: Icon(Icons.delete, color: Colors.red, size: 20),
-                    // Tamaño ajustado
                     padding: EdgeInsets.zero,
                     constraints: BoxConstraints(),
-                    onPressed: userId == -1
-                        ? null
-                        : () {
-                            // Deshabilitar si no hay ID
-                            _deleteUser(userId); // Llamar a borrar con ID
-                          },
+                    onPressed: () {
+                      _deleteUser(
+                          userId, user as String); // Llamar a borrar con ID
+                    },
                   ),
                 ],
               )),
@@ -505,21 +518,24 @@ class _UsersState extends State<Users> {
               children: [
                 IconButton(
                   icon: Icon(Icons.edit, color: Colors.grey.shade500),
-                  onPressed: userId == -1
-                      ? null
-                      : () {
-                          print('Editar usuario ID: $userId');
-                          // Navigator.pushNamed(context, '/edit-user/$userId');
-                        },
+                  onPressed: () {
+                    _editUser(user);
+                  },
                 ),
                 // SizedBox(width: 5), // Espacio entre botones
                 IconButton(
                   icon: Icon(Icons.delete, color: Colors.red),
-                  onPressed: userId == -1
-                      ? null
-                      : () {
-                          _deleteUser(userId);
-                        },
+                  onPressed: () {
+                    final int userId =
+                        user['id'] ?? -1; // Esto debería ser un int (correcto)
+                    final String nameForDialog = user['username'] ??
+                        'ID: $userId'; // <-- ¿Es user['username'] SIEMPRE un String?
+                    // ----------------------
+                    if (userId != -1) {
+                      _deleteUser(userId,
+                          nameForDialog); // _deleteUser espera (int, String)
+                    }
+                  },
                 ),
               ],
             ),

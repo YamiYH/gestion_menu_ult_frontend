@@ -34,7 +34,7 @@ class _RolModeloState extends State<RolModelo> {
   @override
   void initState() {
     super.initState();
-    // --- AÑADIDO: Pre-rellenar campos si estamos editando ---
+
     if (_isEditing) {
       _nameController.text = widget.initialData!['name'] ?? '';
       _descriptionController.text = widget.initialData!['description'] ?? '';
@@ -43,8 +43,7 @@ class _RolModeloState extends State<RolModelo> {
       _selectedStatus = widget.initialData![
           'status']; // Asume que status siempre existe y es String?
     } else {
-      // Valores por defecto si estamos creando (si los tienes)
-      _selectedStatus = 'Activo'; // Ejemplo
+      //_selectedStatus = 'Activo'; // Ejemplo
       _selectedAccess = [];
     }
   }
@@ -78,7 +77,6 @@ class _RolModeloState extends State<RolModelo> {
     }
   }
 
-  // Helper para la fila de botones (CORREGIDO: usa tu Button)
   Widget _buildButtonRow(bool isMobile) {
     return Padding(
       padding: const EdgeInsets.only(top: 30.0),
@@ -111,30 +109,28 @@ class _RolModeloState extends State<RolModelo> {
 
     return Scaffold(
       appBar: CustomAppBar(title: _isEditing ? 'Editar Rol' : 'Añadir Rol'),
-      body: SingleChildScrollView(
-        child: Container(
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
-          decoration: BoxDecoration(
-              image: DecorationImage(
-                  image: isMobile
-                      ? AssetImage('assets/img/background2.png')
-                      : AssetImage('assets/img/background0.png'),
-                  fit: isMobile ? BoxFit.cover : BoxFit.fill)),
-          child: SingleChildScrollView(
-            child: Center(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: isMobile ? 600 : 1000),
-                // Ancho máx
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 20.0, vertical: 24.0),
-                  child: Column(
-                    children: [
-                      SizedBox(height: isMobile ? 0 : 40),
-                      Form(key: _formKey, child: _buildRolModel(isMobile)),
-                    ],
-                  ),
+      body: Container(
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
+        decoration: BoxDecoration(
+            image: DecorationImage(
+                image: isMobile
+                    ? AssetImage('assets/img/background2.png')
+                    : AssetImage('assets/img/background0.png'),
+                fit: isMobile ? BoxFit.cover : BoxFit.fill)),
+        child: SingleChildScrollView(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: isMobile ? 600 : 1000),
+              // Ancho máx
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 20.0, vertical: 24.0),
+                child: Column(
+                  children: [
+                    SizedBox(height: isMobile ? 0 : 40),
+                    Form(key: _formKey, child: _buildRolModel(isMobile)),
+                  ],
                 ),
               ),
             ),
@@ -193,8 +189,6 @@ class _RolModeloState extends State<RolModelo> {
           StatusCheckboxRow(
             currentStatus: _selectedStatus, // Pasa el estado actual
             onStatusChanged: (newStatus) {
-              // Recibe el nuevo estado ('Activo' o 'Inactivo')
-              // Actualiza el estado en RolModelo usando setState
               setState(() {
                 _selectedStatus = newStatus;
               });
