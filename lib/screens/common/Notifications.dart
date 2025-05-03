@@ -18,36 +18,30 @@ class _NotificationsState extends State<Notifications> {
   final List<Map<String, dynamic>> _allNotifications = [
     {
       'id': 1,
-      'message': 'Nueva actualización v1.2 disponible',
+      'message': 'Reserva de tickets disponible',
       'isRead': false,
       'timestamp': DateTime.now().subtract(const Duration(hours: 1))
     },
     {
       'id': 2,
-      'message': 'Tienes 3 nuevos mensajes sin leer',
+      'message': 'Propuesta de menú esperando aprobación',
       'isRead': false,
       'timestamp': DateTime.now().subtract(const Duration(hours: 2))
     },
     {
       'id': 3,
-      'message': 'Recordatorio: Reunión de equipo a las 3 PM hoy',
-      'isRead': true,
+      'message': 'Propuesta de menú aprobada',
+      'isRead': false,
       'timestamp': DateTime.now().subtract(const Duration(days: 1))
     },
     {
       'id': 4,
-      'message': 'Ticket #1024 ha sido cerrado',
-      'isRead': false,
+      'message': 'Reserva de tickets disponible',
+      'isRead': true,
       'timestamp': DateTime.now().subtract(const Duration(days: 1, hours: 3))
     },
     {
       'id': 5,
-      'message': 'Mantenimiento programado para mañana a las 2 AM',
-      'isRead': true,
-      'timestamp': DateTime.now().subtract(const Duration(days: 2))
-    },
-    {
-      'id': 6,
       'message': '¡Bienvenido a la aplicación!',
       'isRead': true,
       'timestamp': DateTime.now().subtract(const Duration(days: 5))

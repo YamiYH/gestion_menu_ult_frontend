@@ -118,6 +118,18 @@ class _RecetaModeloState extends State<RecetaModelo> {
     super.dispose();
   }
 
+  final List<String> _categoryOptions = const [
+    'Seleccione categoría', // Placeholder
+    'Carnes',
+    'Viandas',
+    'Vegetales',
+    'Especias',
+    'Carbohidratos',
+    'Refrescos'
+  ];
+
+  String? _selectedCategory;
+
   // Método para agregar una nueva fila de ingredientes
   void addIngredienteRow() {
     setState(() {
@@ -212,16 +224,24 @@ class _RecetaModeloState extends State<RecetaModelo> {
     return Scaffold(
       appBar: CustomAppBar(title: 'Receta'),
       body: Padding(
-        padding: const EdgeInsets.all(25.0),
+        padding: const EdgeInsets.all(30.0),
         child: ListView(children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: 10),
-              RecipeTextField(
-                controller: nombreController,
-                enabled: widget.isEditMode,
-                text: 'Nombre del plato',
+              Row(
+                children: [
+                  Expanded(
+                    child: RecipeTextField(
+                      controller: nombreController,
+                      enabled: widget.isEditMode,
+                      text: 'Nombre del plato',
+                    ),
+                  ),
+                  SizedBox(width: 16),
+                  Expanded(child: CategoryDropdown()),
+                ],
               ),
               SizedBox(
                 height: 16,
@@ -467,6 +487,45 @@ class _RecetaModeloState extends State<RecetaModelo> {
           ),
         ]),
       ),
+    );
+  }
+
+  DropdownButtonFormField<String> CategoryDropdown() {
+    return DropdownButtonFormField<String>(
+      value: _selectedCategory,
+      onChanged: widget.isEditMode
+          ? (String? newValue) {
+              setState(() {
+                _selectedCategory = newValue;
+              });
+            }
+          : null,
+
+      decoration: InputDecoration(
+        labelText: 'Categoría',
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(5.0)),
+        // Borde estándar
+        contentPadding: const EdgeInsets.symmetric(
+            horizontal: 12.0, vertical: 16.0), // Padding
+      ),
+      isExpanded: true,
+      items: _categoryOptions.map((String category) {
+        // Usa tu lista de opciones
+        return DropdownMenuItem<String>(
+          value: category, // El valor que se guarda al seleccionar
+          child: Text(category,
+              overflow: TextOverflow.ellipsis), // El texto que se muestra
+        );
+      }).toList(),
+      // Convierte a lista
+
+      // --- Validación (Integrada con Form) ---
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Seleccione categoría'; // Mensaje de error si no se selecciona nada
+        }
+        return null; // Es válido si se seleccionó algo
+      },
     );
   }
 

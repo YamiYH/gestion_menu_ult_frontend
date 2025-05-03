@@ -133,15 +133,11 @@ class _InventarioState extends State<Inventario> {
           children: [
             Padding(
               padding: const EdgeInsets.all(12.0),
-              child:
-                  // Filtros responsivos
-                  _buildFilterSection(isMobile),
+              child: _buildFilterSection(isMobile),
             ),
             const SizedBox(height: 20),
-            // Encabezados de la lista
             _buildHeaderRow(isMobile),
             const SizedBox(height: 10),
-            // Lista de productos
             _buildProductList(isMobile),
           ],
         ),
@@ -159,8 +155,8 @@ class _InventarioState extends State<Inventario> {
   @override
   void initState() {
     super.initState();
-    _filteredProducts = List.from(_productos); // Mostrar todos por defecto
-    _selectedCategory = _categorias.first; // Inicializar con el placeholder
+    _filteredProducts = List.from(_productos);
+    _selectedCategory = _categorias.first;
   }
 
   @override
@@ -192,11 +188,6 @@ class _InventarioState extends State<Inventario> {
             ? true
             : (num.tryParse(minQtyText) ?? 0) <= quantity &&
                 quantity <= (num.tryParse(maxQtyText) ?? double.infinity);
-
-        // El producto se incluye si CUMPLE TODOS los filtros activos.
-        // Si un filtro no se especificó (campo vacío, categoría placeholder),
-        // su respectiva variable (nameMatch, categoryMatch, quantityMatch) será `true`
-        // y no impedirá que el producto se muestre.
         return nameMatch && categoryMatch && quantityMatch;
       }).toList();
     });

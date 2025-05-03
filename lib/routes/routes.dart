@@ -4,6 +4,8 @@ import 'package:gestion_menu_ult_frontend/screens/admin/ModulosAdmin.dart';
 import 'package:gestion_menu_ult_frontend/screens/admin/Payment.dart';
 import 'package:gestion_menu_ult_frontend/screens/admin/UserModelo.dart';
 import 'package:gestion_menu_ult_frontend/screens/admin/Users.dart';
+import 'package:gestion_menu_ult_frontend/screens/menu/Contabilidad/AprobarMenu.dart';
+import 'package:gestion_menu_ult_frontend/screens/menu/Contabilidad/Contabilidad.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/LibroRecetas.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/MenuPropuesta.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/RecetaModelo.dart';
@@ -50,6 +52,8 @@ class AppRoutes {
   static const String rolModelo = '/rol_modelo';
   static const String perfil = '/perfil';
   static const String notifications = '/notifications';
+  static const String contabilidad = '/contabilidad';
+  static const String aprobarMenu = '/aprobar_menu';
 
   // Mapeamos las rutas a las pantallas correspondientes
   static Map<String, WidgetBuilder> getRoutes() {
@@ -77,6 +81,8 @@ class AppRoutes {
       rolModelo: (context) => RolModelo(),
       perfil: (context) => Perfil(),
       notifications: (context) => Notifications(),
+      contabilidad: (context) => Contabilidad(),
+      aprobarMenu: (context) => AprobarMenu()
     };
   }
 }

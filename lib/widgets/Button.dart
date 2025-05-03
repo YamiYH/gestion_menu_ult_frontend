@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class Button extends StatefulWidget {
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final String text;
   final IconData? icon; // Ícono opcional
   final Size? size; // Tamaño opcional
@@ -12,6 +12,7 @@ class Button extends StatefulWidget {
     required this.text,
     this.icon,
     this.size,
+    MaterialColor? colorButton,
   }) : super(key: key);
 
   @override

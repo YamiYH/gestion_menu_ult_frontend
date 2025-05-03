@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/routes/PageRouteBuilder.dart';
+import 'package:gestion_menu_ult_frontend/screens/menu/Contabilidad/Contabilidad.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/MenuPropuesta.dart';
 import 'package:gestion_menu_ult_frontend/widgets/BuildCard.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
@@ -99,6 +100,16 @@ class ModulosMenu extends StatelessWidget {
           },
           title: 'Libro de Recetas',
           icon: Icons.book,
+        ),
+      ),
+      Container(
+        padding: EdgeInsets.all(5),
+        child: BuildCard(
+          title: 'Contabilidad',
+          icon: Icons.calculate_outlined,
+          onTap: () {
+            Navigator.push(context, createFadeRoute(Contabilidad()));
+          },
         ),
       ),
       Container(

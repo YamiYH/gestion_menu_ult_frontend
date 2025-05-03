@@ -8,9 +8,9 @@ import '../screens/common/Perfil.dart';
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String userName = 'Yamilet Yero'; // Nombre del usuario logeado
   final List<String> notifications = [
-    'Nueva actualización disponible',
-    'Tienes un nuevo mensaje',
-    'Recordatorio: Reunión a las 3 PM',
+    'Propuesta de menú esperando aprobación',
+    'Propuesta de menú aprobada',
+    'Reserva de tickets disponible',
   ]; // Lista de notificaciones
   final String title;
   final PreferredSizeWidget? bottom;
