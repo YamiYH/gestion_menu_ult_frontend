@@ -212,14 +212,13 @@ class _LibroRecetasState extends State<LibroRecetas> {
           actions: <Widget>[
             TextButton(
               child: Text('Cancelar',
-                  style: TextStyle(
-                      color: Colors.grey[700], fontSize: isMobile ? 14 : 16)),
+                  style: TextStyle(color: Colors.grey[700], fontSize: 17)),
               onPressed: () => Navigator.of(context).pop(),
             ),
             TextButton(
               style: TextButton.styleFrom(foregroundColor: Colors.red[900]),
               child: Text(isEditing ? 'Guardar' : 'Añadir',
-                  style: TextStyle(fontSize: isMobile ? 14 : 16)),
+                  style: TextStyle(fontSize: 17)),
               onPressed: () {
                 // Valida el formulario del diálogo ANTES de guardar
                 if (formKey.currentState?.validate() ?? false) {
@@ -497,14 +496,14 @@ class _LibroRecetasState extends State<LibroRecetas> {
               createFadeRoute(RecetaModelo(isEditMode: true, receta: null)));
         },
         text: 'Receta',
-        size: Size(isMobile ? 130 : 150, 45)); // Tamaño ligeramente ajustado
+        size: Size(isMobile ? 140 : 150, 45)); // Tamaño ligeramente ajustado
     final addCategoryButton = AddButton(
         onPressed: () {
           _showAddEditCategoryDialog();
         },
         text: 'Categoría',
         icon: Icon(Icons.add_circle_outline, size: 20),
-        size: Size(isMobile ? 130 : 150, 45));
+        size: Size(isMobile ? 145 : 150, 45));
 
     if (isMobile) {
       return [

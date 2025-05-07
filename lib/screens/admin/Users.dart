@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/screens/admin/UserModelo.dart';
-import 'package:gestion_menu_ult_frontend/widgets/AddButton.dart'; // Asegúrate que las rutas sean correctas
+import 'package:gestion_menu_ult_frontend/widgets/AddButton.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 import 'package:gestion_menu_ult_frontend/widgets/Pagination.dart';
 import 'package:gestion_menu_ult_frontend/widgets/StatusDropDown.dart';
@@ -18,20 +18,17 @@ class Users extends StatefulWidget {
 }
 
 class _UsersState extends State<Users> {
-  // --- PASO 1: Añadir IDs y Controladores ---
   final List<Map<String, dynamic>> _users = [
     {
-      'id': 1, // Añadido ID
       'username': 'juanperez',
       'name': 'Juan',
       'lastname': 'Perez',
       'email': 'juanperez@gmail.com',
-      'role': 'Estudiante', // Mantenemos role por si se usa en otro lado
+      'role': 'Estudiante',
       'status': 'Activo',
-      'type': 'Employee' // Añadido Type (o asegúrate que exista)
+      'type': 'Employee'
     },
     {
-      'id': 2, // Añadido ID
       'username': 'mariaglez',
       'name': 'Maria',
       'lastname': 'Gonzalez',
@@ -41,7 +38,6 @@ class _UsersState extends State<Users> {
       'type': 'Employee'
     },
     {
-      'id': 3, // Añadido ID
       'username': 'admin123',
       'name': 'Admin',
       'lastname': 'Admin',
@@ -50,24 +46,22 @@ class _UsersState extends State<Users> {
       'status': 'Activo',
       'type': 'System'
     },
-    // ... (agrega más usuarios con IDs únicos)
   ];
 
   List<Map<String, dynamic>> _filteredUsers = [];
 
-  // Controladores para cada campo de texto
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _lastnameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
 
-  String selectedStatus = 'Todos'; // Estado seleccionado
-  String selectedUserType = 'Todos'; // Tipo de usuario seleccionado
+  String selectedStatus = 'Todos';
+  String selectedUserType = 'Todos';
 
   @override
   void initState() {
     super.initState();
-    _filteredUsers = List.from(_users); // Inicializar con todos los usuarios
+    _filteredUsers = List.from(_users);
     _usernameController.addListener(_applyAllFilters);
     _nameController.addListener(_applyAllFilters);
     _lastnameController.addListener(_applyAllFilters);
@@ -96,7 +90,6 @@ class _UsersState extends State<Users> {
 
     setState(() {
       _filteredUsers = _users.where((user) {
-        // Comprobaciones de texto (solo si el campo no está vacío)
         final usernameMatch = usernameQuery.isEmpty ||
             (user['username'] as String? ?? '')
                 .toLowerCase()
@@ -110,15 +103,12 @@ class _UsersState extends State<Users> {
         final emailMatch = emailQuery.isEmpty ||
             (user['email'] as String? ?? '').toLowerCase().contains(emailQuery);
 
-        // Comprobación de estado (corregida)
         final statusMatch = selectedStatus == 'Todos' ||
             (user['status'] as String? ?? '') == selectedStatus;
 
-        // Comprobación de tipo (corregida - usando campo 'type')
         final typeMatch = selectedUserType == 'Todos' ||
             (user['type'] as String? ?? '') == selectedUserType;
 
-        // El usuario pasa si cumple todas las condiciones
         return usernameMatch &&
             nameMatch &&
             lastnameMatch &&
@@ -127,16 +117,12 @@ class _UsersState extends State<Users> {
             typeMatch;
       }).toList();
     });
-    print(
-        'Filtros aplicados. Resultados: ${_filteredUsers.length}'); // Opcional: Debug
   }
 
-  // --- Método para Editar Usuario ---
   void _editUser(Map<String, dynamic> userData) async {
     final result = await Navigator.push(
       context,
-
-      createFadeRoute(UserModelo()), // Navega a UserModelo y pasa initialData
+      createFadeRoute(UserModelo()),
     );
 
     if (result != null && result is Map<String, dynamic> && mounted) {
@@ -146,10 +132,8 @@ class _UsersState extends State<Users> {
         setState(() {
           _users[index] = result;
 
-          _applyAllFilters(); // Llama a la función de filtrado de USUARIOS
+          _applyAllFilters();
         });
-        // Opcional: Mostrar un SnackBar de éxito
-        // Usa un campo apropiado como 'username' o 'name' para el mensaje
         final displayName =
             result['username'] ?? result['name'] ?? 'ID: ${result['id']}';
         ScaffoldMessenger.of(context).showSnackBar(
@@ -157,25 +141,17 @@ class _UsersState extends State<Users> {
               content: Text('Usuario "$displayName" actualizado con éxito.')),
         );
       } else {
-        // Opcional: Manejar caso si el usuario original no se encontró (poco probable)
         print(
             "Usuario original con ID ${result['id']} no encontrado para actualizar.");
-        // Podrías añadir el usuario 'result' como nuevo si esa fuera la lógica deseada
-        // setState(() {
-        //   _users.add(result);
-        //   _applyAllFilters();
-        // });
       }
     }
   }
 
   void _deleteUser(int userId, String userName) async {
-    // Marcar como async
-    // Llama a la función reutilizable del diálogo
     final bool? confirmed = await showConfirmDeleteDialog(
       context: context,
-      itemName: userName, // Pasa el nombre/username del usuario
-      itemType: 'al usuario', // Pasa el tipo de ítem para el mensaje
+      itemName: userName,
+      itemType: 'al usuario',
       onConfirm: () {
         setState(() {
           final int initialLength = _users.length;
@@ -184,13 +160,13 @@ class _UsersState extends State<Users> {
           if (wasRemoved) {
             print('Usuario con ID $userId eliminado.');
 
-            _applyAllFilters(); // Llama a la función de filtrado de USUARIOS
+            _applyAllFilters();
           }
         });
       },
     );
 
-    if (!mounted) return; // Verifica si el widget sigue montado
+    if (!mounted) return;
 
     if (confirmed == true) {
       print('Confirmada la eliminación del usuario: $userName');
@@ -250,17 +226,11 @@ class _UsersState extends State<Users> {
                       SizedBox(height: 10),
                     ])
                   : Row(
-                      // --- Layout Desktop ---
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      // --- Layout Desktop ---
                       children: _buildTextFormField(isMobile),
                     )),
-
-          // Encabezados de la tabla
           isMobile ? _buildHeaderMobile() : _buildHeaderRow(),
-
-          // Lista de usuarios
           SizedBox(height: 10),
           Expanded(
             child: ListView.builder(
@@ -294,40 +264,35 @@ class _UsersState extends State<Users> {
 
   List<Widget> _buildTextFormField(isMobile) {
     return [
-      SizedBox(width: 5), // Espacio inicial
+      SizedBox(width: 5),
       Expanded(
         child: UserTextFormField(
           text: 'Usuario',
-          // onChanged: _applySearch, // ELIMINADO
-          controller: _usernameController, // Asignar controller correcto
+          controller: _usernameController,
         ),
       ),
       SizedBox(width: 10),
       Expanded(
         child: UserTextFormField(
           text: 'Nombre',
-          // onChanged: _applySearch, // ELIMINADO
-          controller: _nameController, // Asignar controller correcto
+          controller: _nameController,
         ),
       ),
       SizedBox(width: 10),
       Expanded(
         child: UserTextFormField(
           text: 'Apellido',
-          // onChanged: _applySearch, // ELIMINADO
-          controller: _lastnameController, // Asignar controller correcto
+          controller: _lastnameController,
         ),
       ),
       SizedBox(width: 10),
       Expanded(
         child: UserTextFormField(
           text: 'Correo',
-          // onChanged: _applySearch, // ELIMINADO
-          controller: _emailController, // Asignar controller correcto
+          controller: _emailController,
         ),
       ),
       SizedBox(width: 10),
-      // Widgets de Status y Type (sin cambios internos)
       Status(),
       SizedBox(width: 10),
       Type(),
@@ -335,9 +300,7 @@ class _UsersState extends State<Users> {
     ];
   }
 
-  // Widget para desplegable de Tipo (Corregido: Quitar llamada a _filterUsers)
   Widget Type() {
-    // Simplificado un poco el SizedBox, ajusta si es necesario
     return TypeDropDown(
       selectedValue: selectedUserType,
       onChanged: (String? newValue) {
@@ -349,7 +312,6 @@ class _UsersState extends State<Users> {
     );
   }
 
-  // Widget para desplegable de Estado (Corregido: Quitar llamada a _filterUsers)
   Widget Status() {
     return StatusDropDown(
       selectedValue: selectedStatus,
@@ -362,29 +324,22 @@ class _UsersState extends State<Users> {
     );
   }
 
-  // --- Widgets de Cabecera y Fila (Ajustes menores) ---
-
-  // Encabezados Desktop (Corregido: Quitar AddButton duplicado)
   Widget _buildHeaderRow() {
-    // isMobile no se usa aquí realmente
     return Container(
       color: Colors.grey[200],
       padding: EdgeInsets.all(10),
       child: Row(
         children: [
           SizedBox(width: MediaQuery.of(context).size.width * 0.01),
-          _headerCell('Usuario', 0.15),
-          _headerCell('Nombre', 0.15),
-          _headerCell('Apellidos', 0.15),
-          _headerCell('Correo', 0.15),
-          _headerCell('Estado', 0.1),
-          _headerCell('Tipo', 0.1),
-          Spacer(), // Ocupa espacio restante
-          // AddButton ELIMINADO de aquí
+          _header('Usuario', 0.15),
+          _header('Nombre', 0.15),
+          _header('Apellidos', 0.15),
+          _header('Correo', 0.15),
+          _header('Estado', 0.1),
+          _header('Tipo', 0.1),
+          Spacer(),
           Padding(
-            // Botón Añadir al final de la cabecera
             padding: const EdgeInsets.only(right: 20.0),
-            // Añadir padding a la derecha
             child: AddButton(
                 onPressed: () {
                   Navigator.push(
@@ -395,16 +350,14 @@ class _UsersState extends State<Users> {
                   );
                 },
                 text: 'Usuario',
-                size: Size(150, 40) // Tamaño ajustado
-                ),
+                size: Size(150, 40)),
           ),
         ],
       ),
     );
   }
 
-  // Helper para celdas de cabecera
-  Widget _headerCell(String title, double widthFactor) {
+  Widget _header(String title, double widthFactor) {
     return SizedBox(
       width: MediaQuery.of(context).size.width * widthFactor,
       height: 25, // Altura fija
@@ -412,17 +365,14 @@ class _UsersState extends State<Users> {
     );
   }
 
-  // Encabezados Móvil (Sin cambios mayores necesarios)
   Widget _buildHeaderMobile() {
     return Container(
       color: Colors.grey[200],
       padding: EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-      // Ajustar padding
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween, // Distribuir espacio
         children: [
           Expanded(flex: 3, child: Text('Usuario', style: _headerStyle())),
-          // Usar Expanded con flex
           Expanded(
               flex: 2,
               child: Text('Estado',
@@ -440,10 +390,8 @@ class _UsersState extends State<Users> {
     );
   }
 
-  // Fila de Usuario Móvil (Ajustado para usar _deleteUser con ID)
   Widget _buildUserRowMobile(Map<String, dynamic> user) {
-    final int userId =
-        user['id'] ?? -1; // Obtener ID (o valor por defecto si falta)
+    final int userId = user['id'] ?? -1;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
       child: Row(
@@ -463,7 +411,6 @@ class _UsersState extends State<Users> {
           Expanded(
               flex: 3,
               child: Row(
-                // Botones de acción
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   IconButton(
@@ -491,28 +438,21 @@ class _UsersState extends State<Users> {
     );
   }
 
-  // Fila de Usuario Desktop (Ajustado para usar _deleteUser con ID)
   Widget _buildUserRow(Map<String, dynamic> user) {
-    final int userId = user['id'] ?? -1; // Obtener ID
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
       child: Row(
-        // Usar Expanded para las celdas para mejor alineación con cabecera flexible
         children: [
+          SizedBox(width: MediaQuery.of(context).size.width * 0.01),
+          _user(user['username'], 0.15),
+          _user(user['name'], 0.15),
+          _user(user['lastname'], 0.15),
+          _user(user['email'], 0.15),
+          _user(user['status'], 0.1),
+          _user(user['type'], 0.1),
+          Spacer(),
           SizedBox(
-              width: MediaQuery.of(context).size.width *
-                  0.01), // Espacio inicial pequeño
-          _userCell(user['username'], 0.15),
-          _userCell(user['name'], 0.15),
-          _userCell(user['lastname'], 0.15),
-          _userCell(user['email'], 0.15),
-          _userCell(user['status'], 0.1),
-          _userCell(user['type'], 0.1),
-          Spacer(), // Ocupa espacio hasta los botones
-          // Botones de Acción
-          SizedBox(
-            width: MediaQuery.of(context).size.width *
-                0.1, // Ancho fijo para botones
+            width: MediaQuery.of(context).size.width * 0.1,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -522,41 +462,34 @@ class _UsersState extends State<Users> {
                     _editUser(user);
                   },
                 ),
-                // SizedBox(width: 5), // Espacio entre botones
                 IconButton(
                   icon: Icon(Icons.delete, color: Colors.red),
                   onPressed: () {
-                    final int userId =
-                        user['id'] ?? -1; // Esto debería ser un int (correcto)
-                    final String nameForDialog = user['username'] ??
-                        'ID: $userId'; // <-- ¿Es user['username'] SIEMPRE un String?
-                    // ----------------------
+                    final int userId = user['id'] ?? -1;
+                    final String nameForDialog =
+                        user['username'] ?? 'ID: $userId';
+
                     if (userId != -1) {
-                      _deleteUser(userId,
-                          nameForDialog); // _deleteUser espera (int, String)
+                      _deleteUser(userId, nameForDialog);
                     }
                   },
                 ),
               ],
             ),
           ),
-          SizedBox(
-              width: MediaQuery.of(context).size.width *
-                  0.01), // Espacio final pequeño
+          SizedBox(width: MediaQuery.of(context).size.width * 0.01),
         ],
       ),
     );
   }
 
-  // Helper para celdas de datos de usuario
-  Widget _userCell(String? text, double widthFactor) {
+  Widget _user(String? text, double widthFactor) {
     return SizedBox(
       width: MediaQuery.of(context).size.width * widthFactor,
       child: Text(text ?? 'N/A', overflow: TextOverflow.ellipsis),
     );
   }
 
-  // Estilo para encabezados (Sin cambios)
   TextStyle _headerStyle() {
     return TextStyle(
       fontWeight: FontWeight.bold,

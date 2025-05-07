@@ -5,7 +5,6 @@ import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 
 import '../../../widgets/Button.dart';
 import '../../../widgets/DatePickerButton.dart';
-import '../../../widgets/Pagination.dart';
 import '../../../widgets/SmallButton.dart';
 
 class Contabilidad extends StatefulWidget {
@@ -82,7 +81,6 @@ class _ContabilidadState extends State<Contabilidad> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Fila con DatePickerButton y Botón Buscar
             Padding(
               padding: EdgeInsets.all(16.0),
               child: isMobile
@@ -110,8 +108,6 @@ class _ContabilidadState extends State<Contabilidad> {
                       ],
                     ),
             ),
-
-            // Lista de Cards con los informes
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: ListView.builder(
@@ -126,13 +122,6 @@ class _ContabilidadState extends State<Contabilidad> {
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: Pagination(
-        itemBuilder: (context, item) {
-          return ListTile(
-            title: Text(item as String),
-          );
-        },
       ),
     );
   }
@@ -176,11 +165,10 @@ class _ContabilidadState extends State<Contabilidad> {
     final String fecha = propuesta['fecha'];
     final List<dynamic> listaPropuestas = propuesta['propuestas'];
     return Card(
-      //margin: EdgeInsets.only(bottom: 10),
       elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: Padding(
-        padding: const EdgeInsets.all(15.0),
+        padding: isMobile ? EdgeInsets.all(10.0) : EdgeInsets.all(15.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -189,9 +177,9 @@ class _ContabilidadState extends State<Contabilidad> {
               children: [
                 // Fecha del informe
                 Text(
-                  'Fecha: $fecha :   ',
+                  isMobile ? 'Fecha: $fecha: ' : 'Fecha: $fecha :   ',
                   style: TextStyle(
-                      fontSize: isMobile ? 17 : 16,
+                      fontSize: isMobile ? 14 : 16,
                       fontWeight: FontWeight.bold,
                       color: Colors.red[800]),
                 ),
@@ -204,7 +192,7 @@ class _ContabilidadState extends State<Contabilidad> {
                       Text(
                         item['nombre'],
                         style: TextStyle(
-                            fontSize: isMobile ? 17 : 16,
+                            fontSize: isMobile ? 14 : 16,
                             fontWeight: FontWeight.w600),
                       ),
                     ],
@@ -218,7 +206,7 @@ class _ContabilidadState extends State<Contabilidad> {
                 },
                 text: 'Revisar',
                 size: Size(
-                  isMobile ? 100 : 120,
+                  isMobile ? 95 : 120,
                   40,
                 ))
           ],

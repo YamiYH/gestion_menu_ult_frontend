@@ -20,7 +20,6 @@ class _RolesState extends State<Roles> {
   String selectedStatus = 'Todos';
   String selectedAccess = 'Todos';
 
-  // Lista de usuarios simulada
   final List<Map<String, dynamic>> _roles = [
     {
       'id': 1,
@@ -45,29 +44,22 @@ class _RolesState extends State<Roles> {
     },
   ];
 
-  // --- Método para Editar Rol ---
   void _editRole(Map<String, dynamic> roleData) async {
-    // Marcar como async
-    // Navega a RolModelo pasando los datos y ESPERA un resultado
     final result = await Navigator.push(
       context,
-      // Usa tu transición preferida
-      createFadeRoute(RolModelo(initialData: roleData)), // Pasa initialData
+      createFadeRoute(RolModelo(initialData: roleData)),
     );
 
-    // --- Procesa el resultado si el usuario guardó cambios ---
     if (result != null && result is Map<String, dynamic> && mounted) {
-      // Busca el índice del rol original en la lista _roles
       final index = _roles.indexWhere((role) => role['id'] == result['id']);
 
       if (index != -1) {
-        // Si se encontró, actualiza el rol en la lista principal
         setState(() {
-          _roles[index] = result; // Reemplaza con los datos devueltos
-          // Aplica filtros para que la lista visible se actualice
+          _roles[index] = result;
+
           _applyAllFilters();
         });
-        // Opcional: Mostrar un SnackBar de éxito
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text('Rol "${result['name']}" actualizado con éxito.')),
@@ -76,22 +68,18 @@ class _RolesState extends State<Roles> {
     }
   }
 
-  // --- Método para Eliminar Rol (con confirmación) ---
   void _deleteRole(int roleId, String roleName) async {
     await showConfirmDeleteDialog(
-      // Espera el resultado (opcional)
       context: context,
-      itemName: roleName, // Pasa el nombre del rol
-      itemType: 'el rol', // Pasa el tipo de ítem para el mensaje
+      itemName: roleName,
+      itemType: 'el rol',
       onConfirm: () {
-        // Pasa la LÓGICA de borrado específica para roles aquí
         setState(() {
-          // Elimina de la lista principal usando el ID
           _roles.removeWhere((role) => role['id'] == roleId);
-          // Vuelve a aplicar los filtros para actualizar la lista visible
+
           _applyAllFilters();
         });
-        // El SnackBar se puede mostrar aquí o después de que el diálogo se cierre
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Rol "$roleName" eliminado.')),
@@ -103,12 +91,11 @@ class _RolesState extends State<Roles> {
 
   String formatAccess(dynamic access) {
     if (access is List) {
-      return access.join(', '); // Formato simple
+      return access.join(', ');
     }
-    return access.toString(); // Si no es una lista, convierte a cadena
+    return access.toString();
   }
 
-  // Lista filtrada y control de selección múltiple
   List<Map<String, dynamic>> _filteredRoles = [];
   final TextEditingController _searchController = TextEditingController();
 
@@ -116,7 +103,7 @@ class _RolesState extends State<Roles> {
   void initState() {
     super.initState();
     _filteredRoles = List.from(_roles);
-    // Listener para búsqueda en tiempo real
+
     _searchController.addListener(_applyAllFilters);
   }
 
@@ -127,41 +114,32 @@ class _RolesState extends State<Roles> {
     super.dispose();
   }
 
-  // --- PASO 2: Implementar Filtro Combinado ---
   void _applyAllFilters() {
     final nameQuery = _searchController.text.trim().toLowerCase();
 
     setState(() {
       _filteredRoles = _roles.where((role) {
-        // Filtro por Nombre (role['role'])
         final nameMatch = nameQuery.isEmpty ||
             (role['role'] as String? ?? '').toLowerCase().contains(nameQuery);
 
-        // Filtro por Estado (role['status'])
         final statusMatch = selectedStatus == 'Todos' ||
             (role['status'] as String? ?? '') == selectedStatus;
 
-        // Filtro por Permiso (role['access'])
         final accessMatch;
         if (selectedAccess == 'Todos') {
-          accessMatch =
-              true; // Si se selecciona 'Todos', coincide con cualquier permiso
+          accessMatch = true;
         } else {
           final roleAccess = role['access'];
           if (roleAccess is List) {
-            // Si el rol tiene 'Todos' o la lista contiene el permiso seleccionado
             accessMatch = roleAccess.contains('Todos') ||
                 roleAccess.contains(selectedAccess);
           } else if (roleAccess is String && roleAccess == 'Todos') {
-            // Si el rol solo tiene 'Todos' como string
             accessMatch = true;
           } else {
-            // Si no es lista y no es 'Todos', no coincide a menos que se seleccione 'Todos'
             accessMatch = false;
           }
         }
 
-        // El rol pasa si cumple todas las condiciones
         return nameMatch && statusMatch && accessMatch;
       }).toList();
     });
@@ -220,10 +198,8 @@ class _RolesState extends State<Roles> {
                         children: _buildTextFormField(),
                       )),
 
-            // Encabezados de la tabla
             isMobile ? _buildHeaderMobile() : _buildHeaderRow(isMobile),
 
-            // Lista de usuarios
             SizedBox(height: 10),
             Expanded(
               child: ListView.builder(
@@ -253,7 +229,6 @@ class _RolesState extends State<Roles> {
       UserTextFormField(text: 'Buscar rol', controller: _searchController),
       SizedBox(width: MediaQuery.of(context).size.width * 0.02),
       Row(
-        //mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Access(),
@@ -266,15 +241,13 @@ class _RolesState extends State<Roles> {
 
   Widget Status() {
     return StatusDropDown(
-      selectedValue: selectedStatus, // La variable de estado de Roles
+      selectedValue: selectedStatus,
       onChanged: (newValue) {
         setState(() {
           selectedStatus = selectedStatus;
         });
-        _applyAllFilters(); // Llama a tu función de filtrar roles
+        _applyAllFilters();
       },
-      // No necesitas pasar 'options', usará ['Todos', 'Activo', 'Inactivo'] por defecto
-      // validator: ... (añade si necesitas validar en la búsqueda)
     );
   }
 
@@ -285,12 +258,11 @@ class _RolesState extends State<Roles> {
         setState(() {
           selectedAccess = newValue!;
         });
-        _applyAllFilters(); // Aplicar filtro al cambiar el valor
+        _applyAllFilters();
       },
     );
   }
 
-  // Encabezados responsivos
   Widget _buildHeaderRow(bool isMobile) {
     return Container(
       color: Colors.grey[200],
@@ -337,12 +309,10 @@ class _RolesState extends State<Roles> {
     );
   }
 
-  // Fila de usuario
   Widget _buildUserRow(Map<String, dynamic> role) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        //SizedBox(width: MediaQuery.of(context).size.width * 0.02),
         SizedBox(
           width: MediaQuery.of(context).size.width * 0.20,
           height: 20,
@@ -386,7 +356,6 @@ class _RolesState extends State<Roles> {
     );
   }
 
-  // Encabezados responsivos
   Widget _buildHeaderMobile() {
     return Container(
       color: Colors.grey[200],
@@ -460,7 +429,6 @@ class _RolesState extends State<Roles> {
     );
   }
 
-  // Estilo para encabezados
   TextStyle _headerStyle() {
     return TextStyle(
       fontWeight: FontWeight.bold,

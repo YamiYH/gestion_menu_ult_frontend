@@ -46,54 +46,51 @@ class _RecetaModeloState extends State<RecetaModelo> {
   void initState() {
     super.initState();
 
-    // Inicializar controladores con valores actuales
     nombreController = TextEditingController(
-        text: widget.receta != null ? widget.receta!['nombre'] : '');
+        text: widget.receta != null ? widget.receta!['name'] : '');
     recetaNumController = TextEditingController(
-        text: widget.receta != null ? widget.receta!['recetaNum'] : '');
+        text: widget.receta != null ? widget.receta!['recipeNum'] : '');
     proteinasController = TextEditingController(
-        text: widget.receta != null ? widget.receta!['proteinas'] : '0');
+        text: widget.receta != null ? widget.receta!['proteins'] : '0');
     grasasController = TextEditingController(
-        text: widget.receta != null ? widget.receta!['grasas'] : '0');
+        text: widget.receta != null ? widget.receta!['fats'] : '0');
     carbohidratosController = TextEditingController(
-        text: widget.receta != null ? widget.receta!['carbohidratos'] : '0');
+        text: widget.receta != null ? widget.receta!['carbs'] : '0');
     energiaController = TextEditingController(
-        text: widget.receta != null ? widget.receta!['energia'] : '0');
+        text: widget.receta != null ? widget.receta!['energy'] : '0');
     pesoPorcionController = TextEditingController(
-        text: widget.receta != null ? widget.receta!['pesoPorcion'] : '0');
+        text: widget.receta != null ? widget.receta!['portionWeight'] : '0');
     ingredientesController = TextEditingController(
-        text: widget.receta != null ? widget.receta!['ingredientes'] : '');
+        text: widget.receta != null ? widget.receta!['ingredients'] : '');
     pesoBrutoController = TextEditingController(
-        text: widget.receta != null ? '${widget.receta!['pesoBruto']}' : '0');
+        text: widget.receta != null ? '${widget.receta!['grossWeight']}' : '0');
     pesoNetoController = TextEditingController(
-        text: widget.receta != null ? '${widget.receta!['pesoNeto']}' : '0');
+        text: widget.receta != null ? '${widget.receta!['netWeight']}' : '0');
     preparacionController = TextEditingController(
-        text: widget.receta != null ? widget.receta!['preparacion'] : '');
+        text: widget.receta != null ? widget.receta!['preparation'] : '');
     coccionController = TextEditingController(
-        text: widget.receta != null ? widget.receta!['coccion'] : '');
+        text: widget.receta != null ? widget.receta!['cookingSteps'] : '');
     observacionesController = TextEditingController(
-        text: widget.receta != null ? widget.receta!['observaciones'] : '');
+        text: widget.receta != null ? widget.receta!['observations'] : '');
     temperaturaController = TextEditingController(
-        text: widget.receta != null ? widget.receta!['temperatura'] : '0');
+        text: widget.receta != null ? widget.receta!['temperature'] : '0');
     tiempoCoccionController = TextEditingController(
-        text: widget.receta != null ? widget.receta!['tiempoCoccion'] : '0');
+        text: widget.receta != null ? widget.receta!['cookingTime'] : '0');
 
-    // Inicializar controladores para ingredientes
-    final List<dynamic> ingredientes = widget.receta?['ingredientes'] ?? [];
+    final List<dynamic> ingredientes = widget.receta?['ingredients'] ?? [];
     for (var ingrediente in ingredientes) {
       ingredientesControllerMap.add({
-        'nombre': TextEditingController(text: ingrediente['nombre'] ?? ''),
-        'pesoBruto':
-            TextEditingController(text: '${ingrediente['pesoBruto'] ?? 0}'),
-        'pesoNeto':
-            TextEditingController(text: '${ingrediente['pesoNeto'] ?? 0}'),
+        'name': TextEditingController(text: ingrediente['name'] ?? ''),
+        'grossWeight':
+            TextEditingController(text: '${ingrediente['grossWeight'] ?? 0}'),
+        'netWeight':
+            TextEditingController(text: '${ingrediente['netWeight'] ?? 0}'),
       });
     }
   }
 
   @override
   void dispose() {
-    // Liberar recursos
     nombreController.dispose();
     recetaNumController.dispose();
     proteinasController.dispose();
@@ -111,15 +108,15 @@ class _RecetaModeloState extends State<RecetaModelo> {
     tiempoCoccionController.dispose();
 
     for (var controllerMap in ingredientesControllerMap) {
-      controllerMap['nombre']?.dispose();
-      controllerMap['pesoBruto']?.dispose();
-      controllerMap['pesoNeto']?.dispose();
+      controllerMap['name']?.dispose();
+      controllerMap['grossWeight']?.dispose();
+      controllerMap['netWeight']?.dispose();
     }
     super.dispose();
   }
 
   final List<String> _categoryOptions = const [
-    'Seleccione categoría', // Placeholder
+    'Seleccionar',
     'Carnes',
     'Viandas',
     'Vegetales',
@@ -130,26 +127,24 @@ class _RecetaModeloState extends State<RecetaModelo> {
 
   String? _selectedCategory;
 
-  // Método para agregar una nueva fila de ingredientes
   void addIngredienteRow() {
     setState(() {
       ingredientesControllerMap.add({
-        'nombre': TextEditingController(),
-        'pesoBruto': TextEditingController(),
-        'pesoNeto': TextEditingController(),
+        'name': TextEditingController(),
+        'grossWeight': TextEditingController(),
+        'netWeight': TextEditingController(),
       });
     });
   }
 
-  // Método para eliminar una fila de ingredientes
   void _removeIngredienteRow(int index) {
     setState(() {
       if (ingredientesControllerMap.isNotEmpty &&
           index >= 0 &&
           index < ingredientesControllerMap.length) {
-        ingredientesControllerMap[index]['nombre']?.dispose();
-        ingredientesControllerMap[index]['pesoBruto']?.dispose();
-        ingredientesControllerMap[index]['pesoNeto']?.dispose();
+        ingredientesControllerMap[index]['name']?.dispose();
+        ingredientesControllerMap[index]['grossWeight']?.dispose();
+        ingredientesControllerMap[index]['netWeight']?.dispose();
         ingredientesControllerMap.removeAt(index);
       }
     });
@@ -157,7 +152,6 @@ class _RecetaModeloState extends State<RecetaModelo> {
 
   Future<void> saveRecipe() async {
     try {
-      // Validar campos obligatorios
       if (nombreController.text.isEmpty || recetaNumController.text.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -167,47 +161,43 @@ class _RecetaModeloState extends State<RecetaModelo> {
         return;
       }
 
-      // Construir el objeto JSON con los datos de la receta
       final Map<String, dynamic> recipeData = {
-        'nombre': nombreController.text,
-        'recetaNum': recetaNumController.text,
-        'proteinas': double.tryParse(proteinasController.text) ?? 0,
-        'grasas': double.tryParse(grasasController.text) ?? 0,
-        'carbohidratos': double.tryParse(carbohidratosController.text) ?? 0,
-        'energia': double.tryParse(energiaController.text) ?? 0,
-        'pesoPorcion': double.tryParse(pesoPorcionController.text) ?? 0,
-        'ingredientes': ingredientesControllerMap
+        'name': nombreController.text,
+        'recipeNum': recetaNumController.text,
+        'proteins': double.tryParse(proteinasController.text) ?? 0,
+        'fats': double.tryParse(grasasController.text) ?? 0,
+        'carbs': double.tryParse(carbohidratosController.text) ?? 0,
+        'energy': double.tryParse(energiaController.text) ?? 0,
+        'portionWeight': double.tryParse(pesoPorcionController.text) ?? 0,
+        'ingredients': ingredientesControllerMap
             .map((controllerMap) => {
-                  'nombre': controllerMap['nombre']?.text ?? '',
-                  'pesoBruto': double.tryParse(
-                          controllerMap['pesoBruto']?.text ?? '0') ??
+                  'name': controllerMap['name']?.text ?? '',
+                  'grossWeight': double.tryParse(
+                          controllerMap['grossWeight']?.text ?? '0') ??
                       0,
-                  'pesoNeto':
-                      double.tryParse(controllerMap['pesoNeto']?.text ?? '0') ??
-                          0,
+                  'netWeight': double.tryParse(
+                          controllerMap['netWeight']?.text ?? '0') ??
+                      0,
                 })
             .toList(),
-        'preparacion': preparacionController.text,
-        'coccion': coccionController.text,
-        'observaciones': observacionesController.text,
-        'temperatura': double.tryParse(temperaturaController.text) ?? 0,
-        'tiempoCoccion': double.tryParse(tiempoCoccionController.text) ?? 0,
+        'preparation': preparacionController.text,
+        'cookingSteps': coccionController.text,
+        'observations': observacionesController.text,
+        'temperature': double.tryParse(temperaturaController.text) ?? 0,
+        'cookingTime': double.tryParse(tiempoCoccionController.text) ?? 0,
       };
 
-      // Endpoint del backend (reemplaza con la URL real de tu API)
       final response = await http.post(
         Uri.parse('https://tu-backend.com/api/recetas'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(recipeData),
       );
 
-      // Verificar la respuesta del servidor
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Receta guardada exitosamente')),
         );
-        Navigator.pop(
-            context, {'success': true}); // Regresar a la pantalla anterior
+        Navigator.pop(context, {'success': true});
       } else {
         throw Exception('Error al guardar la receta.');
       }
@@ -224,7 +214,7 @@ class _RecetaModeloState extends State<RecetaModelo> {
     return Scaffold(
       appBar: CustomAppBar(title: 'Receta'),
       body: Padding(
-        padding: const EdgeInsets.all(30.0),
+        padding: isMobile ? EdgeInsets.all(20.0) : EdgeInsets.all(30.0),
         child: ListView(children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -236,11 +226,11 @@ class _RecetaModeloState extends State<RecetaModelo> {
                     child: RecipeTextField(
                       controller: nombreController,
                       enabled: widget.isEditMode,
-                      text: 'Nombre del plato',
+                      text: isMobile ? 'Nombre plato' : 'Nombre del plato',
                     ),
                   ),
                   SizedBox(width: 16),
-                  Expanded(child: CategoryDropdown()),
+                  Expanded(child: CategoryDropdown(isMobile)),
                 ],
               ),
               SizedBox(
@@ -346,7 +336,7 @@ class _RecetaModeloState extends State<RecetaModelo> {
                         children: [
                           Expanded(
                             child: TextField(
-                              controller: controllers['nombre'],
+                              controller: controllers['name'],
                               enabled: widget.isEditMode,
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(
@@ -366,7 +356,7 @@ class _RecetaModeloState extends State<RecetaModelo> {
                           SizedBox(width: 10, height: 16),
                           Expanded(
                             child: TextField(
-                              controller: controllers['pesoBruto'],
+                              controller: controllers['grossWeight'],
                               enabled: widget.isEditMode,
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(
@@ -378,7 +368,7 @@ class _RecetaModeloState extends State<RecetaModelo> {
                           SizedBox(width: 10, height: 16),
                           Expanded(
                             child: TextField(
-                              controller: controllers['pesoNeto'],
+                              controller: controllers['netWeight'],
                               enabled: widget.isEditMode,
                               decoration: InputDecoration(
                                 labelText: '',
@@ -490,7 +480,7 @@ class _RecetaModeloState extends State<RecetaModelo> {
     );
   }
 
-  DropdownButtonFormField<String> CategoryDropdown() {
+  DropdownButtonFormField<String> CategoryDropdown(bool isMobile) {
     return DropdownButtonFormField<String>(
       value: _selectedCategory,
       onChanged: widget.isEditMode
@@ -500,31 +490,24 @@ class _RecetaModeloState extends State<RecetaModelo> {
               });
             }
           : null,
-
       decoration: InputDecoration(
         labelText: 'Categoría',
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(5.0)),
-        // Borde estándar
-        contentPadding: const EdgeInsets.symmetric(
-            horizontal: 12.0, vertical: 16.0), // Padding
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 12.0, vertical: 16.0),
       ),
       isExpanded: true,
       items: _categoryOptions.map((String category) {
-        // Usa tu lista de opciones
         return DropdownMenuItem<String>(
-          value: category, // El valor que se guarda al seleccionar
-          child: Text(category,
-              overflow: TextOverflow.ellipsis), // El texto que se muestra
+          value: category,
+          child: Text(category, overflow: TextOverflow.ellipsis),
         );
       }).toList(),
-      // Convierte a lista
-
-      // --- Validación (Integrada con Form) ---
       validator: (value) {
         if (value == null || value.isEmpty) {
-          return 'Seleccione categoría'; // Mensaje de error si no se selecciona nada
+          return 'Seleccionar';
         }
-        return null; // Es válido si se seleccionó algo
+        return null;
       },
     );
   }

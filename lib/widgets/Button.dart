@@ -24,7 +24,6 @@ class _ButtonState extends State<Button> {
   Widget build(BuildContext context) {
     bool isMobile = MediaQuery.of(context).size.width < 600;
 
-    // Definir el tamaño predeterminado si no se proporciona uno
     Size defaultSize = Size(isMobile ? 180 : 220, 50);
     Size buttonSize = widget.size ?? defaultSize;
 
@@ -53,7 +52,7 @@ class _ButtonState extends State<Button> {
           SizedBox(width: 8),
           Text(
             widget.text,
-            style: TextStyle(color: Colors.white, fontSize: isMobile ? 15 : 18),
+            style: TextStyle(color: Colors.white, fontSize: isMobile ? 16 : 18),
           ),
         ],
       ),

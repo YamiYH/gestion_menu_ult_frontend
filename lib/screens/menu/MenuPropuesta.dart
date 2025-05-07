@@ -10,7 +10,6 @@ class MenuPropuesta extends StatefulWidget {
 }
 
 class _MenuPropuestaState extends State<MenuPropuesta> {
-  // ... (tus listas de ensaladas, sopas, etc. sin cambios) ...
   final List<String> ensaladas = [
     'Seleccionar Ensaladas y Vegetales',
     'Ensalada de acelga',
@@ -72,8 +71,6 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
     'Yogurt natural'
   ];
 
-  // ... (tus variables de estado para selecciones sin cambios) ...
-  // Estado para almacenar las selecciones del menú de estudiantes
   String? selectedEnsaladasEstudiantes;
   String? selectedSopasEstudiantes;
   String? selectedArrocesEstudiantes;
@@ -87,7 +84,6 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
   String? selectedFrutasEstudiantes;
   String? selectedSalsasEstudiantes;
 
-  // Estado para almacenar las selecciones del menú de profesores
   String? selectedEnsaladasTrabajadores;
   String? selectedSopasTrabajadores;
   String? selectedArrocesTrabajadores;
@@ -103,7 +99,6 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
 
   String? selectedMealType = 'Almuerzo';
 
-  // Estado para habilitar/deshabilitar las tarjetas individualmente (antes de confirmar)
   bool isEstudiantesEnabled = true;
   bool isTrabajadoresEnabled = true;
 
@@ -113,7 +108,7 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
   Future<void> _showConfirmationDialog(bool isMobile) async {
     return showDialog<void>(
       context: context,
-      barrierDismissible: false, // El usuario debe tocar un botón para cerrar
+      barrierDismissible: false,
       builder: (BuildContext context) {
         bool isMobile = MediaQuery.of(context).size.width < 600;
         return AlertDialog(
@@ -123,7 +118,6 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
               children: const <Widget>[
                 Text('¿Está seguro de que desea proponer este menú?'),
                 Text('Una vez propuesto, no podrá editarlo.'),
-                // Mensaje adicional
               ],
             ),
           ),
@@ -147,16 +141,14 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
                     fontSize: isMobile ? 14 : 18),
               ),
               onPressed: () {
-                // Aquí iría la lógica para enviar la propuesta al backend
                 print('Propuesta confirmada');
-                // Actualiza el estado para deshabilitar controles
                 setState(() {
                   _isProposalConfirmed = true;
                 });
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Propuesta enviada (simulado)')),
                 );
-                Navigator.of(context).pop(); // Cierra el diálogo
+                Navigator.of(context).pop();
               },
             ),
           ],
@@ -181,7 +173,6 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
               isMobile
                   ? Column(
                       children: [
-                        // ... (Row con FoodDropDown y DateWidget sin cambios) ...
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -206,9 +197,7 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
                           ],
                         ),
                         SizedBox(height: 10),
-                        // *** 3. Botón Proponer actualizado ***
                         Button(
-                          // Si la propuesta está confirmada, onPressed es null (deshabilitado)
                           onPressed: _isProposalConfirmed
                               ? null
                               : () {
@@ -216,12 +205,10 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
                                 },
                           text: _isProposalConfirmed
                               ? 'Propuesta Enviada'
-                              : 'Proponer', // Cambia el texto
+                              : 'Proponer',
                           size: Size(isMobile ? 320 : 170, isMobile ? 60 : 50),
-                          // Cambia el color si está deshabilitado (opcional)
-                          colorButton: _isProposalConfirmed
-                              ? Colors.grey
-                              : null, // Usa el color por defecto de tu Button si es null
+                          colorButton:
+                              _isProposalConfirmed ? Colors.grey : null,
                         ),
                       ],
                     )
@@ -229,7 +216,6 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        // ... (FoodDropDown y DateWidget sin cambios) ...
                         FoodDropDown(selectedMealType, (newValue) {
                           setState(() {
                             selectedMealType = newValue;
@@ -248,7 +234,6 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
                               : MediaQuery.of(context).size.width * 0.15,
                         ),
                         SizedBox(width: isMobile ? 10 : 20),
-
                         Button(
                           onPressed: _isProposalConfirmed
                               ? null
@@ -278,17 +263,15 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
   }
 
   List<Widget> Cards(bool isMobile) {
-    // *** 4. Pasar el estado _isProposalConfirmed a MenuCard ***
     return [
       Expanded(
         child: MenuCard(
           isMobile,
           'Menú Estudiantes',
-          true, // isEstudiantes
-          isEnabledByCheckbox: isEstudiantesEnabled, // Estado del checkbox
-          isProposalConfirmed: _isProposalConfirmed, // Estado general
+          true,
+          isEnabledByCheckbox: isEstudiantesEnabled,
+          isProposalConfirmed: _isProposalConfirmed,
           onCheckboxChanged: (value) {
-            // El checkbox solo funciona si NO está confirmada la propuesta
             if (!_isProposalConfirmed) {
               setState(() {
                 isEstudiantesEnabled = value!;
@@ -299,11 +282,10 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
       ),
       SizedBox(width: isMobile ? 0 : 20, height: isMobile ? 10 : 0),
       Expanded(
-        child: MenuCard(isMobile, 'Menú Trabajadores', false, // isEstudiantes
-            isEnabledByCheckbox: isTrabajadoresEnabled, // Estado del checkbox
-            isProposalConfirmed: _isProposalConfirmed, // Estado general
+        child: MenuCard(isMobile, 'Menú Trabajadores', false,
+            isEnabledByCheckbox: isTrabajadoresEnabled,
+            isProposalConfirmed: _isProposalConfirmed,
             onCheckboxChanged: (value) {
-          // El checkbox solo funciona si NO está confirmada la propuesta
           if (!_isProposalConfirmed) {
             setState(() {
               isTrabajadoresEnabled = value!;
@@ -314,24 +296,18 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
     ];
   }
 
-  // *** 4. Widget MenuCard modificado para aceptar y usar _isProposalConfirmed ***
   Widget MenuCard(bool isMobile, String title, bool isEstudiantes,
       {required bool isEnabledByCheckbox,
       required bool isProposalConfirmed,
       required Function(bool?) onCheckboxChanged}) {
-    // Determina si los dropdowns deben estar habilitados
-    // Están habilitados SI Y SOLO SI la propuesta NO está confirmada Y el checkbox está marcado
     final bool areDropdownsEnabled =
         !isProposalConfirmed && isEnabledByCheckbox;
-    // El checkbox está habilitado solo si la propuesta NO está confirmada
+
     final bool isCheckboxEnabled = !isProposalConfirmed;
 
     return Opacity(
-      // Añade Opacity para dar feedback visual de deshabilitado
       opacity: isProposalConfirmed ? 0.5 : 1.0,
-      // Más transparente si está confirmado
       child: AbsorbPointer(
-        // Impide cualquier interacción si está confirmado
         absorbing: isProposalConfirmed,
         child: Card(
           elevation: 5,
@@ -358,21 +334,17 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
                     Checkbox(
                       activeColor: Colors.red,
                       value: isEnabledByCheckbox,
-                      // Sigue mostrando el estado del check
-                      // onChanged es null si el checkbox debe estar deshabilitado
                       onChanged: isCheckboxEnabled ? onCheckboxChanged : null,
                     ),
                   ],
                 ),
                 Divider(),
-                // Pasa el estado correcto a cada DropdownSelector
                 DropdownSelector(
                   label: 'Ensaladas y vegetales',
                   items: ensaladas,
                   value: isEstudiantes
                       ? selectedEnsaladasEstudiantes
                       : selectedEnsaladasTrabajadores,
-                  // onChanged es null si los dropdowns deben estar deshabilitados
                   onChanged: areDropdownsEnabled
                       ? (value) {
                           setState(() {
@@ -383,7 +355,7 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
                           });
                         }
                       : null,
-                  isEnabled: areDropdownsEnabled, // Pasa el estado calculado
+                  isEnabled: areDropdownsEnabled,
                 ),
                 DropdownSelector(
                   label: 'Sopas, caldos y frijoles',
@@ -394,10 +366,11 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
                   onChanged: areDropdownsEnabled
                       ? (value) {
                           setState(() {
-                            if (isEstudiantes)
+                            if (isEstudiantes) {
                               selectedSopasEstudiantes = value;
-                            else
+                            } else {
                               selectedSopasTrabajadores = value;
+                            }
                           });
                         }
                       : null,
@@ -583,7 +556,6 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
                       : null,
                   isEnabled: areDropdownsEnabled,
                 ),
-                // ... (resto de DropdownSelectors igual, pasando isEnabled: areDropdownsEnabled) ...
               ],
             ),
           ),
@@ -593,15 +565,12 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
   }
 }
 
-// ... (DropdownSelector y FoodDropDown sin cambios necesarios) ...
-// Widget reutilizable para los dropdowns
 class DropdownSelector extends StatelessWidget {
   final String label;
   final List<String> items;
   final String? value;
   final void Function(String?)? onChanged;
-  final bool?
-      isEnabled; // isEnabled se usa ahora para pasar el estado calculado
+  final bool? isEnabled;
 
   const DropdownSelector({
     Key? key,
@@ -609,17 +578,15 @@ class DropdownSelector extends StatelessWidget {
     required this.items,
     this.value,
     required this.onChanged,
-    required this.isEnabled, // Recibe el estado combinado
+    required this.isEnabled,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // Usar IgnorePointer o cambiar el color si está deshabilitado para feedback visual
     return IgnorePointer(
-      ignoring: !(isEnabled ?? true), // Ignora eventos si no está habilitado
+      ignoring: !(isEnabled ?? true),
       child: Opacity(
         opacity: (isEnabled ?? true) ? 1.0 : 0.5,
-        // Menos opaco si está deshabilitado
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -628,19 +595,15 @@ class DropdownSelector extends StatelessWidget {
               value: value,
               hint: Text('$label'),
               isExpanded: true,
-              // Si onChanged es null, el DropdownButton se deshabilita visualmente
               onChanged: onChanged,
               items: items.map((String item) {
-                // Puedes opcionalmente deshabilitar items individuales si es necesario
                 return DropdownMenuItem<String>(
                   value: item,
                   child: Text(item),
                 );
               }).toList(),
-              // Cambiar el icono si está deshabilitado (opcional)
               iconDisabledColor: Colors.grey,
-              iconEnabledColor: Colors.red[
-                  900], // Asumiendo que quieres este color cuando está activo
+              iconEnabledColor: Colors.red[900],
             ),
             SizedBox(height: 10),
           ],

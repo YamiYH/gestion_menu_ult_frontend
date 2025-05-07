@@ -14,17 +14,14 @@ class GestionarTicket extends StatefulWidget {
 class _GestionarTicketState extends State<GestionarTicket> {
   // Variables para los filtros
   String selectedCafeteria = 'Lenin';
-  String selectedMealType = 'Desayuno';
+  String selectedMealType = 'Almuerzo';
   DateTime? startDate;
   DateTime? endDate;
 
-  // Lista simulada de menús disponibles
   List<Map<String, dynamic>> availableMenus = [];
 
-  // Lista simulada de tickets vigentes
   List<Map<String, dynamic>> myTickets = [];
 
-  // Función para buscar menús según los filtros
   void _searchMenus() {
     if (startDate == null || endDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -75,7 +72,7 @@ class _GestionarTicketState extends State<GestionarTicket> {
         ),
       ),
     );
-    // Agregar el ticket reservado a la lista "Mis Tickets"
+
     setState(() {
       myTickets.add({
         'cafeteria': menu['cafeteria'],
@@ -114,14 +111,12 @@ class _GestionarTicketState extends State<GestionarTicket> {
   TabBarView buildTabBarView(bool isMobile, BuildContext context) {
     return TabBarView(
       children: [
-        // Pestaña "Reservar Ticket"
         SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Fila superior con opciones (responsive)
                 isMobile
                     ? Column(children: _buildOptions(context, isMobile))
                     : Row(
@@ -130,8 +125,6 @@ class _GestionarTicketState extends State<GestionarTicket> {
                         children: _buildOptions(context, isMobile),
                       ),
                 SizedBox(height: isMobile ? 10 : 50),
-
-                // Lista de menús disponibles
                 Text(
                   'Menús Disponibles:',
                   style: TextStyle(
@@ -225,7 +218,7 @@ class _GestionarTicketState extends State<GestionarTicket> {
             ),
           ),
           Divider(),
-          //SizedBox(height: 10),
+
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Column(
@@ -233,7 +226,7 @@ class _GestionarTicketState extends State<GestionarTicket> {
               children: [
                 SizedBox(height: 10),
                 Text(
-                  'Ingredientes:',
+                  'Platos:',
                   style: TextStyle(
                       fontSize: isMobile ? 14 : 17,
                       fontWeight: FontWeight.bold),
@@ -261,6 +254,7 @@ class _GestionarTicketState extends State<GestionarTicket> {
           Align(
             alignment: Alignment.center,
             child: SmallButton(
+              size: Size(isMobile ? 110 : 150, 40),
               onPressed: () {
                 if (DateTime.now().hour >= 13) {
                   // 13 = 1:00 PM

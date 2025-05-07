@@ -33,7 +33,7 @@ Future<bool?> showConfirmDeleteDialog({
             child: Text(cancelActionText,
                 style: TextStyle(
                   color: Colors.black87,
-                  fontSize: isMobile ? 13 : 16,
+                  fontSize: isMobile ? 16 : 16,
                 )),
             onPressed: () {
               Navigator.of(dialogContext).pop(false);
@@ -44,7 +44,7 @@ Future<bool?> showConfirmDeleteDialog({
             child: Text(confirmActionText,
                 style: TextStyle(
                   color: Colors.red,
-                  fontSize: isMobile ? 13 : 16,
+                  fontSize: isMobile ? 16 : 16,
                 )),
             onPressed: () {
               onConfirm();

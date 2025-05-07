@@ -21,8 +21,7 @@ class _ButtonState extends State<SmallButton> {
   Widget build(BuildContext context) {
     bool isMobile = MediaQuery.of(context).size.width < 600;
 
-    // Definir el tamaño predeterminado si no se proporciona uno
-    Size defaultSize = Size(isMobile ? 100 : 220, 40);
+    Size defaultSize = Size(isMobile ? 110 : 220, 40);
     Size buttonSize = widget.size ?? defaultSize;
 
     return ElevatedButton(
@@ -33,7 +32,7 @@ class _ButtonState extends State<SmallButton> {
           backgroundColor: Colors.red[900],
           fixedSize: buttonSize),
       child: Text(widget.text,
-          style: TextStyle(color: Colors.white, fontSize: isMobile ? 12 : 15)),
+          style: TextStyle(color: Colors.white, fontSize: isMobile ? 13 : 15)),
     );
   }
 }

@@ -17,7 +17,7 @@ class LogsController {
       'id': 1,
       'type': 'login',
       'details': 'Inicio de sesión exitoso',
-      'user': 'admin',
+      'username': 'admin',
       'date': '2023-10-01 10:15 AM',
       'module': 'Configuración',
       'action': 'Crear'
@@ -26,7 +26,7 @@ class LogsController {
       'id': 2,
       'type': 'error',
       'details': 'Error al acceder a la base de datos',
-      'user': 'system',
+      'username': 'system',
       'date': '2023-10-01 11:30 AM',
       'module': 'Roles',
       'action': 'Activar'
@@ -35,7 +35,7 @@ class LogsController {
       'id': 3,
       'type': 'Warning',
       'details': 'Stock bajo para item X',
-      'user': 'tecnico_inv',
+      'username': 'tecnico_inv',
       'date': '2024-04-20 08:00 PM', // Fecha más reciente
       'module': 'Inventario',
       'action': 'Actualizar'
@@ -50,7 +50,7 @@ class LogsController {
       // --- Filtro de Usuario ---
       final userMatch = searchUser == null ||
           searchUser!.isEmpty || // Considerar vacío como sin filtro
-          (log['user'] as String? ?? '')
+          (log['username'] as String? ?? '')
               .toLowerCase()
               .contains(searchUser!.toLowerCase());
 

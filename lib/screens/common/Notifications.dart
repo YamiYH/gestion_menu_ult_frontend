@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../widgets/Confirm.dart';
-import '../../widgets/CustomAppbar.dart'; // Para formatear fechas (añadir a pubspec.yaml si no está)
-// Importa tu AppBar personalizada si quieres usarla
-// import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
+import '../../widgets/CustomAppbar.dart';
 
 class Notifications extends StatefulWidget {
   const Notifications({super.key});
@@ -14,7 +12,6 @@ class Notifications extends StatefulWidget {
 }
 
 class _NotificationsState extends State<Notifications> {
-  // --- DATOS DE EJEMPLO ---
   final List<Map<String, dynamic>> _allNotifications = [
     {
       'id': 1,
@@ -48,13 +45,12 @@ class _NotificationsState extends State<Notifications> {
     },
   ];
 
-  // Lista que se mostrará (puede ser filtrada o paginada en el futuro)
   late List<Map<String, dynamic>> _displayNotifications;
 
   @override
   void initState() {
     super.initState();
-    // Inicializa la lista visible y ordena (más nuevas primero)
+
     _displayNotifications = List.from(_allNotifications);
     _sortNotifications();
   }
@@ -64,54 +60,39 @@ class _NotificationsState extends State<Notifications> {
       final bool aIsRead = a['isRead'] as bool;
       final bool bIsRead = b['isRead'] as bool;
 
-      // --- INICIO: Lógica de comparación CORREGIDA para booleanos ---
       int readCompare;
       if (aIsRead == bIsRead) {
-        // 1. Si ambos son leídos o ambos no leídos, su orden es igual (0).
-        //    Pasamos al siguiente criterio (timestamp).
         readCompare = 0;
-      } else if (aIsRead == false /* && bIsRead == true */) {
-        // 2. Si 'a' NO está leído y 'b' SÍ está leído, 'a' va primero (-1).
+      } else if (aIsRead == false) {
         readCompare = -1;
-      } else /* aIsRead == true && bIsRead == false */ {
-        // 3. Si 'a' SÍ está leído y 'b' NO está leído, 'b' va primero (1).
+      } else {
         readCompare = 1;
       }
-      // --- FIN: Lógica de comparación CORREGIDA ---
 
-      // Si el estado de leído/no leído es diferente, usamos ese resultado.
       if (readCompare != 0) {
         return readCompare;
       } else {
-        // Si el estado de leído/no leído es el mismo, ordena por fecha descendente.
-        // (Asegúrate de que 'timestamp' siempre exista o maneja el caso null)
-        final DateTime aTimestamp = a['timestamp'] as DateTime? ??
-            DateTime(1970); // Valor por defecto si es null
+        final DateTime aTimestamp =
+            a['timestamp'] as DateTime? ?? DateTime(1970);
         final DateTime bTimestamp =
             b['timestamp'] as DateTime? ?? DateTime(1970);
-        return bTimestamp.compareTo(aTimestamp); // Más nuevo primero
+        return bTimestamp.compareTo(aTimestamp);
       }
     });
   }
 
-  // --- Marcar como Leída ---
   void _markAsRead(int id) {
-    // Busca el índice por ID por si la lista está ordenada/filtrada
     final index = _displayNotifications.indexWhere((n) => n['id'] == id);
     if (index != -1 && !_displayNotifications[index]['isRead']) {
       setState(() {
-        // Marca como leída en la lista que se muestra
         _displayNotifications[index]['isRead'] = true;
-        // !!! También deberías actualizar esto en tu fuente de datos real !!!
 
-        // Reordena para moverla visualmente si es necesario
         _sortNotifications();
       });
     }
   }
 
   void _deleteNotification(int id) async {
-    // Es mejor buscar en la lista original (_allNotifications) por si _displayNotifications está filtrada
     final notificationIndex =
         _allNotifications.indexWhere((n) => n['id'] == id);
     if (notificationIndex == -1) {
@@ -119,7 +100,6 @@ class _NotificationsState extends State<Notifications> {
       final displayIndex =
           _displayNotifications.indexWhere((n) => n['id'] == id);
       if (displayIndex != -1) {
-        // Si sólo está en la lista visible (raro, pero posible si hay bugs), la quitamos de ahí
         setState(() {
           _displayNotifications.removeAt(displayIndex);
         });
@@ -139,7 +119,6 @@ class _NotificationsState extends State<Notifications> {
           _allNotifications.removeWhere((n) => n['id'] == id);
           _displayNotifications.removeWhere((n) => n['id'] == id);
         });
-        // !!! Aquí deberías llamar a tu lógica para eliminar en el backend/DB !!!
       },
     );
 
@@ -165,7 +144,6 @@ class _NotificationsState extends State<Notifications> {
       appBar: CustomAppBar(title: 'Notificaciones'),
       body: _displayNotifications.isEmpty
           ? const Center(
-              // Mensaje cuando no hay notificaciones
               child: Text(
               'No tienes notificaciones.',
               style: TextStyle(fontSize: 16, color: Colors.grey),
@@ -177,13 +155,10 @@ class _NotificationsState extends State<Notifications> {
                 final bool isRead = notification['isRead'] as bool;
 
                 return Material(
-                  // Añade Material para efecto InkWell
                   color: isRead ? Colors.white : Colors.red.shade50,
-                  // Fondo diferente si no está leída
                   child: InkWell(
                     onTap: () => _markAsRead(notification['id'] as int),
                     child: ListTile(
-                      // Icono principal diferente si está leída o no
                       leading: Icon(
                         isRead
                             ? Icons.notifications_none_outlined
@@ -193,22 +168,18 @@ class _NotificationsState extends State<Notifications> {
                       ),
                       title: Text(
                         notification['message'] as String,
-                        maxLines: 2, // Limita a 2 líneas
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          // Texto en negrita si no está leída
                           fontWeight:
                               isRead ? FontWeight.normal : FontWeight.bold,
-                          // Color del texto más tenue si está leída
                           color: isRead ? Colors.black54 : Colors.black87,
                         ),
                       ),
-                      // Subtítulo con la fecha/hora formateada
                       subtitle: Text(
                         _formatTimestamp(notification['timestamp'] as DateTime),
                         style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       ),
-                      // Botón para eliminar
                       trailing: IconButton(
                         icon:
                             Icon(Icons.delete_outline, color: Colors.grey[600]),
@@ -216,7 +187,7 @@ class _NotificationsState extends State<Notifications> {
                         onPressed: () =>
                             _deleteNotification(notification['id'] as int),
                       ),
-                      dense: true, // Hace el ListTile un poco más compacto
+                      dense: true,
                     ),
                   ),
                 );

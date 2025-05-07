@@ -65,24 +65,29 @@ class _AprobarMenuState extends State<AprobarMenu> {
   Widget build(BuildContext context) {
     bool isMobile = MediaQuery.of(context).size.width < 600;
     return Scaffold(
-      appBar: CustomAppBar(title: 'Aprobar Menú'),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(isMobile ? 15.0 : 30.0),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              MenuApprovalSection(isMobile, context),
-              BuildButtons(isMobile)
-            ],
-          ),
-        ),
-      ),
-    );
+        appBar: CustomAppBar(title: 'Aprobar Menú'),
+        body: SingleChildScrollView(
+          child: Padding(
+              padding: EdgeInsets.all(isMobile ? 15.0 : 30.0),
+              child: isMobile
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        MenuApprovalSection(isMobile, context),
+                        BuildButtons(isMobile)
+                      ],
+                    )
+                  : Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                          MenuApprovalSection(isMobile, context),
+                          BuildButtons(isMobile),
+                        ])),
+        ));
   }
 
-  // Widget que contiene la lista de platos y los botones
   Widget MenuApprovalSection(bool isMobile, BuildContext context) {
     return Card(
       color: Colors.white,
@@ -141,7 +146,7 @@ class _AprobarMenuState extends State<AprobarMenu> {
                   child: Text('Cancelar',
                       style: TextStyle(
                         color: Colors.black87,
-                        fontSize: isMobile ? 13 : 16,
+                        fontSize: isMobile ? 14 : 16,
                       )),
                   onPressed: () {
                     Navigator.of(context).pop();
@@ -160,7 +165,7 @@ class _AprobarMenuState extends State<AprobarMenu> {
                     );
                   },
                   size: Size(isMobile ? 100 : 180, 40),
-                  text: 'Guardar Cambios',
+                  text: isMobile ? 'Guardar' : 'Guardar Cambios',
                 ),
               ],
             ),
@@ -179,7 +184,7 @@ class _AprobarMenuState extends State<AprobarMenu> {
       child: Column(
         children: [
           SizedBox(
-            height: 20,
+            height: isMobile ? 50 : 20,
           ),
           DynamicButton(
               onPressed: () {

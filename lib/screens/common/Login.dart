@@ -16,16 +16,14 @@ class _LoginState extends State<Login> {
   final _passwordController = TextEditingController();
   final LoginController _loginController = LoginController();
 
-  bool _isLoading = false; // Indicador de carga
-  String _message = ''; // Mensaje de éxito/error
+  bool _isLoading = false;
   bool _isPasswordVisible = false;
 
   void _login() {
     if (_formKey.currentState!.validate()) {
-      // Aquí puedes agregar la lógica para autenticar al usuario
       String user = _usernameController.text;
       String password = _passwordController.text;
-      // Simulación de autenticación exitosa
+
       print('User: $user');
       print('Password: $password');
     }
@@ -34,7 +32,6 @@ class _LoginState extends State<Login> {
   Future<void> _handleLogin() async {
     setState(() {
       _isLoading = true;
-      _message = '';
     });
 
     // Crear un objeto UserLogin con los datos ingresados
@@ -49,7 +46,6 @@ class _LoginState extends State<Login> {
     setState(() {
       _isLoading = false;
       if (success) {
-        _message = 'Inicio de sesión exitoso.';
         Navigator.push(context, createFadeRoute(Options()));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
