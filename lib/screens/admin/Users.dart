@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gestion_menu_ult_frontend/controllers/user/UserController.dart';
 import 'package:gestion_menu_ult_frontend/screens/admin/UserModelo.dart';
 import 'package:gestion_menu_ult_frontend/widgets/AddButton.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
@@ -18,54 +19,63 @@ class Users extends StatefulWidget {
 }
 
 class _UsersState extends State<Users> {
-  final List<Map<String, dynamic>> _users = [
-    {
-      'username': 'juanperez',
-      'name': 'Juan',
-      'lastname': 'Perez',
-      'email': 'juanperez@gmail.com',
-      'role': 'Estudiante',
-      'status': 'Activo',
-      'type': 'Employee'
-    },
-    {
-      'username': 'mariaglez',
-      'name': 'Maria',
-      'lastname': 'Gonzalez',
-      'email': 'mariaglez@gmail.com',
-      'role': 'Profesor',
-      'status': 'Inactivo',
-      'type': 'Employee'
-    },
-    {
-      'username': 'admin123',
-      'name': 'Admin',
-      'lastname': 'Admin',
-      'email': 'admin123@gmail.com',
-      'role': 'Administrador',
-      'status': 'Activo',
-      'type': 'System'
-    },
-  ];
-
+  List<Map<String, dynamic>> _users = [];
   List<Map<String, dynamic>> _filteredUsers = [];
 
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _lastnameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+  final UserController _userController = UserController();
 
   String selectedStatus = 'Todos';
   String selectedUserType = 'Todos';
+  bool _isLoading = true; // Estado para controlar la carga
+  String _errorMessage = ''; // Estado para mensajes de error
 
   @override
   void initState() {
     super.initState();
-    _filteredUsers = List.from(_users);
+    _loadUsers();
     _usernameController.addListener(_applyAllFilters);
     _nameController.addListener(_applyAllFilters);
     _lastnameController.addListener(_applyAllFilters);
     _emailController.addListener(_applyAllFilters);
+  }
+
+  Future<void> _loadUsers() async {
+    if (!mounted) return;
+    setState(() {
+      _isLoading = true;
+      _errorMessage = ''; // Limpiar errores previos
+    });
+
+    try {
+      final fetchedUsers = await _userController.fetchUsers();
+      if (mounted) {
+        setState(() {
+          _users = fetchedUsers;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _users = []; // Asegurar que la lista esté vacía en caso de error
+          _errorMessage = 'Error al cargar usuarios. Intente de nuevo.';
+        });
+        print("Error cargando usuarios: $e");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(_errorMessage)),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _applyAllFilters(); // Aplicar filtros después de cargar o en error (para actualizar _filteredUsers)
+        });
+      }
+    }
   }
 
   @override
@@ -233,21 +243,46 @@ class _UsersState extends State<Users> {
           isMobile ? _buildHeaderMobile() : _buildHeaderRow(),
           SizedBox(height: 10),
           Expanded(
-            child: ListView.builder(
-              itemCount: _filteredUsers.length, // Usar lista filtrada
-              itemBuilder: (context, index) {
-                final user = _filteredUsers[index]; // Usar lista filtrada
-                return Column(
-                  children: [
-                    SingleChildScrollView(
-                        child: isMobile
-                            ? _buildUserRowMobile(user)
-                            : _buildUserRow(user)),
-                    Divider()
-                  ],
-                );
-              },
-            ),
+            child: _isLoading
+                ? Center(child: CircularProgressIndicator())
+                : _errorMessage.isNotEmpty
+                    ? Center(
+                        child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(_errorMessage,
+                            style: TextStyle(color: Colors.red, fontSize: 16),
+                            textAlign: TextAlign.center),
+                      ))
+                    : _filteredUsers.isEmpty
+                        ? Center(
+                            child: Text(
+                            _users.isEmpty && // Solo mostrar "No se encontraron" si la lista original está vacía
+                                    _usernameController.text.isEmpty &&
+                                    _nameController.text.isEmpty &&
+                                    _lastnameController.text.isEmpty &&
+                                    _emailController.text.isEmpty &&
+                                    selectedStatus == 'Todos' &&
+                                    selectedUserType == 'Todos'
+                                ? 'No se encontraron usuarios.'
+                                : 'Ningún usuario coincide con los filtros.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 16),
+                          ))
+                        : ListView.builder(
+                            itemCount: _filteredUsers.length,
+                            itemBuilder: (context, index) {
+                              final user = _filteredUsers[index];
+                              return Column(
+                                children: [
+                                  SingleChildScrollView(
+                                      child: isMobile
+                                          ? _buildUserRowMobile(user)
+                                          : _buildUserRow(user)),
+                                  Divider()
+                                ],
+                              );
+                            },
+                          ),
           ),
         ],
       ),

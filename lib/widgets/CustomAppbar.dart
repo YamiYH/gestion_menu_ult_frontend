@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/routes/PageRouteBuilder.dart';
+import 'package:gestion_menu_ult_frontend/screens/common/Help.dart';
 import 'package:gestion_menu_ult_frontend/screens/common/Login.dart';
 import 'package:gestion_menu_ult_frontend/screens/common/Notifications.dart';
 
+import '../controllers/LoginController.dart';
 import '../screens/common/Perfil.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -43,22 +45,26 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                       ),
                       SizedBox(width: 10),
                       SizedBox(
-                        width: isMobile ? 80 : 150,
+                        width: isMobile
+                            ? 80
+                            : MediaQuery.of(context).size.width * 0.1,
                         child: Text(
                           userName,
                           overflow: TextOverflow.clip,
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: isMobile ? 13 : 16,
+                            fontSize: isMobile
+                                ? 13
+                                : MediaQuery.of(context).size.width * 0.011,
                           ),
                         ),
                       ),
                     ],
                   ),
           ),
-          SizedBox(width: isMobile ? 0 : 60),
+          //SizedBox(width: isMobile ? 0 : 60),
           Expanded(
-            flex: 6,
+            //flex: 6,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -68,6 +74,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                       fontSize: isMobile ? 16 : 18,
                     )),
                 SizedBox(width: isMobile ? 10 : 20),
+                IconButton(
+                    tooltip: 'Manual de Usuarios',
+                    onPressed: () {
+                      Navigator.push(context, createFadeRoute(Help()));
+                    },
+                    icon: Icon(Icons.help_outline)),
+                //SizedBox(width: isMobile ? 10 : 20),
                 PopupMenuButton<String>(
                   position: PopupMenuPosition.under,
                   tooltip: 'Mostrar notificaciones',
@@ -94,13 +107,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     ),
                   ],
                   child: Builder(
-                    // Usamos Builder por si acaso necesitamos context aquí más adelante
                     builder: (buttonContext) {
-                      // ----- INICIO SIMULACIÓN CONTADOR -----
-                      // !!! IMPORTANTE: Reemplaza esta línea con la lógica real para obtener
-                      //     el número de notificaciones SIN LEER desde tu gestor de estado o controlador.
                       final int unreadCount = notifications.length;
-                      // ----- FIN SIMULACIÓN CONTADOR -----
 
                       return Stack(
                         clipBehavior: Clip.none,
@@ -151,9 +159,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                       );
                     },
                   ),
-                ), // --- Fin Popup Notificaciones ---
-
-                // Menú desplegable con opciones
+                ),
                 PopupMenuButton<String>(
                   onSelected: (value) {
                     if (value == 'profile') {
@@ -192,7 +198,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   void _logout(BuildContext context, isMobile) {
     showDialog(
       context: context,
-      builder: (context) {
+      builder: (dialogContext) {
         return AlertDialog(
           title: Center(child: Text('Cerrar Sesión')),
           content: Text('¿Estás seguro de que deseas cerrar sesión?'),
@@ -200,11 +206,19 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           actions: [
             TextButton(
               style: TextButton.styleFrom(foregroundColor: Colors.grey[700]),
-              onPressed: () {
-                Navigator.pop(context); // Cerrar el diálogo
+              onPressed: () async {
+                final LoginController loginController =
+                    LoginController(); // O obtén la instancia
+                await loginController.logout();
+                // Navegar a la pantalla de login y remover todas las rutas anteriores
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (context) => Login()),
+                  (Route<dynamic> route) =>
+                      false, // Esto elimina todas las rutas anteriores de la pila
+                ); // Cerrar el diálogo
               },
               child: Text(
-                'CANCELAR',
+                'ACEPTAR',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: isMobile ? 14 : 16,
@@ -220,7 +234,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     createFadeRoute(
                         Login())); // Ir a la pantalla de inicio de sesión
               },
-              child: Text('ACEPTAR',
+              child: Text('CANCELAR',
                   style: TextStyle(
                       color: Colors.red.shade700,
                       fontWeight: FontWeight.bold,

@@ -32,7 +32,8 @@ class BuildCard extends StatelessWidget {
               children: [
                 Icon(
                   icon,
-                  size: isMobile ? 40 : 60,
+                  size:
+                      isMobile ? 40 : MediaQuery.of(context).size.width * 0.03,
                   color: Colors.red[900],
                 ),
                 const SizedBox(height: 10),
@@ -40,7 +41,9 @@ class BuildCard extends StatelessWidget {
                   title,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: isMobile ? 16 : 20,
+                    fontSize: isMobile
+                        ? 16
+                        : MediaQuery.of(context).size.width * 0.015,
                     fontWeight: FontWeight.bold,
                     color: Colors.red[900],
                   ),

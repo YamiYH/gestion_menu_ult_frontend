@@ -4,6 +4,7 @@ import 'package:gestion_menu_ult_frontend/screens/admin/ModulosAdmin.dart';
 import 'package:gestion_menu_ult_frontend/screens/admin/Payment.dart';
 import 'package:gestion_menu_ult_frontend/screens/admin/UserModelo.dart';
 import 'package:gestion_menu_ult_frontend/screens/admin/Users.dart';
+import 'package:gestion_menu_ult_frontend/screens/common/Help.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/Contabilidad/AprobarMenu.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/Contabilidad/Contabilidad.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/LibroRecetas.dart';
@@ -39,7 +40,7 @@ class AppRoutes {
   static const String users = '/users';
   static const String ventas = '/ventas';
   static const String roles = '/roles';
-  static const String pagos = '/pagos';
+  static const String enzona = '/enzona';
   static const String config = '/config';
   static const String modulosVenta = '/modulos_venta';
   static const String informes = '/informes';
@@ -54,6 +55,7 @@ class AppRoutes {
   static const String notifications = '/notifications';
   static const String contabilidad = '/contabilidad';
   static const String aprobarMenu = '/aprobar_menu';
+  static const String help = '/help';
 
   // Mapeamos las rutas a las pantallas correspondientes
   static Map<String, WidgetBuilder> getRoutes() {
@@ -68,7 +70,7 @@ class AppRoutes {
       users: (context) => Users(),
       ventas: (context) => Ventas(),
       roles: (context) => Roles(),
-      pagos: (context) => Payment(),
+      enzona: (context) => Payment(),
       config: (context) => Config(),
       modulosVenta: (context) => ModulosVenta(),
       informes: (context) => InformesVentas(),
@@ -82,7 +84,8 @@ class AppRoutes {
       perfil: (context) => Perfil(),
       notifications: (context) => Notifications(),
       contabilidad: (context) => Contabilidad(),
-      aprobarMenu: (context) => AprobarMenu()
+      aprobarMenu: (context) => AprobarMenu(),
+      help: (context) => Help()
     };
   }
 }

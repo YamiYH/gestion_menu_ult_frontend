@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:gestion_menu_ult_frontend/routes/PageRouteBuilder.dart';
+import 'package:gestion_menu_ult_frontend/screens/admin/Payment.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 import 'package:gestion_menu_ult_frontend/widgets/DatePickerButton.dart';
 import 'package:intl/intl.dart' show DateFormat;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../widgets/Button.dart';
 import '../../widgets/SmallButton.dart'; // Para formatear fechas
@@ -19,8 +22,53 @@ class _GestionarTicketState extends State<GestionarTicket> {
   DateTime? endDate;
 
   List<Map<String, dynamic>> availableMenus = [];
-
   List<Map<String, dynamic>> myTickets = [];
+
+  // Valores por defecto internos si el admin no configura
+  final TimeOfDay _defaultHoraMaximaReserva =
+      const TimeOfDay(hour: 22, minute: 0); // 10 PM
+  final TimeOfDay _defaultHoraMaximaCancelacion =
+      const TimeOfDay(hour: 13, minute: 0); // 1 PM
+
+  late TimeOfDay _horaMaximaReservaConfig;
+  late TimeOfDay _horaMaximaCancelacionConfig;
+
+  @override
+  void initState() {
+    super.initState();
+    _horaMaximaReservaConfig = _defaultHoraMaximaReserva;
+    _horaMaximaCancelacionConfig = _defaultHoraMaximaCancelacion;
+    _loadConfiguredTimes();
+  }
+
+  Future<void> _loadConfiguredTimes() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
+
+    int? resHour = prefs.getInt('hora_maxima_reserva_hour');
+    int? resMinute = prefs.getInt('hora_maxima_reserva_minute');
+    TimeOfDay loadedReservationTime = (resHour != null && resMinute != null)
+        ? TimeOfDay(hour: resHour, minute: resMinute)
+        : _defaultHoraMaximaReserva;
+
+    int? cancelHour = prefs.getInt('hora_maxima_cancelacion_hour');
+    int? cancelMinute = prefs.getInt('hora_maxima_cancelacion_minute');
+    TimeOfDay loadedCancellationTime =
+        (cancelHour != null && cancelMinute != null)
+            ? TimeOfDay(hour: cancelHour, minute: cancelMinute)
+            : _defaultHoraMaximaCancelacion;
+
+    setState(() {
+      _horaMaximaReservaConfig = loadedReservationTime;
+      _horaMaximaCancelacionConfig = loadedCancellationTime;
+    });
+  }
+
+  String _formatTimeOfDay(TimeOfDay time) {
+    final now = DateTime.now();
+    final dt = DateTime(now.year, now.month, now.day, time.hour, time.minute);
+    return DateFormat('h:mm a', 'es_ES').format(dt); // Formato AM/PM
+  }
 
   void _searchMenus() {
     if (startDate == null || endDate == null) {
@@ -33,6 +81,10 @@ class _GestionarTicketState extends State<GestionarTicket> {
     setState(() {
       availableMenus = [
         {
+          'id': 'menu1_${DateFormat('yyyy-MM-dd').format(startDate!)}',
+          // ID único
+          'price': 150.0,
+          // Precio de ejemplo
           'cafeteria': selectedCafeteria,
           'mealType': selectedMealType,
           'date': DateFormat('yyyy-MM-dd').format(startDate!),
@@ -44,6 +96,10 @@ class _GestionarTicketState extends State<GestionarTicket> {
           ],
         },
         {
+          'id': 'menu2_${DateFormat('yyyy-MM-dd').format(endDate!)}',
+          // ID único
+          'price': 120.50,
+          // Precio de ejemplo
           'cafeteria': selectedCafeteria,
           'mealType': selectedMealType,
           'date': DateFormat('yyyy-MM-dd').format(endDate!),
@@ -150,7 +206,7 @@ class _GestionarTicketState extends State<GestionarTicket> {
         ),
 
         // Pestaña "Mis Tickets"
-        buildSingleChildScrollView(),
+        buildSingleChildScrollView(isMobile),
       ],
     );
   }
@@ -256,12 +312,12 @@ class _GestionarTicketState extends State<GestionarTicket> {
             child: SmallButton(
               size: Size(isMobile ? 110 : 150, 40),
               onPressed: () {
-                if (DateTime.now().hour >= 13) {
-                  // 13 = 1:00 PM
+                if (DateTime.now().hour >= 23) {
+                  // 23 = 11:00 PM
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                        content:
-                            Text('Reservas disponibles solo hasta la 1:00 PM')),
+                        content: Text(
+                            'Reservas disponibles solo hasta la 11:00 PM')),
                   );
                 } else {
                   _reserveMenu(menu); // Lógica de reserva
@@ -276,40 +332,74 @@ class _GestionarTicketState extends State<GestionarTicket> {
     );
   }
 
-  SingleChildScrollView buildSingleChildScrollView() {
+  SingleChildScrollView buildSingleChildScrollView(isMobile) {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             if (myTickets.isEmpty)
-              Center(child: Text('No tienes tickets'))
+              const Center(child: Text('No tienes tickets'))
             else
               ListView.builder(
                 shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 itemCount: myTickets.length,
                 itemBuilder: (context, index) {
                   final ticket = myTickets[index];
                   return Card(
-                    margin: EdgeInsets.symmetric(vertical: 5),
+                    margin: const EdgeInsets.symmetric(vertical: 5),
                     child: ListTile(
-                        title: Text(
-                          ticket['menu'],
-                          style: TextStyle(
-                              color: Colors.red[900],
-                              fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Text(
-                            '${ticket['cafeteria']} - ${ticket['mealType']} (${ticket['date']})'),
-                        trailing: SmallButton(
-                          onPressed: () {
-                            _showTicketDetails(context, ticket);
-                          },
-                          text: 'Detalles',
-                        )),
+                      title: Text(
+                        ticket['menu'],
+                        style: TextStyle(
+                            color: Colors.red[900],
+                            fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Text(
+                          '${ticket['cafeteria']} - ${ticket['mealType']} (${ticket['date']})'),
+                      trailing: Row(
+                        // Eliminado Expanded
+                        mainAxisSize: MainAxisSize.min,
+                        // Hace que el Row ocupe solo el espacio necesario para sus hijos
+                        children: [
+                          SmallButton(
+                            size: Size(isMobile ? 110 : 140, 40),
+                            onPressed: () {
+                              _showTicketDetails(context, ticket);
+                            },
+                            text: 'Detalles',
+                          ),
+                          const SizedBox(width: 8),
+                          // Espacio opcional entre botones
+                          SmallButton(
+                            size: Size(isMobile ? 110 : 140, 40),
+                            onPressed: () {
+                              // Asegúrate de que la pantalla Payment pueda recibir los datos del ticket
+                              // Ejemplo:
+                              // Navigator.push(
+                              //   context,
+                              //   createFadeRoute(
+                              //     Payment(
+                              //       ticketId: ticket['id'] ?? 'ID_DEFECTO', // Suponiendo que tienes un ID
+                              //       amount: ticket['price'] ?? 0.0, // Suponiendo que tienes un precio
+                              //       description: ticket['menu'] ?? 'Descripción por defecto',
+                              //     ),
+                              //   ),
+                              // );
+                              // Por ahora, uso tu llamada original que no pasa datos:
+                              Navigator.push(
+                                  context,
+                                  createFadeRoute(
+                                      Payment())); // Payment() necesitará datos del ticket
+                            },
+                            text: 'Pagar',
+                          ),
+                        ],
+                      ),
+                    ),
                   );
                 },
               ),
@@ -406,7 +496,7 @@ class _GestionarTicketState extends State<GestionarTicket> {
       reservationDateTime.year,
       reservationDateTime.month,
       reservationDateTime.day,
-      13, // 1:00 PM
+      23, // 11:00 PM
     );
 
     // Permitir cancelar solo si la hora actual es antes de la fecha límite

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/routes/PageRouteBuilder.dart';
 import 'package:gestion_menu_ult_frontend/screens/admin/Config.dart';
-import 'package:gestion_menu_ult_frontend/screens/admin/Payment.dart';
 import 'package:gestion_menu_ult_frontend/screens/admin/Roles.dart';
 import 'package:gestion_menu_ult_frontend/widgets/BuildCard.dart';
 
@@ -83,16 +82,6 @@ class _ModulosAdminState extends State<ModulosAdmin> {
           icon: Icons.admin_panel_settings,
           onTap: () {
             Navigator.push(context, createFadeRoute(Roles()));
-          },
-        ),
-      ),
-      Container(
-        padding: EdgeInsets.all(5),
-        child: BuildCard(
-          title: 'Pasarelas de Pago',
-          icon: Icons.payment,
-          onTap: () {
-            Navigator.push(context, createFadeRoute(Payment()));
           },
         ),
       ),

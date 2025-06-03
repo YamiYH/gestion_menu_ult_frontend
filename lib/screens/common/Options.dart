@@ -39,8 +39,9 @@ class Options extends StatelessWidget {
                     physics: NeverScrollableScrollPhysics(),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3,
-                      crossAxisSpacing: 40,
-                      mainAxisSpacing: 40,
+                      crossAxisSpacing:
+                          MediaQuery.of(context).size.width * 0.03,
+                      mainAxisSpacing: MediaQuery.of(context).size.width * 0.03,
                       childAspectRatio: 2.5,
                     ),
                     itemCount: _buildWidgetList(context).length,

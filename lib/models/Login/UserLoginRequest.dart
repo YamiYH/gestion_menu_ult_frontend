@@ -14,7 +14,7 @@ class UserLoginRequest extends BaseModel {
   @override
   Map<String, dynamic> toJson() {
     return {
-      'email': username,
+      'username': username,
       'password': password,
     };
   }

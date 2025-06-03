@@ -34,13 +34,11 @@ class _LoginState extends State<Login> {
       _isLoading = true;
     });
 
-    // Crear un objeto UserLogin con los datos ingresados
     final user = UserLoginRequest(
       username: _usernameController.text,
       password: _passwordController.text,
     );
 
-    // Llamar al método login del controlador
     final success = await _loginController.login(user);
 
     setState(() {
@@ -51,7 +49,6 @@ class _LoginState extends State<Login> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error al iniciar sesión')),
         );
-        ;
       }
     });
   }
@@ -66,11 +63,13 @@ class _LoginState extends State<Login> {
         automaticallyImplyLeading: false,
         centerTitle: true,
         titleTextStyle: TextStyle(),
-        title: Text('Bienvenido al Menú Digital ULT',
-            style: TextStyle(
-                fontFamily: 'Roboto',
-                color: Colors.white,
-                fontSize: isMobile ? 20 : 25)),
+        title: Text(
+          'Bienvenido al Menú Digital ULT',
+          style: TextStyle(
+              fontFamily: 'Roboto',
+              color: Colors.white,
+              fontSize: isMobile ? 20 : 25),
+        ),
         backgroundColor: Colors.red[900],
       ),
       body: Container(
@@ -78,7 +77,6 @@ class _LoginState extends State<Login> {
         height: MediaQuery.of(context).size.height,
         decoration: BoxDecoration(
             image: DecorationImage(
-                //opacity: 0.9,
                 image: isMobile
                     ? AssetImage('assets/img/background2.png')
                     : AssetImage('assets/img/background0.png'),
