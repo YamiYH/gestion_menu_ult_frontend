@@ -208,14 +208,14 @@ class _ConfigState extends State<Config> {
     _enzonaFields = [
       FieldConfigData(
         controller: _enzonaConsumerKeyController,
-        labelText: 'Consumer Key',
+        labelText: 'Clave de Consumidor (Consumer Key)',
         iconData: Icons.vpn_key_outlined,
         validator: (value) =>
             (value == null || value.isEmpty) ? 'Ingrese el Consumer Key' : null,
       ),
       FieldConfigData(
         controller: _enzonaConsumerSecretController,
-        labelText: 'Consumer Secret',
+        labelText: 'Secreto de Consumidor (Consumer Secret)',
         iconData: Icons.security_outlined,
         isObscure: _obscureEnzonaConsumerSecret,
         onObscureToggle: () => setState(
@@ -226,7 +226,7 @@ class _ConfigState extends State<Config> {
       ),
       FieldConfigData(
         controller: _enzonaMerchantUuidController,
-        labelText: 'Merchant UUID',
+        labelText: 'UUID del Comercio (Merchant UUID)',
         iconData: Icons.store_mall_directory_outlined,
         validator: (value) => (value == null || value.isEmpty)
             ? 'Ingrese el Merchant UUID'
@@ -263,6 +263,46 @@ class _ConfigState extends State<Config> {
         labelText: 'Terminal ID (Opcional)',
         iconData: Icons.devices_other_outlined,
         isOptional: true,
+      ),
+    ];
+    _dbFields = [
+      FieldConfigData(
+        controller: _dbServerController,
+        labelText: 'Servidor de Base de Datos',
+        iconData: Icons.dns,
+        validator: (value) => (value == null || value.isEmpty)
+            ? 'Ingrese el servidor de BD'
+            : null,
+      ),
+      FieldConfigData(
+        controller: _portController,
+        labelText: 'Puerto',
+        iconData: Icons.lan_outlined,
+        keyboardType: TextInputType.number,
+        validator: (value) {
+          if (value == null || value.isEmpty) return 'Ingrese el puerto de BD';
+          if (int.tryParse(value) == null) return 'Ingrese un número válido';
+          return null;
+        },
+      ),
+      FieldConfigData(
+        controller: _userController,
+        labelText: 'Usuario',
+        iconData: Icons.person_outline,
+        validator: (value) => (value == null || value.isEmpty)
+            ? 'Ingrese el usuario de BD'
+            : null,
+      ),
+      FieldConfigData(
+        controller: _passwordController,
+        labelText: 'Contraseña',
+        iconData: Icons.lock_outline,
+        isObscure: _obscurePassword,
+        onObscureToggle: () =>
+            setState(() => _obscurePassword = !_obscurePassword),
+        validator: (value) => (value == null || value.isEmpty)
+            ? 'Ingrese la contraseña de BD'
+            : null,
       ),
     ];
   }

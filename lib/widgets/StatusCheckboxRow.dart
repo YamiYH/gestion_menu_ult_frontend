@@ -1,68 +1,58 @@
+// lib/widgets/StatusCheckboxRow.dart
+
 import 'package:flutter/material.dart';
 
-/// Un widget que muestra una fila con una etiqueta y opciones de estado
-/// (Activo/Inactivo) seleccionables mediante Checkbox.
-/// Se asegura de que solo una opción pueda estar seleccionada a la vez.
+/// Un widget que muestra una fila con una etiqueta y un único Checkbox.
+/// Ideal para filtros de tipo "Solo Activos".
 class StatusCheckboxRow extends StatelessWidget {
-  final String? currentStatus;
-  final ValueChanged<String?> onStatusChanged;
+  /// El valor booleano actual del checkbox (true si está marcado, false si no).
+  final bool value;
+
+  /// Callback que se llama cuando el valor del checkbox cambia.
+  final ValueChanged<bool?> onChanged;
+
   final String label;
 
   const StatusCheckboxRow({
-    super.key,
-    required this.currentStatus,
-    required this.onStatusChanged,
-    this.label = 'Estado:', // Etiqueta por defecto
-  });
+    Key? key,
+    required this.value,
+    required this.onChanged,
+    this.label = 'Activo',
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    bool isMobile = MediaQuery.of(context).size.width < 600;
-    final textStyle = TextStyle(fontSize: isMobile ? 14 : 16);
+    final textStyle = TextStyle(
+      fontSize: 16,
+      fontWeight:
+          FontWeight.normal, // Un estilo más estándar para el label del filtro
+    );
 
-    // Hace los checkboxes un poco más compactos
+    // Hace el checkbox un poco más compacto
     const visualDensity = VisualDensity(horizontal: -4, vertical: -4);
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Text(label,
-            style:
-                textStyle.copyWith(fontWeight: FontWeight.bold, fontSize: 16)),
-        SizedBox(width: 40.0),
-        Checkbox(
-          value: currentStatus == 'Activo',
-          activeColor: Colors.red.shade400,
-          onChanged: (bool? isChecked) {
-            // Solo llama al callback si se está MARCANDO esta opción
-            if (isChecked == true) {
-              onStatusChanged('Activo');
-            }
-          },
-          visualDensity: visualDensity,
-          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    // Usar un InkWell o GestureDetector hace que toda la fila sea clickable
+    return InkWell(
+      onTap: () {
+        onChanged(!value); // Invierte el valor actual al tocar la fila
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4.0),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          // Para que no ocupe todo el ancho si no es necesario
+          children: <Widget>[
+            Checkbox(
+              value: value,
+              activeColor: Colors.red.shade700,
+              onChanged: onChanged, // Pasa el callback directamente
+              visualDensity: visualDensity,
+            ),
+            const SizedBox(width: 4.0),
+            Text(label, style: textStyle),
+          ],
         ),
-        SizedBox(width: 10.0),
-        Text('Activo', style: TextStyle(fontSize: 15)),
-        SizedBox(width: 40.0),
-        Checkbox(
-          value: currentStatus == 'Inactivo',
-          activeColor: Colors.red.shade400,
-          onChanged: (bool? isChecked) {
-            if (isChecked == true) {
-              onStatusChanged('Inactivo');
-            }
-          },
-          visualDensity: visualDensity,
-          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        ),
-        SizedBox(width: 10.0),
-        Text(
-          'Inactivo',
-          style: TextStyle(fontSize: 15),
-        )
-      ],
+      ),
     );
   }
 }

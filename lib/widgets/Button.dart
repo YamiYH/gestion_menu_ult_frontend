@@ -24,7 +24,8 @@ class _ButtonState extends State<Button> {
   Widget build(BuildContext context) {
     bool isMobile = MediaQuery.of(context).size.width < 600;
 
-    Size defaultSize = Size(isMobile ? 180 : 220, 50);
+    Size defaultSize =
+        Size(isMobile ? 180 : MediaQuery.of(context).size.width * 0.13, 50);
     Size buttonSize = widget.size ?? defaultSize;
 
     return ElevatedButton(

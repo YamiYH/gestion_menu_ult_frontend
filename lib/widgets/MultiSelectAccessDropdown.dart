@@ -26,7 +26,7 @@ class MultiSelectAccessDropdown extends StatefulWidget {
     required this.selectedValues,
     required this.onSelectionChanged,
     // Asegúrate que esta lista incluya "Todos"
-    this.allOptions = const ['Todos', 'Menu', 'Tickets', 'Inventario'],
+    this.allOptions = const [],
     this.label = 'Accesos',
     this.buttonHint = 'Seleccionar...',
     this.validator,
@@ -141,14 +141,11 @@ class _MultiSelectAccessDropdownState extends State<MultiSelectAccessDropdown> {
                           fontWeight: FontWeight.bold,
                           fontSize: isMobile ? 16 : 18)),
                   onPressed: () {
-                    // --- Devuelve al padre SOLO las opciones reales seleccionadas ---
-                    // Filtra "Todos" si estuviera presente (no debería con esta lógica, pero por seguridad)
                     List<String> finalSelection = temporarySelectedValues
                         .where((opt) => opt != todosOption)
                         .toSet() // Quita duplicados
                         .toList();
 
-                    // Llama al callback del widget padre con la lista filtrada
                     widget.onSelectionChanged(finalSelection);
                     Navigator.of(context).pop(); // Cierra guardando cambios
                   },

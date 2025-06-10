@@ -1,49 +1,91 @@
+// lib/widgets/StatusDropDown.dart
+
 import 'package:flutter/material.dart';
 
-class StatusDropDown extends StatelessWidget {
-  final String? selectedValue;
+class StatusDropDown extends StatefulWidget {
+  final String selectedValue;
   final ValueChanged<String?> onChanged;
+  final String? Function(String?)? validator;
+  final String label;
 
   const StatusDropDown({
-    super.key,
+    Key? key,
     required this.selectedValue,
     required this.onChanged,
-  });
+    this.validator,
+    this.label = 'Estado', // Etiqueta por defecto
+  }) : super(key: key);
+
+  @override
+  State<StatusDropDown> createState() => _StatusDropDownState();
+}
+
+class _StatusDropDownState extends State<StatusDropDown> {
+  // Usamos un Future para mantener la consistencia arquitectónica con TypeDropDown
+  late Future<List<String>> _fetchStatusFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    // Iniciamos la carga de datos una sola vez cuando el widget se crea
+    _fetchStatusFuture = _loadStatusOptions();
+  }
+
+  // A diferencia de TypeDropDown, aquí cargamos una lista local,
+  // pero lo envolvemos en un Future para simular el mismo patrón asíncrono.
+  Future<List<String>> _loadStatusOptions() async {
+    // Usamos Future.delayed para simular una carga muy rápida y evitar problemas de build.
+    await Future.delayed(Duration.zero);
+    return ['Todos', 'Activo', 'Inactivo'];
+  }
 
   @override
   Widget build(BuildContext context) {
-    bool isMobile = MediaQuery.of(context).size.width < 600;
+    // Usamos un FutureBuilder para manejar los estados de carga, error y éxito
+    return FutureBuilder<List<String>>(
+      future: _fetchStatusFuture,
+      builder: (context, snapshot) {
+        // --- ESTADO DE CARGA (será casi instantáneo) ---
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return DropdownButtonFormField<String>(
+            decoration: _inputDecoration(widget.label),
+            hint: const Text('Cargando...'), // Un hint simple es suficiente
+            items: const [],
+            onChanged: null, // Deshabilitado mientras carga
+          );
+        }
 
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 4),
-      constraints: BoxConstraints(maxWidth: isMobile ? 150 : 200),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            'Estado:',
-            style: TextStyle(
-              fontSize: isMobile ? 14 : 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: DropdownButton<String>(
-              isExpanded: true,
-              value: selectedValue,
-              onChanged: onChanged,
-              items: ['Todos', 'Activo', 'Inactivo']
-                  .map<DropdownMenuItem<String>>((String itemValue) {
-                return DropdownMenuItem<String>(
-                  value: itemValue,
-                  child: Text(itemValue, overflow: TextOverflow.ellipsis),
-                );
-              }).toList(),
-            ),
-          ),
-        ],
-      ),
+        // --- ESTADO DE ÉXITO (DATOS CARGADOS) ---
+        // (Un estado de error es muy improbable aquí, pero el patrón lo soportaría)
+        final availableStatus = snapshot.data ?? ['Todos'];
+
+        return DropdownButtonFormField<String>(
+          value: availableStatus.contains(widget.selectedValue)
+              ? widget.selectedValue
+              : 'Todos',
+          // Asegura que el valor exista en la lista
+          isExpanded: true,
+          decoration: _inputDecoration(widget.label),
+          items: availableStatus.map((String status) {
+            return DropdownMenuItem<String>(
+              value: status,
+              child: Text(status, overflow: TextOverflow.ellipsis),
+            );
+          }).toList(),
+          onChanged: widget.onChanged,
+          // Notifica al widget padre
+          validator: widget.validator,
+        );
+      },
+    );
+  }
+
+  // Helper para la decoración, para mantener un estilo consistente
+  InputDecoration _inputDecoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      border: const OutlineInputBorder(),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
     );
   }
 }

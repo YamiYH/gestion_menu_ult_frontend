@@ -1,93 +1,47 @@
-import "package:equatable/equatable.dart";
+// lib/models/User.dart
 
-// Enumerado UserType
-enum UserType {
-  ADMIN,
-  USER,
-}
+import 'package:gestion_menu_ult_frontend/models/RoleEntity.dart';
 
-class User extends Equatable {
+class User {
   final String username;
   final String name;
   final String lastName;
   final String email;
-  final UserType type;
-  final List<Role> roles;
-  final bool active;
-  final DateTime lastLdapCheck;
+  final String type;
+  final List<RoleEntity> roles;
 
-  const User({
+  final bool enabled;
+
+  User({
     required this.username,
     required this.name,
     required this.lastName,
     required this.email,
     required this.type,
     required this.roles,
-    required this.active,
-    required this.lastLdapCheck,
+    this.enabled = true,
   });
 
-  // Constructor desde JSON
   factory User.fromJson(Map<String, dynamic> json) {
+    var rolesFromJson = json['roles'] as List<dynamic>? ?? [];
+    List<RoleEntity> parsedRoles = rolesFromJson
+        .map((r) => RoleEntity.fromJson(r as Map<String, dynamic>))
+        .toList();
+
     return User(
-      username: json['username'],
-      name: json['name'],
-      lastName: json['lastName'],
-      email: json['email'],
-      type: UserType.values.byName(json['type']),
-      roles: (json['roles'] as List<dynamic>)
-          .map((roleJson) => Role.fromJson(roleJson))
-          .toList(),
-      active: json['active'],
-      lastLdapCheck: DateTime.parse(json['lastLdapCheck']),
+      username: json['username'] as String? ?? 'N/A',
+      name: json['name'] as String? ?? 'N/A',
+      lastName: json['lastName'] as String? ?? 'N/A',
+      email: json['email'] as String? ?? 'N/A',
+      type: json['type'] as String? ?? 'N/A',
+      roles: parsedRoles,
+      // El campo 'active' o 'enabled' no existe en el JSON de la captura.
+      // Deberías añadirlo en tu backend. Mientras tanto, podemos asumir 'true'.
+      enabled: json['enabled'] as bool? ?? json['enabled'] as bool? ?? true,
     );
   }
 
-  // Método para convertir el objeto en JSON
-  Map<String, dynamic> toJson() {
-    return {
-      'username': username,
-      'name': name,
-      'lastName': lastName,
-      'email': email,
-      'type': type.name,
-      'roles': roles.map((role) => role.toJson()).toList(),
-      'active': active,
-      'lastLdapCheck': lastLdapCheck.toIso8601String(),
-    };
-  }
-
-  @override
-  List<Object?> get props => [
-        username,
-        name,
-        lastName,
-        email,
-        type,
-        roles,
-        active,
-        lastLdapCheck,
-      ];
-}
-
-class Role {
-  final String name;
-
-  const Role({
-    required this.name,
-  });
-
-  // Constructor desde JSON
-  factory Role.fromJson(Map<String, dynamic> json) {
-    return Role(
-      name: json['name'],
-    );
-  }
-
-  // Método para convertir el objeto en JSON
-  Map<String, dynamic> toJson() {
-    return {
-      'name': name,
-    };
-  }
+  // Helper para obtener la descripción del primer rol
+  String get mainRoleDescription =>
+      roles.isNotEmpty ? roles.first.description : 'Sin Rol';
 }

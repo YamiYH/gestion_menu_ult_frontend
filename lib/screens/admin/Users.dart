@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/controllers/user/UserController.dart';
 import 'package:gestion_menu_ult_frontend/screens/admin/UserModelo.dart';
@@ -7,8 +9,12 @@ import 'package:gestion_menu_ult_frontend/widgets/Pagination.dart';
 import 'package:gestion_menu_ult_frontend/widgets/StatusDropDown.dart';
 import 'package:gestion_menu_ult_frontend/widgets/TypeDropDown.dart';
 
+import '../../controllers/RoleController.dart';
+import '../../models/UserEntity.dart';
 import '../../routes/PageRouteBuilder.dart';
+import '../../widgets/Button.dart';
 import '../../widgets/Confirm.dart';
+import '../../widgets/RoleDropDown.dart';
 import '../../widgets/UserTextFormField.dart';
 
 class Users extends StatefulWidget {
@@ -19,72 +25,70 @@ class Users extends StatefulWidget {
 }
 
 class _UsersState extends State<Users> {
-  List<Map<String, dynamic>> _users = [];
-  List<Map<String, dynamic>> _filteredUsers = [];
+  final UserController _userController = UserController();
+  final RoleController _roleController = RoleController();
+  List<User> _users = [];
 
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _lastnameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
-  final UserController _userController = UserController();
 
-  String selectedStatus = 'Todos';
-  String selectedUserType = 'Todos';
-  bool _isLoading = true; // Estado para controlar la carga
-  String _errorMessage = ''; // Estado para mensajes de error
+  String _selectedStatus = 'Todos';
+  String _selectedUserType = 'Todos';
+  String _selectedRole = 'Todos';
+
+  bool _isLoading = true;
+  String _errorMessage = '';
+  Timer? _debounce;
+
+  List<String> _availableRoles = ['Todos'];
+  List<String> _availableTypes = ['Todos'];
 
   @override
   void initState() {
     super.initState();
-    _loadUsers();
-    _usernameController.addListener(_applyAllFilters);
-    _nameController.addListener(_applyAllFilters);
-    _lastnameController.addListener(_applyAllFilters);
-    _emailController.addListener(_applyAllFilters);
+    _loadInitialData();
+    _loadDropdownData();
+    _usernameController.addListener(_onSearchChanged);
+    _nameController.addListener(_onSearchChanged);
+    _lastnameController.addListener(_onSearchChanged);
+    _emailController.addListener(_onSearchChanged);
   }
 
-  Future<void> _loadUsers() async {
-    if (!mounted) return;
-    setState(() {
-      _isLoading = true;
-      _errorMessage = ''; // Limpiar errores previos
-    });
-
+  // NUEVO MÉTODO: Carga los datos de los filtros solo una vez.
+  Future<void> _loadDropdownData() async {
     try {
-      final fetchedUsers = await _userController.fetchUsers();
-      if (mounted) {
-        setState(() {
-          _users = fetchedUsers;
-        });
-      }
+      // Ejecuta ambas llamadas en paralelo para mayor eficiencia
+      final results = await Future.wait([
+        _roleController.fetchRoleNames(),
+        _userController.fetchUserTypes(),
+      ]);
+
+      // Asigna los resultados de forma limpia, evitando duplicados.
+      setState(() {
+        _availableRoles = ['Todos', ...results[0]];
+        _availableTypes = ['Todos', ...results[1]];
+      });
     } catch (e) {
       if (mounted) {
-        setState(() {
-          _users = []; // Asegurar que la lista esté vacía en caso de error
-          _errorMessage = 'Error al cargar usuarios. Intente de nuevo.';
-        });
-        print("Error cargando usuarios: $e");
+        // Maneja el error si los filtros no se pueden cargar
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(_errorMessage)),
+          SnackBar(
+              content:
+                  Text('Error al cargar opciones de filtro: ${e.toString()}')),
         );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-          _applyAllFilters(); // Aplicar filtros después de cargar o en error (para actualizar _filteredUsers)
-        });
       }
     }
   }
 
   @override
   void dispose() {
-    _usernameController.removeListener(_applyAllFilters);
-    _nameController.removeListener(_applyAllFilters);
-    _lastnameController.removeListener(_applyAllFilters);
-    _emailController.removeListener(_applyAllFilters);
-
+    _debounce?.cancel();
+    _usernameController.removeListener(_onSearchChanged);
+    _nameController.removeListener(_onSearchChanged);
+    _lastnameController.removeListener(_onSearchChanged);
+    _emailController.removeListener(_onSearchChanged);
     _usernameController.dispose();
     _nameController.dispose();
     _lastnameController.dispose();
@@ -92,98 +96,137 @@ class _UsersState extends State<Users> {
     super.dispose();
   }
 
-  void _applyAllFilters() {
-    final usernameQuery = _usernameController.text.trim().toLowerCase();
-    final nameQuery = _nameController.text.trim().toLowerCase();
-    final lastnameQuery = _lastnameController.text.trim().toLowerCase();
-    final emailQuery = _emailController.text.trim().toLowerCase();
-
-    setState(() {
-      _filteredUsers = _users.where((user) {
-        final usernameMatch = usernameQuery.isEmpty ||
-            (user['username'] as String? ?? '')
-                .toLowerCase()
-                .contains(usernameQuery);
-        final nameMatch = nameQuery.isEmpty ||
-            (user['name'] as String? ?? '').toLowerCase().contains(nameQuery);
-        final lastnameMatch = lastnameQuery.isEmpty ||
-            (user['lastname'] as String? ?? '')
-                .toLowerCase()
-                .contains(lastnameQuery);
-        final emailMatch = emailQuery.isEmpty ||
-            (user['email'] as String? ?? '').toLowerCase().contains(emailQuery);
-
-        final statusMatch = selectedStatus == 'Todos' ||
-            (user['status'] as String? ?? '') == selectedStatus;
-
-        final typeMatch = selectedUserType == 'Todos' ||
-            (user['type'] as String? ?? '') == selectedUserType;
-
-        return usernameMatch &&
-            nameMatch &&
-            lastnameMatch &&
-            emailMatch &&
-            statusMatch &&
-            typeMatch;
-      }).toList();
+  void _onSearchChanged() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(seconds: 1), () {
+      _triggerSearch();
     });
   }
 
-  void _editUser(Map<String, dynamic> userData) async {
-    final result = await Navigator.push(
-      context,
-      createFadeRoute(UserModelo()),
-    );
+  void _triggerSearch() {
+    _userController.currentPage = 0;
+    _loadInitialData();
+  }
 
-    if (result != null && result is Map<String, dynamic> && mounted) {
-      final index = _users.indexWhere((user) => user['id'] == result['id']);
+  Future<void> _loadInitialData() async {
+    if (!mounted) return;
+    setState(() {
+      _isLoading = true;
+      _errorMessage = '';
+    });
 
-      if (index != -1) {
+    try {
+      // Llama a la búsqueda con los filtros actuales y espera el resultado.
+      final filteredUsers = await _fetchUsersWithCurrentFilters();
+
+      // Actualiza el estado de la UI con la nueva lista de usuarios.
+      if (mounted) {
         setState(() {
-          _users[index] = result;
-
-          _applyAllFilters();
+          _users = filteredUsers;
         });
-        final displayName =
-            result['username'] ?? result['name'] ?? 'ID: ${result['id']}';
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Usuario "$displayName" actualizado con éxito.')),
-        );
-      } else {
-        print(
-            "Usuario original con ID ${result['id']} no encontrado para actualizar.");
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Error al cargar datos: ${e.toString()}';
+          _users = [];
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
       }
     }
   }
 
-  void _deleteUser(int userId, String userName) async {
-    final bool? confirmed = await showConfirmDeleteDialog(
-      context: context,
-      itemName: userName,
-      itemType: 'al usuario',
-      onConfirm: () {
-        setState(() {
-          final int initialLength = _users.length;
-          _users.removeWhere((user) => user['id'] == userId);
-          final bool wasRemoved = _users.length < initialLength;
-          if (wasRemoved) {
-            print('Usuario con ID $userId eliminado.');
+  // Nuevo método helper para mantener _loadInitialData más limpio
+  Future<List<User>> _fetchUsersWithCurrentFilters() {
+    final Map<String, String> filters = {};
+    if (_usernameController.text.isNotEmpty) {
+      filters['username'] = _usernameController.text;
+    }
+    if (_nameController.text.isNotEmpty) filters['name'] = _nameController.text;
+    if (_lastnameController.text.isNotEmpty) {
+      filters['lastName'] = _lastnameController.text;
+    }
+    if (_emailController.text.isNotEmpty) {
+      filters['email'] = _emailController.text;
+    }
+    if (_selectedStatus != 'Todos') {
+      filters['enabled'] = (_selectedStatus).toString();
+    }
+    if (_selectedUserType != 'Todos') filters['type'] = _selectedUserType;
+    if (_selectedRole != 'Todos') filters['role'] = _selectedRole;
 
-            _applyAllFilters();
-          }
-        });
-      },
+    //debugPrint("Filtros que se enviarán al backend: $filters");
+    return _userController.fetchUsers(filters: filters);
+  }
+
+  void _editUser(User userData) async {
+    // Convierte el objeto User a un Map compatible con la pantalla UserModelo
+    final initialDataMap = {
+      'username': userData.username,
+      'name': userData.name,
+      'lastname': userData.lastName,
+      'email': userData.email,
+      'role': userData.mainRoleDescription,
+      'enabled': userData.enabled ? 'Activo' : 'Inactivo',
+      'type': userData.type,
+    };
+
+    final result = await Navigator.push(
+      context,
+      createFadeRoute(UserModelo(initialData: initialDataMap)),
     );
 
-    if (!mounted) return;
-
-    if (confirmed == true) {
-      print('Confirmada la eliminación del usuario: $userName');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Usuario "$userName" eliminado con éxito.')),
-      );
+    if (result != null && mounted) {
+      // Cuando volvemos, recargamos la lista para ver los cambios del backend
+      _loadUsers();
     }
+  }
+
+  Future<void> _loadUsers() async {
+    _triggerSearch(); // Reutilizamos el método de búsqueda para recargar
+  }
+
+  void _deleteUser(String username) async {
+    await showConfirmDeleteDialog(
+      context: context,
+      itemName: username,
+      itemType: 'al usuario',
+      onConfirm: () async {
+        if (!mounted) return;
+
+        try {
+          await _userController.deleteUser(username);
+
+          // 3. Si sigue montado, mostramos el feedback de éxito
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Usuario "$username" eliminado correctamente.'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
+
+          // 4. Recargamos la lista de usuarios para reflejar el cambio
+          _loadUsers();
+        } catch (e) {
+          // 5. Si algo falla, lo capturamos y mostramos un error
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Error al eliminar el usuario: ${e.toString()}'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
+      },
+    );
   }
 
   @override
@@ -195,90 +238,35 @@ class _UsersState extends State<Users> {
       body: Column(
         children: [
           Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: isMobile
-                  ? Column(children: [
-                      SizedBox(height: 10, width: 10),
-                      UserTextFormField(
-                        text: 'Buscar Usuario',
-                        controller: _usernameController,
-                        // Asignar controller
-                      ),
-                      SizedBox(height: 10),
-                      Row(
-                        // Desplegables Status/Type
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Status(),
-                          SizedBox(height: 20, width: 20),
-                          Type(),
-                        ],
-                      ),
-                      SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(width: 10),
-                          AddButton(
-                              onPressed: () {
-                                Navigator.push(
-                                    context, createFadeRoute(UserModelo()));
-                              },
-                              text: 'Usuario',
-                              size: Size(
-                                  isMobile
-                                      ? MediaQuery.of(context).size.width * 0.35
-                                      : 150,
-                                  50))
-                        ],
-                      ),
-                      SizedBox(height: 10),
-                    ])
-                  : Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: _buildTextFormField(isMobile),
-                    )),
+            padding: const EdgeInsets.all(12.0),
+            child: _buildFilterSection(isMobile),
+          ),
           isMobile ? _buildHeaderMobile() : _buildHeaderRow(),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Expanded(
             child: _isLoading
-                ? Center(child: CircularProgressIndicator())
+                ? const Center(child: CircularProgressIndicator())
                 : _errorMessage.isNotEmpty
                     ? Center(
-                        child: Padding(
-                        padding: const EdgeInsets.all(16.0),
                         child: Text(_errorMessage,
-                            style: TextStyle(color: Colors.red, fontSize: 16),
-                            textAlign: TextAlign.center),
-                      ))
-                    : _filteredUsers.isEmpty
-                        ? Center(
+                            style: const TextStyle(
+                                color: Colors.red, fontSize: 16),
+                            textAlign: TextAlign.center))
+                    : _users.isEmpty
+                        ? const Center(
                             child: Text(
-                            _users.isEmpty && // Solo mostrar "No se encontraron" si la lista original está vacía
-                                    _usernameController.text.isEmpty &&
-                                    _nameController.text.isEmpty &&
-                                    _lastnameController.text.isEmpty &&
-                                    _emailController.text.isEmpty &&
-                                    selectedStatus == 'Todos' &&
-                                    selectedUserType == 'Todos'
-                                ? 'No se encontraron usuarios.'
-                                : 'Ningún usuario coincide con los filtros.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 16),
-                          ))
+                                'No se encontraron usuarios con los filtros aplicados.',
+                                style: TextStyle(fontSize: 16)))
                         : ListView.builder(
-                            itemCount: _filteredUsers.length,
+                            itemCount: _users.length,
                             itemBuilder: (context, index) {
-                              final user = _filteredUsers[index];
+                              final user = _users[index];
                               return Column(
                                 children: [
-                                  SingleChildScrollView(
-                                      child: isMobile
-                                          ? _buildUserRowMobile(user)
-                                          : _buildUserRow(user)),
-                                  Divider()
+                                  isMobile
+                                      ? _buildUserRowMobile(user)
+                                      : _buildUserRow(user),
+                                  const Divider(height: 1),
                                 ],
                               );
                             },
@@ -287,74 +275,130 @@ class _UsersState extends State<Users> {
         ],
       ),
       bottomNavigationBar: Pagination(
-        // Paginación (sin cambios funcionales aquí)
-        itemBuilder: (context, item) {
-          return ListTile(
-            title: Text(item as String),
-          );
+        currentPage: _userController.currentPage,
+        totalPages: _userController.totalPages,
+        itemsPerPage: _userController.pageSize,
+        onPageChanged: (newPage) {
+          if (_userController.currentPage != newPage) {
+            _userController.currentPage = newPage;
+            _loadInitialData();
+          }
+        },
+        onItemsPerPageChanged: (newSize) {
+          if (_userController.pageSize != newSize) {
+            _userController.pageSize = newSize;
+            _userController.currentPage = 0;
+            _loadInitialData();
+          }
         },
       ),
     );
   }
 
-  List<Widget> _buildTextFormField(isMobile) {
-    return [
-      SizedBox(width: 5),
-      Expanded(
-        child: UserTextFormField(
-          text: 'Usuario',
-          controller: _usernameController,
-        ),
-      ),
-      SizedBox(width: 10),
-      Expanded(
-        child: UserTextFormField(
-          text: 'Nombre',
-          controller: _nameController,
-        ),
-      ),
-      SizedBox(width: 10),
-      Expanded(
-        child: UserTextFormField(
-          text: 'Apellido',
-          controller: _lastnameController,
-        ),
-      ),
-      SizedBox(width: 10),
-      Expanded(
-        child: UserTextFormField(
-          text: 'Correo',
-          controller: _emailController,
-        ),
-      ),
-      SizedBox(width: 10),
-      Status(),
-      SizedBox(width: 10),
-      Type(),
-      SizedBox(width: 10),
-    ];
+  Widget _buildFilterSection(bool isMobile) {
+    return isMobile
+        ? Column(
+            children: [
+              UserTextFormField(
+                  text: 'Buscar por Usuario', controller: _usernameController),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(child: Status()),
+                  const SizedBox(width: 10),
+                  Expanded(child: Type()),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.45,
+                  child: Button(
+                      onPressed: _triggerSearch,
+                      text: 'Buscar',
+                      icon: Icons.search),
+                ),
+                AddButton(
+                    onPressed: () {
+                      Navigator.push(context, createFadeRoute(UserModelo()))
+                          .then((_) => _loadUsers());
+                    },
+                    text: 'Usuario',
+                    size: Size(MediaQuery.of(context).size.width * 0.45, 50))
+              ]),
+            ],
+          )
+        : Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                  child: UserTextFormField(
+                      text: 'Usuario', controller: _usernameController)),
+              const SizedBox(width: 15),
+              Expanded(
+                  child: UserTextFormField(
+                      text: 'Nombre', controller: _nameController)),
+              const SizedBox(width: 15),
+              Expanded(
+                  child: UserTextFormField(
+                      text: 'Apellido', controller: _lastnameController)),
+              const SizedBox(width: 15),
+              Expanded(
+                  child: UserTextFormField(
+                      text: 'Correo', controller: _emailController)),
+              const SizedBox(width: 15),
+              Expanded(child: Role()),
+              const SizedBox(width: 15),
+              Expanded(child: Status()),
+              const SizedBox(width: 15),
+              Expanded(child: Type()),
+              const SizedBox(width: 15),
+            ],
+          );
   }
 
-  Widget Type() {
-    return TypeDropDown(
-      selectedValue: selectedUserType,
-      onChanged: (String? newValue) {
+// lib/screens/admin/Users.dart
+
+  Widget Status() {
+    return StatusDropDown(
+      selectedValue: _selectedStatus,
+      onChanged: (value) {
+        // Prevenimos recargas innecesarias si el valor no cambia
+        if (value == null || value == _selectedStatus) return;
+
         setState(() {
-          selectedUserType = newValue!;
+          _selectedStatus = value;
         });
-        _applyAllFilters();
+        // AÑADIMOS LA LLAMADA PARA EJECUTAR LA BÚSQUEDA
+        _triggerSearch();
       },
     );
   }
 
-  Widget Status() {
-    return StatusDropDown(
-      selectedValue: selectedStatus,
-      onChanged: (String? newValue) {
+  Widget Type() {
+    return TypeDropDown(
+      selectedValue: _selectedUserType,
+      onChanged: (newValue) {
+        // Prevenimos recargas innecesarias si el valor no cambia
+        if (newValue == null || newValue == _selectedUserType) return;
+
         setState(() {
-          selectedStatus = newValue!;
+          _selectedUserType = newValue;
         });
-        _applyAllFilters();
+        // AÑADIMOS LA LLAMADA PARA EJECUTAR LA BÚSQUEDA
+        _triggerSearch();
+      },
+    );
+  }
+
+  Widget Role() {
+    return RoleDropDown(
+      selectedValue: _selectedRole,
+      onChanged: (newValue) {
+        setState(() {
+          _selectedRole = newValue ?? 'Todos';
+          _triggerSearch();
+        });
       },
     );
   }
@@ -362,30 +406,27 @@ class _UsersState extends State<Users> {
   Widget _buildHeaderRow() {
     return Container(
       color: Colors.grey[200],
-      padding: EdgeInsets.all(10),
+      padding: const EdgeInsets.all(10),
       child: Row(
         children: [
           SizedBox(width: MediaQuery.of(context).size.width * 0.01),
-          _header('Usuario', 0.15),
+          _header('Usuario', 0.1),
           _header('Nombre', 0.15),
           _header('Apellidos', 0.15),
           _header('Correo', 0.15),
+          _header('Rol', 0.1),
           _header('Estado', 0.1),
           _header('Tipo', 0.1),
-          Spacer(),
+          //const Spacer(),
           Padding(
             padding: const EdgeInsets.only(right: 20.0),
             child: AddButton(
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    createFadeRoute(
-                      UserModelo(),
-                    ),
-                  );
+                  Navigator.push(context, createFadeRoute(UserModelo()))
+                      .then((_) => _loadUsers());
                 },
                 text: 'Usuario',
-                size: Size(150, 40)),
+                size: const Size(150, 40)),
           ),
         ],
       ),
@@ -395,7 +436,7 @@ class _UsersState extends State<Users> {
   Widget _header(String title, double widthFactor) {
     return SizedBox(
       width: MediaQuery.of(context).size.width * widthFactor,
-      height: 25, // Altura fija
+      height: 25,
       child: Text(title, style: _headerStyle()),
     );
   }
@@ -403,9 +444,9 @@ class _UsersState extends State<Users> {
   Widget _buildHeaderMobile() {
     return Container(
       color: Colors.grey[200],
-      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween, // Distribuir espacio
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(flex: 3, child: Text('Usuario', style: _headerStyle())),
           Expanded(
@@ -425,8 +466,7 @@ class _UsersState extends State<Users> {
     );
   }
 
-  Widget _buildUserRowMobile(Map<String, dynamic> user) {
-    final int userId = user['id'] ?? -1;
+  Widget _buildUserRowMobile(User user) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
       child: Row(
@@ -434,15 +474,13 @@ class _UsersState extends State<Users> {
         children: [
           Expanded(
               flex: 3,
-              child: Text(user['username'] ?? 'N/A',
-                  overflow: TextOverflow.ellipsis)),
+              child: Text(user.username, overflow: TextOverflow.ellipsis)),
           Expanded(
               flex: 2,
-              child:
-                  Text(user['status'] ?? 'N/A', textAlign: TextAlign.center)),
+              child: Text(user.enabled ? 'Activo' : 'Inactivo',
+                  textAlign: TextAlign.center)),
           Expanded(
-              flex: 3,
-              child: Text(user['type'] ?? 'N/A', textAlign: TextAlign.center)),
+              flex: 3, child: Text(user.type, textAlign: TextAlign.center)),
           Expanded(
               flex: 3,
               child: Row(
@@ -452,18 +490,17 @@ class _UsersState extends State<Users> {
                     icon:
                         Icon(Icons.edit, color: Colors.grey.shade500, size: 20),
                     padding: EdgeInsets.zero,
-                    constraints: BoxConstraints(),
+                    constraints: const BoxConstraints(),
                     onPressed: () {
                       _editUser(user);
                     },
                   ),
                   IconButton(
-                    icon: Icon(Icons.delete, color: Colors.red, size: 20),
+                    icon: const Icon(Icons.delete, color: Colors.red, size: 20),
                     padding: EdgeInsets.zero,
-                    constraints: BoxConstraints(),
+                    constraints: const BoxConstraints(),
                     onPressed: () {
-                      _deleteUser(
-                          userId, user as String); // Llamar a borrar con ID
+                      _deleteUser(user.username);
                     },
                   ),
                 ],
@@ -473,19 +510,20 @@ class _UsersState extends State<Users> {
     );
   }
 
-  Widget _buildUserRow(Map<String, dynamic> user) {
+  Widget _buildUserRow(User user) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 10.0),
       child: Row(
         children: [
           SizedBox(width: MediaQuery.of(context).size.width * 0.01),
-          _user(user['username'], 0.15),
-          _user(user['name'], 0.15),
-          _user(user['lastname'], 0.15),
-          _user(user['email'], 0.15),
-          _user(user['status'], 0.1),
-          _user(user['type'], 0.1),
-          Spacer(),
+          _user(user.username, 0.1), // Se muestra el email como 'Usuario'
+          _user(user.name, 0.15),
+          _user(user.lastName, 0.15),
+          _user(user.email, 0.15),
+          _user(user.mainRoleDescription, 0.1),
+          _user(user.enabled ? 'Activo' : 'Inactivo', 0.1),
+          _user(user.type, 0.1),
+          //const Spacer(),
           SizedBox(
             width: MediaQuery.of(context).size.width * 0.1,
             child: Row(
@@ -498,15 +536,9 @@ class _UsersState extends State<Users> {
                   },
                 ),
                 IconButton(
-                  icon: Icon(Icons.delete, color: Colors.red),
+                  icon: const Icon(Icons.delete, color: Colors.red),
                   onPressed: () {
-                    final int userId = user['id'] ?? -1;
-                    final String nameForDialog =
-                        user['username'] ?? 'ID: $userId';
-
-                    if (userId != -1) {
-                      _deleteUser(userId, nameForDialog);
-                    }
+                    _deleteUser(user.username);
                   },
                 ),
               ],

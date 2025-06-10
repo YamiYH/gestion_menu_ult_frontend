@@ -21,6 +21,7 @@ class CustomTextFormField extends StatefulWidget {
   final bool readOnly;
   final VoidCallback? onTap;
   final List<TextInputFormatter>? inputFormatters;
+  final String? prefixText;
 
   // Parámetros de tamaño opcionales (pero no usados para layout aquí)
   final double? h;
@@ -45,6 +46,7 @@ class CustomTextFormField extends StatefulWidget {
     this.readOnly = false,
     this.onTap,
     this.inputFormatters,
+    this.prefixText,
     this.h, // Opcional
     this.w, // Opcional
   });
@@ -73,6 +75,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
     return InputDecoration(
       labelText: widget.labelText,
       hintText: widget.hintText,
+      prefixText: widget.prefixText,
       labelStyle: TextStyle(color: Colors.grey[700]),
       hintStyle: TextStyle(color: Colors.grey[500]),
       border: OutlineInputBorder(

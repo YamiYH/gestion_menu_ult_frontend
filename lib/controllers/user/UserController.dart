@@ -1,115 +1,85 @@
-import 'dart:convert'; // Necesario para jsonDecode
+// lib/controllers/user/UserController.dart
 
-import 'package:gestion_menu_ult_frontend/controllers/user/UserAuthContext.dart';
-import 'package:http/http.dart' as http;
+import '../../models/UserEntity.dart';
+import '../BaseController.dart'; // Importa la clase padre
 
-class UserController {
-  // URL del endpoint del backend
-  final String _baseUrl = 'http://192.168.1.111:8887';
-  final String _endPoint = '/api/v1/users';
+class UserController extends BaseController {
+  @override
+  final String endPoint = '/api/v1/users';
 
-  // --- Funciones auxiliares para la transformación de datos ---
-
-  // Obtiene la descripción del primer rol, o un valor por defecto.
-  String _getRoleDescription(List<dynamic>? rolesJson) {
-    if (rolesJson != null && rolesJson.isNotEmpty) {
-      final firstRole = rolesJson.first as Map<String, dynamic>?;
-      if (firstRole != null &&
-          firstRole.containsKey('description') &&
-          firstRole['description'] != null) {
-        return firstRole['description'].toString();
-      }
-      return 'Descripción no disponible'; // Si el primer rol no tiene descripción
-    }
-    return 'Sin rol asignado'; // Si no hay roles
-  }
-
-  // Formatea el tipo de usuario (ej: "EMPLOYEE" -> "Employee")
-  String _formatUserType(String? typeJson) {
-    if (typeJson == null || typeJson.isEmpty) {
-      return 'Desconocido'; // O un string vacío: ''
-    }
-    // Convierte "EMPLOYEE" a "Employee"
-    return '${typeJson[0].toUpperCase()}${typeJson.substring(1).toLowerCase()}';
-  }
-
-  // Método para obtener la lista de usuarios
-  Future<List<Map<String, dynamic>>> fetchUsers() async {
-    String? token = await UserAuthContext.getJwtToken();
-
-    if (token == null) {
-      print(
-          'UserController: Error - Token JWT es nulo. No se puede realizar la solicitud autenticada.');
-      return []; // Devuelve una lista vacía si no hay token
-    }
-
-    var headers = {
-      'Authorization': 'Bearer $token',
-      'Content-Type': 'application/json', // Buena práctica incluirla
+  // --- MÉTODO PARA OBTENER LA LISTA DE USUARIOS (SIMPLIFICADO) ---
+  Future<List<User>> fetchUsers({Map<String, String>? filters}) async {
+    Map<String, String> queryParams = {
+      'pageNo': super.currentPage.toString(),
+      'pageSize': super.pageSize.toString(),
+      'sortType': 'asc',
+      'sortBy': 'name',
     };
-    var uri = Uri.parse(
-        '$_baseUrl$_endPoint?pageNo=0&pageSize=10&sortType=asc&sortBy=username');
+
+    if (filters != null) {
+      queryParams.addAll(filters);
+    }
 
     try {
-      final response = await http.get(uri, headers: headers);
+      // Llama al método GET genérico de la clase padre
+      final responseData = await super.get(endPoint, queryParams: queryParams);
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> decodedResponse = jsonDecode(response.body);
-
-        // El backend devuelve los usuarios dentro de la clave "content"
-        if (decodedResponse.containsKey('content') &&
-            decodedResponse['content'] is List) {
-          final List<dynamic> usersContent =
-              decodedResponse['content'] as List<dynamic>;
-          final List<Map<String, dynamic>> userList = [];
-
-          for (var userJson in usersContent) {
-            if (userJson is Map<String, dynamic>) {
-              final Map<String, dynamic> userMap = {
-                'username': userJson['username'] ?? 'N/A',
-                'name': userJson['name'] ?? 'N/A',
-                'lastname': userJson['lastName'] ?? 'N/A',
-                'email': userJson['email'] ?? 'N/A',
-                'role':
-                    _getRoleDescription(userJson['roles'] as List<dynamic>?),
-                'status': (userJson['active'] == true) ? 'Activo' : 'Inactivo',
-                'type': _formatUserType(userJson['type'] as String?),
-              };
-              userList.add(userMap);
-            }
-          }
-          print(userList);
-          return userList;
-        } else {
-          print(
-              'UserController: Error - La respuesta del backend no contiene la lista "content" esperada.');
-          return [];
-        }
+      // Interpreta la respuesta JSON específica de este método
+      if (responseData is Map<String, dynamic> &&
+          responseData.containsKey('content')) {
+        List<dynamic> userListJson = responseData['content'];
+        super.totalPages = responseData['totalPages'] ?? 1;
+        super.currentPage = responseData['number'] ?? 0;
+        return userListJson.map((data) => User.fromJson(data)).toList();
       } else {
-        print(
-            'UserController: Error en la respuesta del servidor - Status: ${response.statusCode}');
-        print('UserController: Razón - ${response.reasonPhrase}');
-        print('UserController: Cuerpo - ${response.body}');
-        return []; // Devuelve una lista vacía en caso de error HTTP
+        throw Exception("Formato de respuesta de usuarios inesperado.");
       }
     } catch (e) {
-      print('UserController: Excepción durante fetchUsers - $e');
-      return []; // Devuelve una lista vacía en caso de cualquier otra excepción
+      rethrow;
+    }
+  }
+
+  // --- MÉTODO PARA CREAR UN USUARIO (SIMPLIFICADO) ---
+  Future<User> createUser(Map<String, dynamic> userData) async {
+    try {
+      // Llama al método POST genérico
+      final responseData = await super.post(endPoint, body: userData);
+      return User.fromJson(responseData);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // --- MÉTODO PARA ACTUALIZAR UN USUARIO (SIMPLIFICADO) ---
+  Future<User> updateUser(Map<String, dynamic> userData) async {
+    try {
+      // Llama al método PUT genérico
+      final responseData = await super.put(endPoint, body: userData);
+      return User.fromJson(responseData);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // --- MÉTODO PARA ELIMINAR UN USUARIO (SIMPLIFICADO) ---
+  Future<void> deleteUser(String username) async {
+    try {
+      // Llama al método DELETE genérico, construyendo la ruta completa del recurso
+      await super.delete('$endPoint/$username');
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // --- MÉTODO CON ENDPOINT DIFERENTE ---
+  Future<List<String>> fetchUserTypes() async {
+    try {
+      final responseData = await super.get('/api/v1/metadata/user/types');
+      final typesList =
+          List<String>.from((responseData as List).map((t) => t.toString()));
+      return typesList;
+    } catch (e) {
+      rethrow;
     }
   }
 }
-
-// --- Ejemplo de cómo podrías llamar a este método (para pruebas) ---
-// void main() async {
-//   final userController = UserController();
-//   List<Map<String, dynamic>> users = await userController.fetchUsers();
-//
-//   if (users.isNotEmpty) {
-//     print("Usuarios obtenidos:");
-//     users.forEach((user) {
-//       print(user);
-//     });
-//   } else {
-//     print("No se pudieron obtener los usuarios o la lista está vacía.");
-//   }
-// }

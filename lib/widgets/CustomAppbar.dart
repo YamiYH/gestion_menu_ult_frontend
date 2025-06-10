@@ -4,7 +4,7 @@ import 'package:gestion_menu_ult_frontend/screens/common/Help.dart';
 import 'package:gestion_menu_ult_frontend/screens/common/Login.dart';
 import 'package:gestion_menu_ult_frontend/screens/common/Notifications.dart';
 
-import '../controllers/LoginController.dart';
+import '../controllers/auth/LoginController.dart';
 import '../screens/common/Perfil.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -64,7 +64,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
           //SizedBox(width: isMobile ? 0 : 60),
           Expanded(
-            //flex: 6,
+            flex: isMobile ? 12 : 0,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -73,7 +73,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                       color: Colors.white,
                       fontSize: isMobile ? 16 : 18,
                     )),
-                SizedBox(width: isMobile ? 10 : 20),
+                SizedBox(width: isMobile ? 5 : 20),
                 IconButton(
                     tooltip: 'Manual de Usuarios',
                     onPressed: () {
@@ -190,7 +190,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ],
       ),
-      bottom: bottom,
+      //bottom: bottom,
     );
   }
 

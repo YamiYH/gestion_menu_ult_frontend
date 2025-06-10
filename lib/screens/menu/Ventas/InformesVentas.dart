@@ -1,84 +1,72 @@
+// lib/screens/admin/InformesVentas.dart
+
 import 'package:flutter/material.dart';
+import 'package:gestion_menu_ult_frontend/controllers/ReportController.dart';
+import 'package:gestion_menu_ult_frontend/models/SalesReport.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
+import 'package:intl/intl.dart';
 
 import '../../../widgets/Button.dart';
 import '../../../widgets/DatePickerButton.dart';
 import '../../../widgets/Pagination.dart';
 
 class InformesVentas extends StatefulWidget {
+  const InformesVentas({super.key}); // Añadido super.key
+
   @override
   State<InformesVentas> createState() => _InformesVentasState();
 }
 
 class _InformesVentasState extends State<InformesVentas> {
-  // Variables para almacenar las fechas seleccionadas
-  DateTime? startDate;
-  DateTime? endDate;
+  final ReportController _controller = ReportController();
+  bool _isLoading = true;
+  List<DailyReportGroup> _reportGroups = [];
 
-  // Lista simulada de informes agrupados por fecha
-  final List<Map<String, dynamic>> informes = [
-    {
-      'fecha': '2025-03-01',
-      'informes': [
-        {
-          'nombre': 'Informe Contabilidad',
-          'archivo': 'contabilidad_2023-10-01.pdf'
-        },
-        {'nombre': 'Informe Alimentos', 'archivo': 'alimentos_2023-10-01.pdf'}
-      ]
-    },
-    {
-      'fecha': '2025-01-02',
-      'informes': [
-        {
-          'nombre': 'Informe Contabilidad',
-          'archivo': 'contabilidad_2023-10-02.pdf'
-        },
-        {'nombre': 'Informe Alimentos', 'archivo': 'alimentos_2023-10-02.pdf'}
-      ]
-    },
-  ];
-
-  List<Map<String, dynamic>> _filteredInformes = [];
+  // Las fechas ahora se manejan en el controlador, pero las guardamos
+  // localmente para los DatePickers
+  DateTime? _localStartDate;
+  DateTime? _localEndDate;
 
   @override
   void initState() {
     super.initState();
-    // Inicializa la lista filtrada con todos los informes al principio
-    _filteredInformes = List.from(informes);
+    _fetchData();
   }
 
-  void _applyDateFilters() {
+  Future<void> _fetchData() async {
+    if (!mounted) return;
     setState(() {
-      _filteredInformes = informes.where((informe) {
-        final fechaString = informe['fecha'] as String?;
-        // Ignorar informes sin fecha o con formato inválido
-        if (fechaString == null) return false;
-        final reportDate = DateTime.tryParse(fechaString);
-        if (reportDate == null) return false;
-
-        // Comprobar si la fecha está después o es igual a startDate (si existe)
-        final bool afterStartDate = startDate == null ||
-            reportDate.isAtSameMomentAs(startDate!) ||
-            reportDate.isAfter(startDate!);
-
-        final bool beforeEndDate;
-        if (endDate == null) {
-          beforeEndDate = true;
-        } else {
-          // Compara si la fecha del reporte es anterior al día siguiente de endDate
-          final nextDayOfEndDate =
-              DateTime(endDate!.year, endDate!.month, endDate!.day + 1);
-          beforeEndDate = reportDate.isBefore(nextDayOfEndDate);
-        }
-
-        // El informe se incluye si cumple ambas condiciones
-        return afterStartDate && beforeEndDate;
-      }).toList();
+      _isLoading = true;
     });
-    // Opcional: Imprimir para depurar
-    print(
-        'Filtro aplicado. Start: $startDate, End: $endDate. Resultados: ${_filteredInformes.length}');
+
+    // Actualiza el controlador con las fechas de la UI
+    _controller.startDate = _localStartDate;
+    _controller.endDate = _localEndDate;
+
+    try {
+      final reportsFromApi = await _controller.fetchReports();
+      setState(() {
+        _reportGroups = reportsFromApi;
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al cargar informes: ${e.toString()}')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  void _triggerSearch() {
+    // Al buscar, siempre reseteamos a la primera página
+    _controller.currentPage = 0;
+    _fetchData();
   }
 
   @override
@@ -87,105 +75,114 @@ class _InformesVentasState extends State<InformesVentas> {
 
     return Scaffold(
       appBar: CustomAppBar(title: 'Informes de Ventas'),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Fila con DatePickerButton y Botón Buscar
-            Padding(
-              padding: EdgeInsets.all(16.0),
-              child: isMobile
-                  ? Column(
-                      children: [
-                        buildRow(),
-                        SizedBox(height: 15),
-                        Button(
-                          onPressed: _applyDateFilters,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: isMobile
+                ? Column(
+                    children: [
+                      _buildDatePickerRow(),
+                      const SizedBox(height: 15),
+                      Button(
+                          onPressed: _triggerSearch,
                           icon: Icons.search,
-                          text: 'Buscar',
-                        )
-                      ],
-                    )
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        buildRow(),
-                        SizedBox(width: 30),
-                        Button(
-                          onPressed: _applyDateFilters,
+                          text: 'Buscar'),
+                    ],
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildDatePickerRow(),
+                      const SizedBox(width: 30),
+                      Button(
+                          onPressed: _triggerSearch,
                           icon: Icons.search,
-                          text: 'Buscar',
-                        )
-                      ],
-                    ),
-            ),
-
-            // Lista de Cards con los informes
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ListView.builder(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                itemCount: _filteredInformes.length,
-                itemBuilder: (context, index) {
-                  final informe = _filteredInformes[index];
-                  return _buildInformeCard(informe);
-                },
-              ),
-            ),
-          ],
-        ),
+                          text: 'Buscar'),
+                    ],
+                  ),
+          ),
+          Expanded(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _reportGroups.isEmpty
+                    ? const Center(
+                        child: Text(
+                            'No se encontraron informes para las fechas seleccionadas.'))
+                    : ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        itemCount: _reportGroups.length,
+                        itemBuilder: (context, index) {
+                          final reportGroup = _reportGroups[index];
+                          return _buildInformeCard(reportGroup);
+                        },
+                      ),
+          ),
+        ],
       ),
       bottomNavigationBar: Pagination(
-        itemBuilder: (context, item) {
-          return ListTile(
-            title: Text(item as String),
-          );
+        currentPage: _controller.currentPage,
+        totalPages: _controller.totalPages,
+        itemsPerPage: _controller.pageSize,
+        onPageChanged: (newPage) {
+          if (_controller.currentPage != newPage) {
+            _controller.currentPage = newPage;
+            _fetchData();
+          }
+        },
+        onItemsPerPageChanged: (newSize) {
+          if (_controller.pageSize != newSize) {
+            _controller.pageSize = newSize;
+            _controller.currentPage = 0;
+            _fetchData();
+          }
         },
       ),
     );
   }
 
-  Widget buildRow() {
+  Widget _buildDatePickerRow() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         DatePickerButton(
           label: 'Desde',
-          selectedDate: startDate,
+          selectedDate: _localStartDate,
           onDateSelected: (date) {
             setState(() {
-              startDate = date;
+              _localStartDate = date;
             });
           },
           firstDate: DateTime(2000),
-          lastDate: DateTime.now(),
+          lastDate: _localEndDate ?? DateTime.now(),
         ),
-        SizedBox(width: 10),
+        const SizedBox(width: 10),
         Icon(Icons.arrow_forward, color: Colors.red[900]),
-        SizedBox(width: 10),
+        const SizedBox(width: 10),
         DatePickerButton(
           label: 'Hasta',
-          selectedDate: endDate,
+          selectedDate: _localEndDate,
           onDateSelected: (date) {
             setState(() {
-              endDate = date;
+              _localEndDate = date;
             });
           },
-          firstDate: DateTime(2000),
+          firstDate: _localStartDate ?? DateTime(2000),
           lastDate: DateTime.now(),
         ),
       ],
     );
   }
 
-  // Widget para construir una Card de informe
-  Widget _buildInformeCard(Map<String, dynamic> informe) {
+  Widget _buildInformeCard(DailyReportGroup reportGroup) {
     bool isMobile = MediaQuery.of(context).size.width < 600;
-    final String fecha = informe['fecha'];
-    final List<dynamic> listaInformes = informe['informes'];
+    // Formatea la fecha usando intl para mostrarla
+    final String fecha =
+        DateFormat('dd MMMM yyyy', 'es_ES').format(reportGroup.fecha);
+
     return Card(
-      //margin: EdgeInsets.only(bottom: 10),
+      margin: const EdgeInsets.only(bottom: 16),
       elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: Padding(
@@ -193,7 +190,6 @@ class _InformesVentasState extends State<InformesVentas> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Fecha del informe
             Text(
               'Fecha: $fecha',
               style: TextStyle(
@@ -201,30 +197,30 @@ class _InformesVentasState extends State<InformesVentas> {
                   fontWeight: FontWeight.bold,
                   color: Colors.red[700]),
             ),
-            SizedBox(height: 5),
-
-// Informes individuales
-            ...listaInformes.map((item) {
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-// Nombre del informe
-                  Text(
-                    item['nombre'],
-                    style: TextStyle(
-                        fontSize: isMobile ? 16 : 15,
-                        fontWeight: FontWeight.w700),
-                  ),
-// Ícono de descarga
-                  IconButton(
-                    icon:
-                        Icon(Icons.download, color: Colors.red[900], size: 25),
-                    onPressed: () {
-// Simular la descarga del archivo PDF
-                      print('Descargando ${item['archivo']}...');
-                    },
-                  ),
-                ],
+            const SizedBox(height: 5),
+            const Divider(),
+            ...reportGroup.informes.map((item) {
+              return ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(
+                  item.nombre,
+                  style: TextStyle(
+                      fontSize: isMobile ? 16 : 15,
+                      fontWeight: FontWeight.w500),
+                ),
+                trailing: IconButton(
+                  icon: Icon(Icons.download, color: Colors.red[900], size: 25),
+                  onPressed: () {
+                    // Lógica para descargar usando item.archivoUrl
+                    // Ejemplo: await launchUrl(Uri.parse(item.archivoUrl));
+                    print('Descargando desde ${item.archivoUrl}...');
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                          content:
+                              Text('Iniciando descarga de ${item.nombre}...')),
+                    );
+                  },
+                ),
               );
             }).toList(),
           ],

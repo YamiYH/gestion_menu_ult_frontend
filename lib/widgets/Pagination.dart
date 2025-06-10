@@ -1,198 +1,175 @@
+// lib/widgets/Pagination.dart (CÓDIGO REFACTORIZADO Y COMPLETO)
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-class Pagination<T extends int> extends StatefulWidget {
-  final List<T> items; // Lista de elementos a paginar (solo enteros)
-  int itemsPerPage = 10; // Número inicial de elementos por página
-  final T? selectedValue; // Valor seleccionado (opcional)
-  final Widget Function(BuildContext context, T item)
-      itemBuilder; // Constructor de cada elemento
+class Pagination extends StatefulWidget {
+  final int currentPage; // Recibe la página actual (0-indexed del backend)
+  final int totalPages; // Recibe el total de páginas
+  final int itemsPerPage; // Recibe el tamaño de página actual
+  final List<int> availableItemsPerPage; // Recibe las opciones para el dropdown
+  final ValueChanged<int> onPageChanged; // Notifica cambio de página
+  final ValueChanged<int>
+      onItemsPerPageChanged; // Notifica cambio de tamaño de página
 
-  Pagination({
+  const Pagination({
     Key? key,
-    required this.itemBuilder,
-    this.selectedValue,
-    List<T>? items, // Hacer items opcional,
-  })  : items = items ?? <T>[10 as T, 25 as T, 50 as T, 100 as T],
-        // Valor predeterminado
-        super(key: key);
+    required this.currentPage,
+    required this.totalPages,
+    required this.onPageChanged,
+    required this.onItemsPerPageChanged,
+    this.itemsPerPage = 10,
+    this.availableItemsPerPage = const [10, 25, 50, 100],
+  }) : super(key: key);
 
   @override
-  State<Pagination<T>> createState() => _PaginationState<T>();
+  State<Pagination> createState() => _PaginationState();
 }
 
-class _PaginationState<T extends int> extends State<Pagination<T>> {
-  int currentPage = 1; // Página actual
-  late int itemsPerPage; // Número de elementos por página (puede cambiar)
-  final TextEditingController _pageController =
-      TextEditingController(); // Controlador para el campo de texto
+class _PaginationState extends State<Pagination> {
+  late TextEditingController _pageController;
 
   @override
   void initState() {
     super.initState();
-    itemsPerPage =
-        widget.itemsPerPage; // Inicializar con el valor proporcionado
-    _pageController.text = currentPage.toString(); // Inicializar el controlador
+    _pageController = TextEditingController();
+    // Sincroniza el texto con la página actual (+1 para mostrar al usuario)
+    _pageController.text = (widget.currentPage + 1).toString();
+  }
+
+  @override
+  void didUpdateWidget(Pagination oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Si la página actual cambia desde fuera, actualiza el campo de texto
+    if (widget.currentPage != oldWidget.currentPage) {
+      _pageController.text = (widget.currentPage + 1).toString();
+    }
   }
 
   @override
   void dispose() {
-    _pageController.dispose(); // Liberar recursos del controlador
+    _pageController.dispose();
     super.dispose();
+  }
+
+  void _goToPage() {
+    final pageNumberInput = int.tryParse(_pageController.text);
+    if (pageNumberInput != null &&
+        pageNumberInput >= 1 &&
+        pageNumberInput <= widget.totalPages) {
+      // Notifica al padre para que cambie a la página (restando 1 para que sea 0-indexed)
+      widget.onPageChanged(pageNumberInput - 1);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Página inválida')),
+      );
+      // Resetea el texto al valor correcto
+      _pageController.text = (widget.currentPage + 1).toString();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final totalItems = widget.items.length;
-    final totalPages = (totalItems / itemsPerPage).ceil();
     bool isMobile = MediaQuery.of(context).size.width < 600;
 
-    // Obtener los elementos para la página actual
-    List<T> getCurrentPageItems() {
-      final startIndex = (currentPage - 1) * itemsPerPage;
-      final endIndex = (startIndex + itemsPerPage).clamp(0, totalItems);
-      return widget.items.sublist(startIndex, endIndex);
-    }
-
     return Container(
-      color: Colors.grey.shade200, // Fondo blanco para los controles
+      color: Colors.grey.shade200,
       padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 16),
       child: isMobile
           ? Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    GoToPage(isMobile),
-                    //SizedBox(width: 10),
-                    Pages(isMobile, totalPages),
-                  ],
-                ),
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      PerPage(),
-                      SizedBox(width: 20),
-                      GoButton(totalPages, context),
-                    ])
+                _buildPageControls(isMobile),
+                const SizedBox(height: 4),
+                _buildSizeAndGoControls(isMobile),
               ],
             )
           : Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Botón "Anterior"
-                Pages(isMobile, totalPages),
-                SizedBox(width: 20),
-                // Campo para navegar a una página específica
-                GoToPage(isMobile),
-                SizedBox(width: 25),
-                // Campo para ajustar el número de elementos por página
-                PerPage(),
-
-                SizedBox(width: 30),
-                GoButton(totalPages, context),
+                _buildPerPageDropdown(),
+                const SizedBox(width: 15),
+                _buildPageControls(isMobile),
+                const SizedBox(width: 15),
+                _buildGoToPage(isMobile),
+                const SizedBox(width: 15),
+                _buildGoButton(),
               ],
             ),
     );
   }
 
-  SizedBox GoButton(int totalPages, BuildContext context) {
-    return SizedBox(
-      height: 35,
-      child: ElevatedButton(
-        onPressed: () {
-          final newPage = int.tryParse(_pageController.text);
-          if (newPage != null && newPage >= 1 && newPage <= totalPages) {
-            setState(() {
-              currentPage = newPage;
-              _pageController.text = currentPage.toString();
-            });
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Página inválida')),
-            );
-          }
-        },
-        child: Text('Ir'),
-        style: ElevatedButton.styleFrom(
-          foregroundColor: Colors.white,
-          backgroundColor: Colors.red[700],
-          padding: EdgeInsets.all(8),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(5),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Row Pages(bool isMobile, int totalPages) {
+  Widget _buildPageControls(bool isMobile) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: Colors.red[700],
-            size: isMobile ? 25 : 30,
-          ),
-          onPressed: currentPage > 1
-              ? () {
-                  setState(() {
-                    currentPage--;
-                    _pageController.text = currentPage.toString();
-                  });
-                }
+          icon: Icon(Icons.arrow_back, color: Colors.red[700]),
+          onPressed: widget.currentPage > 0
+              ? () => widget.onPageChanged(widget.currentPage - 1)
               : null,
         ),
-
-        // Texto "Página X de Y"
         Text(
-          'Página $currentPage de $totalPages',
+          // Si no hay páginas, muestra "Página 0 de 0", si no, suma 1 para el usuario.
+          'Página ${widget.totalPages == 0 ? 0 : widget.currentPage + 1} de ${widget.totalPages}',
           style: TextStyle(
-            fontSize: 16,
-            color: Colors.red[700],
-            fontWeight: FontWeight.bold,
-          ),
+              fontSize: 16,
+              color: Colors.red[700],
+              fontWeight: FontWeight.bold),
         ),
-
-        // Botón "Siguiente"
         IconButton(
-          icon: Icon(Icons.arrow_forward,
-              color: Colors.red[700], size: isMobile ? 25 : 30),
-          onPressed: currentPage < totalPages
-              ? () {
-                  setState(() {
-                    currentPage++;
-                    _pageController.text = currentPage.toString();
-                  });
-                }
+          icon: Icon(Icons.arrow_forward, color: Colors.red[700]),
+          onPressed: widget.currentPage < widget.totalPages - 1
+              ? () => widget.onPageChanged(widget.currentPage + 1)
               : null,
         ),
       ],
     );
   }
 
-  Row PerPage() {
+  Widget _buildGoToPage(bool isMobile) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          'Elementos por página:',
-          style: TextStyle(fontSize: 14, color: Colors.black87),
+        const Text('Ir a página:',
+            style: TextStyle(fontSize: 14, color: Colors.black87)),
+        const SizedBox(width: 10),
+        SizedBox(
+          height: 35,
+          width: 50,
+          child: TextFormField(
+            controller: _pageController,
+            textAlign: TextAlign.center,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            decoration: const InputDecoration(
+                contentPadding: EdgeInsets.symmetric(vertical: 2.0),
+                border: OutlineInputBorder()),
+            onFieldSubmitted: (value) => _goToPage(),
+          ),
         ),
-        SizedBox(width: 10),
-        DropdownButton<T>(
-          padding: EdgeInsets.symmetric(horizontal: 0),
-          value: itemsPerPage as T,
+      ],
+    );
+  }
+
+  Widget _buildPerPageDropdown() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        const Text('Elementos por página:',
+            style: TextStyle(fontSize: 14, color: Colors.black87)),
+        const SizedBox(width: 10),
+        DropdownButton<int>(
+          value: widget.itemsPerPage,
           onChanged: (value) {
-            setState(() {
-              itemsPerPage = value!;
-            });
+            if (value != null) {
+              widget.onItemsPerPageChanged(value);
+            }
           },
-          items: widget.items.map((T item) {
-            // Acceder a widget.items
-            return DropdownMenuItem<T>(
+          items: widget.availableItemsPerPage.map((int item) {
+            return DropdownMenuItem<int>(
               value: item,
-              child: SizedBox(child: Text(item.toString())),
+              child: Text(item.toString()),
             );
           }).toList(),
         ),
@@ -200,31 +177,35 @@ class _PaginationState<T extends int> extends State<Pagination<T>> {
     );
   }
 
-  Row GoToPage(isMobile) {
+  Widget _buildGoButton() {
+    return SizedBox(
+      height: 35,
+      child: ElevatedButton(
+        onPressed: _goToPage,
+        child: const Text('Ir'),
+        style: ElevatedButton.styleFrom(
+            foregroundColor: Colors.white,
+            backgroundColor: Colors.red[700],
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(5),
+            )),
+      ),
+    );
+  }
+
+  Widget _buildSizeAndGoControls(bool isMobile) {
     return Row(
-      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
-          'Ir a página:',
-          style: TextStyle(fontSize: 14, color: Colors.black87),
-        ),
-        SizedBox(width: 10),
-        SizedBox(
-          height: isMobile ? 40 : 35,
-          width: 40,
-          child: Align(
-            alignment: Alignment.center,
-            child: TextFormField(
-              controller: _pageController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                contentPadding: EdgeInsets.all(10),
-                border: OutlineInputBorder(),
-              ),
-            ),
-          ),
-        ),
-        SizedBox(width: 5),
+        _buildPerPageDropdown(),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildGoToPage(isMobile),
+            const SizedBox(width: 5),
+            _buildGoButton(),
+          ],
+        )
       ],
     );
   }

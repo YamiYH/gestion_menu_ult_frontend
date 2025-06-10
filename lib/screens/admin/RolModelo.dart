@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:gestion_menu_ult_frontend/utils/Validators.dart';
 import 'package:gestion_menu_ult_frontend/widgets/Button.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 
+import '../../controllers/RoleController.dart';
 import '../../widgets/CustomTextFormField.dart';
 import '../../widgets/MultiSelectAccessDropdown.dart';
 import '../../widgets/StatusCheckboxRow.dart'; // Ajusta la ruta
@@ -19,16 +21,19 @@ class RolModelo extends StatefulWidget {
 class _RolModeloState extends State<RolModelo> {
   final _formKey = GlobalKey<FormState>();
 
-  // Controladores
-
+  final RoleController _roleController = RoleController();
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
 
   // Variables desplegables
-  List<String> _selectedAccess = [];
-  String? _selectedStatus;
+  List<String> _selectedPermissions = [];
+  bool _isActive = true;
+  bool _isSaving = false;
 
-  // --- AÑADIDO: Variable para saber si estamos editando ---
+  List<String> _allAvailableModules = [];
+  bool _isLoadingModules = true; // Para mostrar un indicador de carga
+  String? _modulesError; // Para mostrar un mensaje de error si falla la carga
+
   bool get _isEditing => widget.initialData != null;
 
   @override
@@ -38,14 +43,14 @@ class _RolModeloState extends State<RolModelo> {
     if (_isEditing) {
       _nameController.text = widget.initialData!['name'] ?? '';
       _descriptionController.text = widget.initialData!['description'] ?? '';
-      // Asegurarse de que access sea una lista de Strings
-      _selectedAccess = List<String>.from(widget.initialData!['access'] ?? []);
-      _selectedStatus = widget.initialData![
-          'status']; // Asume que status siempre existe y es String?
+      _selectedPermissions =
+          List<String>.from(widget.initialData!['permissions'] ?? []);
+      _isActive = widget.initialData!['enabled'] ?? true;
     } else {
       //_selectedStatus = 'Activo'; // Ejemplo
-      _selectedAccess = [];
+      _selectedPermissions = [];
     }
+    _loadAvailableModules();
   }
 
   @override
@@ -55,25 +60,82 @@ class _RolModeloState extends State<RolModelo> {
     super.dispose();
   }
 
-  void _saveForm() {
-    if (_formKey.currentState?.validate() ?? false) {
-      // Crea el mapa de datos del rol (nuevo o actualizado)
+  Future<void> _loadAvailableModules() async {
+    try {
+      final modules = await _roleController.fetchModules();
+      if (mounted) {
+        setState(() {
+          // Añadimos "Todos" a la lista que viene de la API
+          _allAvailableModules = ['Todos', ...modules];
+          _isLoadingModules = false; // Terminamos la carga
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _modulesError = "Error al cargar accesos.";
+          _isLoadingModules = false; // Terminamos la carga (con error)
+        });
+      }
+      debugPrint("Error cargando módulos: $e");
+    }
+  }
+
+  // EN RolModelo.dart (EJEMPLO CORRECTO)
+
+// Asegúrate de que el método sea async
+  Future<void> _saveForm() async {
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      // Si el formulario no es válido, no hagas nada.
+      return;
+    }
+
+    // Opcional: Muestra un indicador de carga para que el usuario sepa que algo está pasando.
+    setState(() {
+      _isSaving = true; // Necesitarás declarar un bool _isSaving = false;
+    });
+
+    try {
       final rolData = {
-        // Si estamos editando, usa el ID existente, si no, genera uno nuevo
-        'id':
-            widget.initialData?['id'] ?? DateTime.now().millisecondsSinceEpoch,
+        'id': widget.initialData?['id'],
         'name': _nameController.text,
         'description': _descriptionController.text,
-        'access': _selectedAccess,
-        'status': _selectedStatus,
+        'enabled': _isActive,
+        'permissions': _selectedPermissions,
       };
-      print('Rol a guardar/actualizar: $rolData');
-      if (mounted) {
-        // --- AÑADIDO: Devolver los datos al hacer pop ---
-        Navigator.pop(context, rolData); // Devuelve el mapa con los datos
+
+      if (_isEditing) {
+        await _roleController.updateRole(rolData);
+      } else {
+        await _roleController.createRole(rolData);
       }
-    } else {
-      print('Formulario inválido');
+
+      // 3. Si todo fue bien, cierra la pantalla y devuelve el resultado.
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('Rol guardado exitosamente'),
+              backgroundColor: Colors.green),
+        );
+        Navigator.pop(context,
+            rolData); // Devuelve los datos para que la lista se refresque
+      }
+    } catch (e) {
+      // 4. Si hay un error, muéstralo y no cierres la pantalla.
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('Error al guardar el rol: $e'),
+              backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      // 5. Oculta el indicador de carga, tanto si hubo éxito como si hubo error.
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+      }
     }
   }
 
@@ -87,17 +149,16 @@ class _RolModeloState extends State<RolModelo> {
             onPressed: () => Navigator.pop(context),
             style: TextButton.styleFrom(foregroundColor: Colors.grey[600]),
             child: Text('Cancelar',
-                style: TextStyle(
-                    fontSize: isMobile ? 15 : 18)), // Ajuste de tamaño
+                style: TextStyle(fontSize: isMobile ? 15 : 18)),
           ),
           SizedBox(width: 15),
-          // Usando tu widget Button personalizado
+
           Button(
-              size: Size(isMobile ? 160 : 180, 45), // Tamaño ajustado
+              size: Size(isMobile ? 160 : 180, 45),
               onPressed: _saveForm,
               text: 'Guardar',
               icon: Icons.save_alt),
-          // SizedBox(height: 50) // Este SizedBox(height) en una Row no tiene sentido
+          // SizedBox(height: 50)
         ],
       ),
     );
@@ -149,48 +210,75 @@ class _RolModeloState extends State<RolModelo> {
         children: [
           SizedBox(height: 20),
           CustomTextFormField(
-            controller: _nameController,
+            controller: _descriptionController,
             labelText: 'Nombre de rol',
-            suffixIcon: Icon(Icons.person, color: Colors.grey[600]),
-            validator: (v) =>
-                (v == null || v.isEmpty) ? 'Campo requerido' : null,
+            suffixIcon: Icon(Icons.badge_outlined, color: Colors.grey[600]),
+            validator: Validators.personName,
             textInputAction: TextInputAction.next,
           ),
           SizedBox(height: 20),
           CustomTextFormField(
-            controller: _descriptionController,
-            labelText: 'Descripción',
-            suffixIcon: Icon(Icons.badge_outlined, color: Colors.grey[600]),
-            validator: (v) =>
-                (v == null || v.isEmpty) ? 'Campo requerido' : null,
+            controller: _nameController,
+            labelText: 'Nombre interno del sistema',
+            prefixText: 'ROLE_',
+            suffixIcon: Icon(Icons.person, color: Colors.grey[600]),
+            validator: Validators.roleNamePart,
             textInputAction: TextInputAction.next,
           ),
           SizedBox(height: 20),
-          MultiSelectAccessDropdown(
-            selectedValues: _selectedAccess,
-            onSelectionChanged: (List<String> newSelection) {
-              // Actualiza la lista en el estado del padre
-              setState(() {
-                _selectedAccess = newSelection;
-              });
-              // _formKey.currentState?.validate();
-            },
-            // Añade validación si es necesario
-            validator: (values) {
-              if (values == null || values.isEmpty) {
-                return 'Debe seleccionar al menos un acceso';
-              }
-              return null; // Es válido
-            },
-          ),
+          if (_isLoadingModules)
+            // Si está cargando, muestra este widget
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Row(
+                children: const [
+                  // Usamos const para mejor rendimiento
+                  SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2)),
+                  SizedBox(width: 15),
+                  Text('Cargando accesos...'),
+                ],
+              ),
+            )
+          else if (_modulesError != null)
+            // Si hay un error, muestra este otro widget
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Text(
+                _modulesError!,
+                style: const TextStyle(color: Colors.red), // Usamos const
+              ),
+            )
+          else
+            // Si la carga fue exitosa, muestra el Dropdown.
+            // Esta es la instanciación correcta del widget.
+            MultiSelectAccessDropdown(
+              label: 'Accesos',
+              allOptions: _allAvailableModules,
+              selectedValues: _selectedPermissions,
+              onSelectionChanged: (List<String> newSelection) {
+                setState(() {
+                  _selectedPermissions = newSelection;
+                });
+              },
+              validator: (values) {
+                if (values == null || values.isEmpty) {
+                  return 'Debe seleccionar al menos un acceso';
+                }
+                return null;
+              },
+            ),
           SizedBox(height: 20),
-
-          // Envuélvelo en Expanded si está en una Row con otro Expanded
           StatusCheckboxRow(
-            currentStatus: _selectedStatus, // Pasa el estado actual
-            onStatusChanged: (newStatus) {
+            label: 'Activo',
+            value: _isActive,
+            onChanged: (newValue) {
+              if (newValue == null) return;
+
               setState(() {
-                _selectedStatus = newStatus;
+                _isActive = newValue;
               });
             },
           ),

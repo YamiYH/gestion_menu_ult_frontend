@@ -3,7 +3,7 @@ import 'package:gestion_menu_ult_frontend/models/Login/UserLoginRequest.dart';
 import 'package:gestion_menu_ult_frontend/routes/PageRouteBuilder.dart';
 import 'package:gestion_menu_ult_frontend/screens/common/Options.dart';
 
-import '../../controllers/LoginController.dart';
+import '../../controllers/auth/LoginController.dart';
 
 class Login extends StatefulWidget {
   @override

@@ -377,23 +377,8 @@ class _GestionarTicketState extends State<GestionarTicket> {
                           SmallButton(
                             size: Size(isMobile ? 110 : 140, 40),
                             onPressed: () {
-                              // Asegúrate de que la pantalla Payment pueda recibir los datos del ticket
-                              // Ejemplo:
-                              // Navigator.push(
-                              //   context,
-                              //   createFadeRoute(
-                              //     Payment(
-                              //       ticketId: ticket['id'] ?? 'ID_DEFECTO', // Suponiendo que tienes un ID
-                              //       amount: ticket['price'] ?? 0.0, // Suponiendo que tienes un precio
-                              //       description: ticket['menu'] ?? 'Descripción por defecto',
-                              //     ),
-                              //   ),
-                              // );
-                              // Por ahora, uso tu llamada original que no pasa datos:
                               Navigator.push(
-                                  context,
-                                  createFadeRoute(
-                                      Payment())); // Payment() necesitará datos del ticket
+                                  context, createFadeRoute(Payment()));
                             },
                             text: 'Pagar',
                           ),

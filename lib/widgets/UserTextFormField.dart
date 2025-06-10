@@ -5,11 +5,16 @@ class UserTextFormField extends StatefulWidget {
   final Function(String)? onChanged;
   final TextEditingController? controller;
 
-  UserTextFormField({
+  final String? Function(String?)? validator;
+  final AutovalidateMode? autovalidateMode;
+
+  const UserTextFormField({
     super.key,
     required this.text,
     this.onChanged,
     this.controller,
+    this.validator,
+    this.autovalidateMode,
   });
 
   @override
@@ -39,6 +44,8 @@ class _UserTextFormFieldState extends State<UserTextFormField> {
               borderRadius: BorderRadius.circular(5)),
         ),
         onChanged: widget.onChanged,
+        validator: widget.validator,
+        autovalidateMode: widget.autovalidateMode,
       ),
     );
   }
