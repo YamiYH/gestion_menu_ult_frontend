@@ -22,13 +22,16 @@ class Help extends StatelessWidget {
       childrenPadding:
           const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       children: <Widget>[
-        Text(
-          content,
-          textAlign: TextAlign.justify, // Justifica el texto para mejor lectura
-          style: TextStyle(
-            fontSize: 16,
-            height: 1.5, // Espacio entre líneas
-            color: Theme.of(context).textTheme.bodyMedium?.color,
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            content,
+            textAlign: TextAlign.start,
+            style: TextStyle(
+              fontSize: 16,
+              height: 1.5, // Espacio entre líneas
+              color: Theme.of(context).textTheme.bodyMedium?.color,
+            ),
           ),
         ),
       ],
@@ -65,6 +68,19 @@ class Help extends StatelessWidget {
                 'a los diferentes módulos del sistema como Menú, Tickets y Administración, según su rol.',
           ),
 
+          const Divider(),
+
+          _buildHelpSection(
+            context,
+            icon: Icons.group,
+            title: 'Roles del sistema',
+            content:
+                'Administrador del sistema: Tiene acceso a todos los módulos del sistema.\n'
+                'Especialista: Tiene acceso a Menú, Inventario, Propuestas de Menú, Libro de Recetas, Ventas, Informe de Ventas, Tickets. \n'
+                'Contador: Tiene acceso a Menú, Inventario, Contabilidad, Ventas, Informe de Ventas, Tickets. \n'
+                'Técnico: Tiene acceso a Ventas. \n'
+                'Usuario: Solo tiene acceso a Tickets. \n',
+          ),
           const Divider(),
 
           _buildHelpSection(
@@ -171,17 +187,6 @@ class Help extends StatelessWidget {
                   'Ingredientes/Platos seleccionados: Un listado de los platos específicos que reservó.\n'
                   'Opción "CANCELAR RESERVA": Si aún está dentro del período permitido para cancelaciones (según la "Hora máxima para cancelación de tickets" configurada en el sistema, por ejemplo, antes de la 1:00 PM del día de la reserva), aparecerá un botón para cancelar la reserva. Al presionarlo, el ticket se eliminará de su lista.\n'
                   'Botón "CERRAR": Para cerrar la ventana de detalles.'),
-          const Divider(),
-          _buildHelpSection(
-            context,
-            icon: Icons.notifications_outlined,
-            title: 'Notificaciones',
-            content:
-                'El icono de campana en la barra de navegación superior muestra un contador de notificaciones no leídas. '
-                'Al hacer clic, se despliega un menú con las notificaciones recientes. La opción "Mostrar Todas" lleva a una '
-                'pantalla dedicada donde se listan todas las notificaciones. En esta pantalla, puede marcar notificaciones '
-                'como leídas (tocando sobre ellas) o eliminarlas (con confirmación previa).',
-          ),
           const Divider(),
           _buildHelpSection(
             context,

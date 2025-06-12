@@ -30,7 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  provider: ^6.0.0
+  provider: ^6.1.5
   http: ^1.3.0
   equatable:
   mobile_scanner: ^5.0.0

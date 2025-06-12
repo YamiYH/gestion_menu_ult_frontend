@@ -3,11 +3,12 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:gestion_menu_ult_frontend/controllers/BaseController.dart';
 import 'package:gestion_menu_ult_frontend/controllers/user/UserAuthContext.dart';
 import 'package:gestion_menu_ult_frontend/models/Inventory.dart'; // Asegúrate que la ruta sea correcta
 import 'package:http/http.dart' as http;
 
-class InventoryController {
+class InventoryController extends BaseController {
   // Estado y Filtros
   String? searchTerm;
   double? minQuantity;
@@ -18,10 +19,9 @@ class InventoryController {
   int totalPages = 1;
   int pageSize = 10;
 
-  // URL del endpoint del backend
-  final String _baseUrl =
-      'http://192.168.1.111:8887'; // Usa la IP correcta de tu backend
-  final String _endPoint = '/api/v1/products';
+  // Usa la IP correcta de tu backend
+  @override
+  final String endPoint = '/api/v1/products';
 
   Future<List<Inventory>> fetchProducts() async {
     String? token = await UserAuthContext.getJwtToken();
@@ -32,7 +32,7 @@ class InventoryController {
       'pageNo': currentPage.toString(),
       'pageSize': pageSize.toString(),
       'sortType': 'asc',
-      'sortBy': 'code',
+      'sortBy': 'description',
     };
 
     // Añade los filtros adicionales
@@ -48,7 +48,7 @@ class InventoryController {
     }
 
     var uri =
-        Uri.parse('$_baseUrl$_endPoint').replace(queryParameters: queryParams);
+        Uri.parse('$baseUrl$endPoint').replace(queryParameters: queryParams);
     debugPrint("Fetching products from: $uri");
 
     try {
@@ -84,6 +84,33 @@ class InventoryController {
     } catch (e) {
       debugPrint("Excepción en fetchProducts: $e");
       throw Exception("Excepción al conectar con el backend: $e");
+    }
+  }
+
+  Future<List<Inventory>> fetchFullListOfProducts() async {
+    Map<String, String> queryParams = {
+      'pageNo': '0',
+      'pageSize': '500',
+      'sortType': 'asc',
+      'sortBy': 'description',
+    };
+
+    try {
+      // Llama al método GET genérico de la clase padre
+      final responseData = await super.get(endPoint, queryParams: queryParams);
+
+      // Interpreta la respuesta JSON específica de este método
+      if (responseData is Map<String, dynamic> &&
+          responseData.containsKey('content')) {
+        List<dynamic> productListJson = responseData['content'];
+        super.totalPages = responseData['totalPages'] ?? 1;
+        super.currentPage = responseData['number'] ?? 0;
+        return productListJson.map((data) => Inventory.fromJson(data)).toList();
+      } else {
+        throw Exception("Formato de respuesta de productos inesperado.");
+      }
+    } catch (e) {
+      rethrow;
     }
   }
 }

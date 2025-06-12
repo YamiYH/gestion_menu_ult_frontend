@@ -4,19 +4,28 @@ class BuildCard extends StatelessWidget {
   final String title;
   final IconData icon;
   final VoidCallback onTap;
+  final bool isEnabled;
 
   const BuildCard({
     super.key,
     required this.title,
     required this.icon,
     required this.onTap,
+    this.isEnabled = true,
   });
 
   @override
   Widget build(BuildContext context) {
     bool isMobile = MediaQuery.of(context).size.width < 600;
+
+    // --- AÑADIDO: Definimos los colores basados en el estado ---
+    final Color activeColor = Colors.red[900]!;
+    final Color disabledColor = Colors.grey.shade600;
+    final Color currentColor = isEnabled ? activeColor : disabledColor;
+
     return MouseRegion(
-      cursor: SystemMouseCursors.click,
+      cursor:
+          isEnabled ? SystemMouseCursors.click : SystemMouseCursors.forbidden,
       child: GestureDetector(
         onTap: onTap,
         child: Card(
@@ -34,7 +43,7 @@ class BuildCard extends StatelessWidget {
                   icon,
                   size:
                       isMobile ? 40 : MediaQuery.of(context).size.width * 0.03,
-                  color: Colors.red[900],
+                  color: currentColor,
                 ),
                 const SizedBox(height: 10),
                 Text(
@@ -45,7 +54,7 @@ class BuildCard extends StatelessWidget {
                         ? 16
                         : MediaQuery.of(context).size.width * 0.015,
                     fontWeight: FontWeight.bold,
-                    color: Colors.red[900],
+                    color: currentColor,
                   ),
                 ),
               ],

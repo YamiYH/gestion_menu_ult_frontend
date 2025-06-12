@@ -6,13 +6,15 @@ class RoleEntity {
   final String description;
   final List<String> permissions;
   final bool enabled;
+  final bool deletable;
 
   RoleEntity(
       {this.id,
       required this.name,
       required this.description,
       required this.permissions,
-      required this.enabled});
+      required this.enabled,
+      required this.deletable});
 
   // Constructor desde JSON
   factory RoleEntity.fromJson(Map<String, dynamic> json) {
@@ -26,6 +28,7 @@ class RoleEntity {
       description: json['description'] as String? ?? 'Sin Descripción',
       permissions: parsedPermissions,
       enabled: json['enabled'],
+      deletable: json['deletable'],
     );
   }
 

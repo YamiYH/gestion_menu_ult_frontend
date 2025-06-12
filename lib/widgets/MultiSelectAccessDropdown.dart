@@ -1,31 +1,17 @@
 import 'package:flutter/material.dart';
 
-/// Un widget que simula un Dropdown pero permite selección múltiple con checkboxes en un diálogo.
-/// Incluye una opción "Todos" que actúa como "Seleccionar/Deseleccionar Todo".
 class MultiSelectAccessDropdown extends StatefulWidget {
-  /// La lista de valores (strings) actualmente seleccionados (NO debe incluir "Todos").
   final List<String> selectedValues;
-
-  /// Callback que se ejecuta cuando la selección cambia. Devuelve la nueva lista de seleccionados (sin "Todos").
   final ValueChanged<List<String>> onSelectionChanged;
-
-  /// La lista de todas las opciones posibles a mostrar (DEBE incluir "Todos").
   final List<String> allOptions;
-
-  /// Etiqueta a mostrar encima o junto al control (estilo FormField).
   final String label;
-
-  /// Texto a mostrar en el botón cuando no hay nada seleccionado o como placeholder.
   final String buttonHint;
-
-  /// Validador opcional para usar con Forms.
   final FormFieldValidator<List<String>>? validator;
 
   const MultiSelectAccessDropdown({
     super.key,
     required this.selectedValues,
     required this.onSelectionChanged,
-    // Asegúrate que esta lista incluya "Todos"
     this.allOptions = const [],
     this.label = 'Accesos',
     this.buttonHint = 'Seleccionar...',
@@ -38,12 +24,9 @@ class MultiSelectAccessDropdown extends StatefulWidget {
 }
 
 class _MultiSelectAccessDropdownState extends State<MultiSelectAccessDropdown> {
-  // --- Muestra el diálogo de selección múltiple (CON LÓGICA "TODOS") ---
-  void _showMultiSelectDialog() async {
-    // Copia la lista actual para modificarla temporalmente en el diálogo
+  void _showMultiSelectDialog(FormFieldState<List<String>> field) async {
     List<String> temporarySelectedValues = List.from(widget.selectedValues);
     const String todosOption = "Todos";
-    // Lista de opciones reales (excluyendo "Todos") para la lógica interna
     final List<String> otherOptions =
         widget.allOptions.where((opt) => opt != todosOption).toList();
 
@@ -67,7 +50,6 @@ class _MultiSelectAccessDropdownState extends State<MultiSelectAccessDropdown> {
               return SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  // Crea un CheckboxListTile para cada opción de widget.allOptions
                   children: widget.allOptions.map((option) {
                     final bool isCurrentOptionTodos = (option == todosOption);
 
@@ -78,35 +60,25 @@ class _MultiSelectAccessDropdownState extends State<MultiSelectAccessDropdown> {
                         option,
                         style: TextStyle(fontSize: 15),
                       ),
-                      // --- Valor del Checkbox ---
                       value: isCurrentOptionTodos
-                          ? isTodosChecked // "Todos" usa el valor calculado
+                          ? isTodosChecked
                           : temporarySelectedValues.contains(option),
                       onChanged: (bool? isChecked) {
-                        // Actualiza usando el setState del diálogo!
                         dialogSetState(() {
                           if (isCurrentOptionTodos) {
-                            // --- Si se hizo clic en "Todos" ---
                             if (isChecked == true) {
-                              // Seleccionar Todo: Añade todas las *otras* opciones
                               temporarySelectedValues.addAll(otherOptions);
-                              // Asegurar que no haya duplicados
+
                               temporarySelectedValues =
                                   temporarySelectedValues.toSet().toList();
                             } else {
-                              // Deseleccionar Todo: Limpiar la lista
                               temporarySelectedValues.clear();
                             }
                           } else {
-                            // --- Si se hizo clic en OTRA opción ---
                             if (isChecked == true) {
-                              temporarySelectedValues
-                                  .add(option); // Añade la opción
-                              // No es necesario tocar "Todos" aquí, se recalculará solo
+                              temporarySelectedValues.add(option);
                             } else {
-                              temporarySelectedValues
-                                  .remove(option); // Quita la opción
-                              // Al quitar una, "Todos" se desmarcará solo en el recalculado
+                              temporarySelectedValues.remove(option);
                             }
                           }
                         });
@@ -143,11 +115,12 @@ class _MultiSelectAccessDropdownState extends State<MultiSelectAccessDropdown> {
                   onPressed: () {
                     List<String> finalSelection = temporarySelectedValues
                         .where((opt) => opt != todosOption)
-                        .toSet() // Quita duplicados
+                        .toSet()
                         .toList();
 
+                    field.didChange(finalSelection);
                     widget.onSelectionChanged(finalSelection);
-                    Navigator.of(context).pop(); // Cierra guardando cambios
+                    Navigator.of(context).pop();
                   },
                 ),
               ],
@@ -198,7 +171,7 @@ class _MultiSelectAccessDropdownState extends State<MultiSelectAccessDropdown> {
                 const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
           ),
           child: InkWell(
-            onTap: _showMultiSelectDialog,
+            onTap: () => _showMultiSelectDialog(field),
             child: Container(
               height: 30,
               alignment: Alignment.centerLeft,

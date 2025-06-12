@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/models/Login/UserLoginRequest.dart';
 import 'package:gestion_menu_ult_frontend/routes/PageRouteBuilder.dart';
-import 'package:gestion_menu_ult_frontend/screens/common/Options.dart';
+import 'package:gestion_menu_ult_frontend/screens/ticket/GestionarTicket.dart';
+import 'package:provider/provider.dart';
 
 import '../../controllers/auth/LoginController.dart';
+import '../../providers/ProfileProvider.dart';
+import 'Options.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -19,38 +22,65 @@ class _LoginState extends State<Login> {
   bool _isLoading = false;
   bool _isPasswordVisible = false;
 
-  void _login() {
-    if (_formKey.currentState!.validate()) {
-      String user = _usernameController.text;
-      String password = _passwordController.text;
-
-      print('User: $user');
-      print('Password: $password');
-    }
-  }
-
   Future<void> _handleLogin() async {
+    FocusScope.of(context).unfocus();
+
+    // Valida el formulario antes de continuar
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+
     setState(() {
       _isLoading = true;
     });
 
-    final user = UserLoginRequest(
-      username: _usernameController.text,
-      password: _passwordController.text,
-    );
+    try {
+      final user = UserLoginRequest(
+        username: _usernameController.text.trim(),
+        password: _passwordController.text,
+      );
+      final bool loginSuccess = await _loginController.login(user);
 
-    final success = await _loginController.login(user);
+      if (loginSuccess && mounted) {
+        final profileProvider =
+            Provider.of<ProfileProvider>(context, listen: false);
 
-    setState(() {
-      _isLoading = false;
-      if (success) {
-        Navigator.push(context, createFadeRoute(Options()));
+        await profileProvider.fetchUserProfile(user.username);
+
+        final destinationScreen = _getDestinationScreen(profileProvider);
+
+        if (mounted) {
+          Navigator.pushReplacement(
+              context, createFadeRoute(destinationScreen));
+        }
       } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Credenciales inválidas.')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al iniciar sesión')),
+          SnackBar(content: Text('Error al iniciar sesión: ${e.toString()}')),
         );
       }
-    });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Widget _getDestinationScreen(ProfileProvider profileProvider) {
+    final String userRole = profileProvider.userProfile?.role ?? '';
+
+    if (userRole.toLowerCase() == 'usuario') {
+      return GestionarTicket();
+    } else {
+      return Options();
+    }
   }
 
   @override

@@ -80,8 +80,6 @@ abstract class BaseController {
     return _processResponse(response);
   }
 
-  // --- MÉTODOS PRIVADOS DE AYUDA ---
-
   // Centraliza la obtención del token y la creación de headers
   Future<Map<String, String>> _getAuthenticatedHeaders() async {
     String? token = await UserAuthContext.getJwtToken();
@@ -99,10 +97,6 @@ abstract class BaseController {
 
   // Centraliza el procesamiento de la respuesta HTTP
   dynamic _processResponse(http.Response response) {
-    debugPrint("Response Status Code: ${response.statusCode}");
-    debugPrint(
-        "Response Body: ${response.body}"); // Descomenta para depurar cuerpos de respuesta
-
     if (response.statusCode >= 200 && response.statusCode < 300) {
       if (response.bodyBytes.isEmpty) {
         // Para respuestas como 204 No Content que no tienen cuerpo

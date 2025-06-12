@@ -3,12 +3,13 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:gestion_menu_ult_frontend/controllers/BaseController.dart';
 import 'package:gestion_menu_ult_frontend/controllers/user/UserAuthContext.dart';
 import 'package:gestion_menu_ult_frontend/models/Logs.dart'; // Asegúrate que la ruta sea correcta
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
-class LogsController {
+class LogsController extends BaseController {
   // --- ESTADO DE FILTROS ---
   String? searchUser;
   DateTime? startDateFilter;
@@ -24,8 +25,8 @@ class LogsController {
 
   List<Log> _allLogs = [];
 
-  final String _baseUrl = "http://192.168.1.111:8887"; // IP de tu backend
-  final String _endPoint = "/api/v1/logs";
+  @override
+  final String endPoint = "/api/v1/logs";
 
   List<Log> get filteredLogs => _allLogs;
 
@@ -60,10 +61,11 @@ class LogsController {
     }
     if (startDateFilter != null) {
       queryParams['startDate'] =
-          DateFormat('yyyy-MM-dd').format(startDateFilter!);
+          DateFormat("yyyy-MM-dd'T'HH:mm:ss").format(startDateFilter!);
     }
     if (endDateFilter != null) {
-      queryParams['endDate'] = DateFormat('yyyy-MM-dd').format(endDateFilter!);
+      queryParams['endDate'] =
+          DateFormat("yyyy-MM-dd'T'HH:mm:ss").format(endDateFilter!);
     }
     if (selectedModuleFilter != 'Todos') {
       queryParams['module'] = selectedModuleFilter;
@@ -74,7 +76,7 @@ class LogsController {
     }
 
     var uri =
-        Uri.parse('$_baseUrl$_endPoint').replace(queryParameters: queryParams);
+        Uri.parse('$baseUrl$endPoint').replace(queryParameters: queryParams);
     debugPrint("Fetching logs from: $uri");
 
     try {
@@ -112,5 +114,27 @@ class LogsController {
   // El método applyFilters ahora solo necesita llamar a fetch para que el backend filtre.
   Future<void> applyFilters() async {
     await fetchLogsFromBackend();
+  }
+
+  Future<List<String>> fetchActions() async {
+    try {
+      final responseData = await super.get('/api/v1/metadata/log/actions');
+      final actionsList =
+          List<String>.from((responseData as List).map((t) => t.toString()));
+      return actionsList;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<String>> fetchLogTypes() async {
+    try {
+      final responseData = await super.get('/api/v1/metadata/log/types');
+      final logTypesList =
+          List<String>.from((responseData as List).map((t) => t.toString()));
+      return logTypesList;
+    } catch (e) {
+      rethrow;
+    }
   }
 }

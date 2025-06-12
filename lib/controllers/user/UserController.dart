@@ -1,7 +1,7 @@
 // lib/controllers/user/UserController.dart
 
 import '../../models/UserEntity.dart';
-import '../BaseController.dart'; // Importa la clase padre
+import '../BaseController.dart';
 
 class UserController extends BaseController {
   @override
@@ -78,6 +78,16 @@ class UserController extends BaseController {
       final typesList =
           List<String>.from((responseData as List).map((t) => t.toString()));
       return typesList;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<User> getByUsername(String username) async {
+    try {
+      // Llama al método DELETE genérico, construyendo la ruta completa del recurso
+      final responseData = await super.getById('$endPoint/$username');
+      return User.fromJson(responseData);
     } catch (e) {
       rethrow;
     }

@@ -90,28 +90,46 @@ class _RolesState extends State<Roles> {
       createFadeRoute(RolModelo(initialData: roleData.toJson())),
     );
     if (result != null && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Refrescando lista para ver cambios...')),
-      );
       _loadRoles();
     }
   }
 
   void _deleteRole(String roleId, String roleName) async {
+    // Muestra el diálogo de confirmación
     await showConfirmDeleteDialog(
       context: context,
       itemName: roleName,
       itemType: 'el rol',
-      onConfirm: () {
-        setState(() {
-          _roles.removeWhere((role) => role.id == roleId);
-          _controller.deleteRole(roleId);
-          _applyAllFilters();
-        });
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Rol "$roleName" eliminado.')),
-          );
+      // El callback onConfirm ahora es ASÍNCRONO
+      onConfirm: () async {
+        if (!mounted) return;
+
+        try {
+          // 1. Llama al controlador y ESPERA a que se complete el borrado en el backend
+          await _controller.deleteRole(roleId);
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Rol "$roleName" eliminado correctamente.'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
+
+          // 2. ¡EL PASO CLAVE! Llama a _loadRoles para refrescar TODA la data.
+          // Esto traerá la nueva lista y la nueva información de paginación.
+          _loadRoles();
+        } catch (e) {
+          // 3. Si algo falla durante el borrado, informa al usuario.
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Error al eliminar el rol: ${e.toString()}'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
         }
       },
     );
@@ -221,15 +239,26 @@ class _RolesState extends State<Roles> {
             height: 25,
           ),
           AddButton(
-            onPressed: () {
-              Navigator.push(context, createFadeRoute(RolModelo()));
-            },
+            onPressed: _addRole,
             text: 'Rol',
             size: const Size(125, 40),
           )
         ],
       ),
     );
+  }
+
+  void _addRole() async {
+    // Usamos el mismo patrón async/await que en la edición
+    final result = await Navigator.push(
+      context,
+      createFadeRoute(RolModelo()), // Llama al formulario en modo "Creación"
+    );
+
+    // Si el formulario de creación se guardó y devolvió un resultado, refrescamos la lista
+    if (result != null && mounted) {
+      _loadRoles();
+    }
   }
 
   Widget _buildRoleRow(RoleEntity role) {
@@ -258,19 +287,50 @@ class _RolesState extends State<Roles> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                IconButton(
-                  icon: const Icon(Icons.edit, color: Colors.grey),
-                  onPressed: () {
-                    _editRole(role);
-                  },
+                Tooltip(
+                  // El mensaje cambia según la condición.
+                  message: role.deletable
+                      ? 'Editar rol'
+                      : 'Este rol es esencial y no se puede editar',
+
+                  child: IconButton(
+                    // El color del ícono también cambia.
+                    icon: Icon(Icons.edit,
+                        color:
+                            role.deletable ? Colors.blueAccent : Colors.grey),
+
+                    // La lógica de onPressed se mantiene igual.
+                    onPressed: role.deletable
+                        ? () {
+                            _editRole(role);
+                          }
+                        : null, // <-- Deshabilitado si no se cumple la condición
+                  ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: () {
-                    if (role.id != null) {
-                      _deleteRole(role.id!, role.name);
-                    }
-                  },
+                Tooltip(
+                  // El mensaje cambia según la condición.
+                  message: role.deletable
+                      ? 'Eliminar rol'
+                      : 'Este rol es esencial y no se puede eliminar',
+
+                  child: IconButton(
+                    // El color del ícono también cambia.
+                    icon: Icon(
+                      Icons.delete,
+                      color: role.deletable
+                          ? Colors.red
+                          : Colors.grey, // <-- Color condicional
+                    ),
+
+                    // La lógica de onPressed se mantiene igual.
+                    onPressed: role.deletable
+                        ? () {
+                            if (role.id != null) {
+                              _deleteRole(role.id!, role.name);
+                            }
+                          }
+                        : null, // <-- Deshabilitado si no se cumple la condición
+                  ),
                 ),
               ],
             ),
@@ -336,7 +396,7 @@ class _RolesState extends State<Roles> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.edit, color: Colors.grey),
+                    icon: const Icon(Icons.edit, color: Colors.blueAccent),
                     onPressed: () {
                       _editRole(role);
                     },

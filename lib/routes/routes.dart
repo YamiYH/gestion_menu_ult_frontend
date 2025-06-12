@@ -17,7 +17,6 @@ import '../screens/admin/Logs.dart';
 import '../screens/admin/RolModelo.dart';
 import '../screens/admin/Roles.dart';
 import '../screens/common/Login.dart';
-import '../screens/common/Notifications.dart';
 import '../screens/common/Options.dart';
 import '../screens/common/Perfil.dart';
 import '../screens/menu/Inventario.dart';
@@ -82,7 +81,6 @@ class AppRoutes {
       userModelo: (context) => UserModelo(),
       rolModelo: (context) => RolModelo(),
       perfil: (context) => Perfil(),
-      notifications: (context) => Notifications(),
       contabilidad: (context) => Contabilidad(),
       aprobarMenu: (context) => AprobarMenu(),
       help: (context) => Help()

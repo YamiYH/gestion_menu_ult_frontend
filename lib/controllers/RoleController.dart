@@ -12,7 +12,7 @@ class RoleController extends BaseController {
       'pageNo': super.currentPage.toString(),
       'pageSize': super.pageSize.toString(),
       'sortType': 'asc',
-      'sortBy': 'name',
+      'sortBy': 'deletable',
     };
 
     try {

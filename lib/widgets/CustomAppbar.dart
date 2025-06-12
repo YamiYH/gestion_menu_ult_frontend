@@ -2,18 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/routes/PageRouteBuilder.dart';
 import 'package:gestion_menu_ult_frontend/screens/common/Help.dart';
 import 'package:gestion_menu_ult_frontend/screens/common/Login.dart';
-import 'package:gestion_menu_ult_frontend/screens/common/Notifications.dart';
+import 'package:provider/provider.dart';
 
 import '../controllers/auth/LoginController.dart';
+import '../providers/ProfileProvider.dart';
 import '../screens/common/Perfil.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final String userName = 'Yamilet Yero'; // Nombre del usuario logeado
-  final List<String> notifications = [
-    'Propuesta de menú esperando aprobación',
-    'Propuesta de menú aprobada',
-    'Reserva de tickets disponible',
-  ]; // Lista de notificaciones
   final String title;
   final PreferredSizeWidget? bottom;
 
@@ -25,11 +20,25 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final profileProvider = Provider.of<ProfileProvider>(context);
+    final user = profileProvider.userProfile;
     bool isMobile = MediaQuery.of(context).size.width < 600;
+    final bool canGoBack = Navigator.canPop(context);
+
     return AppBar(
       iconTheme: IconThemeData(color: Colors.white),
       backgroundColor: Colors.red[900],
       titleSpacing: 0,
+
+      automaticallyImplyLeading: false,
+
+      // 3. Definimos el widget 'leading' con nuestra lógica condicional.
+      leading: canGoBack
+          ? const BackButton(
+              color: Colors.white) // Si podemos volver, muestra el botón.
+          : const SizedBox(width: 56.0),
+      // Si no, muestra un espacio invisible del mismo ancho.
+
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -49,7 +58,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                             ? 80
                             : MediaQuery.of(context).size.width * 0.1,
                         child: Text(
-                          userName,
+                          user?.name ?? 'Cargando...',
                           overflow: TextOverflow.clip,
                           style: TextStyle(
                             color: Colors.white,
@@ -82,85 +91,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     icon: Icon(Icons.help_outline)),
                 //SizedBox(width: isMobile ? 10 : 20),
                 PopupMenuButton<String>(
-                  position: PopupMenuPosition.under,
-                  tooltip: 'Mostrar notificaciones',
-                  onSelected: (String value) {
-                    if (value == 'view_all') {
-                      Navigator.push(
-                          context,
-                          createFadeRoute(
-                              Notifications())); // Navegar a la pantalla de todas las notificaciones
-                    }
-                  },
-                  itemBuilder: (context) => [
-                    ...notifications.map((notification) {
-                      return PopupMenuItem<String>(
-                        value: notification,
-                        child: Text(notification,
-                            maxLines: 1, overflow: TextOverflow.ellipsis),
-                      );
-                    }).toList(),
-                    const PopupMenuDivider(),
-                    PopupMenuItem<String>(
-                      value: 'view_all',
-                      child: Text('Mostrar Todas'),
-                    ),
-                  ],
-                  child: Builder(
-                    builder: (buttonContext) {
-                      final int unreadCount = notifications.length;
-
-                      return Stack(
-                        clipBehavior: Clip.none,
-                        alignment: Alignment.center,
-                        children: <Widget>[
-                          Icon(
-                            Icons.notifications,
-                            color: Colors.white,
-                            size: isMobile ? 22 : 25,
-                          ),
-                          if (unreadCount >
-                              0) // Solo se muestra si hay notificaciones sin leer
-                            Positioned(
-                              top: -4,
-                              right: -2,
-                              child: Container(
-                                padding:
-                                    EdgeInsets.all(unreadCount > 9 ? 3 : 2),
-                                // Padding un poco mayor para '9+'
-                                decoration: BoxDecoration(
-                                  color: Colors.red, // Color típico para badges
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                      color: Colors.white,
-                                      width: 1.5), // Borde opcional
-                                ),
-                                constraints: const BoxConstraints(
-                                  minWidth: 18, // Ancho mínimo
-                                  minHeight: 18, // Alto mínimo
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    // Muestra el número o '9+' si son demasiadas
-                                    unreadCount > 9 ? '9+' : '$unreadCount',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
-                                      height:
-                                          1.1, // Ajuste fino de altura de línea
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ),
-                            )
-                        ],
-                      );
-                    },
-                  ),
-                ),
-                PopupMenuButton<String>(
                   onSelected: (value) {
                     if (value == 'profile') {
                       Navigator.push(context,
@@ -190,7 +120,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ],
       ),
-      //bottom: bottom,
+      bottom: bottom,
     );
   }
 
@@ -207,36 +137,32 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             TextButton(
               style: TextButton.styleFrom(foregroundColor: Colors.grey[700]),
               onPressed: () async {
-                final LoginController loginController =
-                    LoginController(); // O obtén la instancia
+                final LoginController loginController = LoginController();
                 await loginController.logout();
-                // Navegar a la pantalla de login y remover todas las rutas anteriores
+                Provider.of<ProfileProvider>(context, listen: false)
+                    .clearProfile();
+
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(builder: (context) => Login()),
-                  (Route<dynamic> route) =>
-                      false, // Esto elimina todas las rutas anteriores de la pila
-                ); // Cerrar el diálogo
+                  (Route<dynamic> route) => false,
+                );
               },
               child: Text(
                 'ACEPTAR',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: isMobile ? 14 : 16,
-                  color: Colors.grey.shade700,
+                  color: Colors.red.shade700,
                 ),
               ),
             ),
             TextButton(
               onPressed: () {
                 Navigator.pop(context); // Cerrar el diálogo
-                Navigator.push(
-                    context,
-                    createFadeRoute(
-                        Login())); // Ir a la pantalla de inicio de sesión
               },
               child: Text('CANCELAR',
                   style: TextStyle(
-                      color: Colors.red.shade700,
+                      color: Colors.grey.shade700,
                       fontWeight: FontWeight.bold,
                       fontSize: isMobile ? 14 : 16)),
             ),

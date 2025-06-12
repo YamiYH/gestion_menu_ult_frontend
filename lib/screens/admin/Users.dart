@@ -487,8 +487,7 @@ class _UsersState extends State<Users> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   IconButton(
-                    icon:
-                        Icon(Icons.edit, color: Colors.grey.shade500, size: 20),
+                    icon: Icon(Icons.edit, color: Colors.blueAccent, size: 20),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                     onPressed: () {
@@ -516,7 +515,7 @@ class _UsersState extends State<Users> {
       child: Row(
         children: [
           SizedBox(width: MediaQuery.of(context).size.width * 0.01),
-          _user(user.username, 0.1), // Se muestra el email como 'Usuario'
+          _user(user.username, 0.1),
           _user(user.name, 0.15),
           _user(user.lastName, 0.15),
           _user(user.email, 0.15),
@@ -530,7 +529,7 @@ class _UsersState extends State<Users> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 IconButton(
-                  icon: Icon(Icons.edit, color: Colors.grey.shade500),
+                  icon: Icon(Icons.edit, color: Colors.blueAccent),
                   onPressed: () {
                     _editUser(user);
                   },

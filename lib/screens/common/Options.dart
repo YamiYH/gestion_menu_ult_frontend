@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/screens/admin/ModulosAdmin.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/ModulosMenu.dart';
 import 'package:gestion_menu_ult_frontend/screens/ticket/GestionarTicket.dart';
+import 'package:gestion_menu_ult_frontend/widgets/ProtectedWidget.dart';
+import 'package:provider/provider.dart';
 
+import '../../providers/ProfileProvider.dart';
 import '../../routes/PageRouteBuilder.dart';
 import '../../widgets/BuildCard.dart';
 import '../../widgets/CustomAppbar.dart';
@@ -12,6 +15,9 @@ class Options extends StatelessWidget {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     bool isMobile = screenWidth < 600;
+
+    final userPermissions =
+        Provider.of<ProfileProvider>(context).userProfile?.permissions ?? [];
 
     return Scaffold(
       appBar: CustomAppBar(title: ''),
@@ -31,7 +37,7 @@ class Options extends StatelessWidget {
                 ? Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
-                      children: _buildWidgetList(context),
+                      children: _buildWidgetList(context, userPermissions),
                     ),
                   )
                 : GridView.builder(
@@ -44,9 +50,11 @@ class Options extends StatelessWidget {
                       mainAxisSpacing: MediaQuery.of(context).size.width * 0.03,
                       childAspectRatio: 2.5,
                     ),
-                    itemCount: _buildWidgetList(context).length,
+                    itemCount:
+                        _buildWidgetList(context, userPermissions).length,
                     itemBuilder: (context, index) {
-                      return _buildWidgetList(context).elementAt(index);
+                      return _buildWidgetList(context, userPermissions)
+                          .elementAt(index);
                     },
                   ),
           ),
@@ -55,21 +63,21 @@ class Options extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildWidgetList(BuildContext context) {
+  List<Widget> _buildWidgetList(
+      BuildContext context, List<String> userPermissions) {
     return [
-      Container(
-        padding: EdgeInsets.all(5),
-        child: BuildCard(
-          title: 'Menú',
-          icon: Icons.restaurant_menu,
-          onTap: () {
-            Navigator.push(
-              context,
-              createFadeRoute(
-                ModulosMenu(),
-              ),
-            );
-          },
+      ProtectedWidget(
+        requiredPermission: 'Menu',
+        child: Container(
+          padding: EdgeInsets.all(5),
+          child: BuildCard(
+            title: 'Menú',
+            icon: Icons.restaurant_menu,
+            isEnabled: userPermissions.contains('Menu'),
+            onTap: () {
+              Navigator.push(context, createFadeRoute(ModulosMenu()));
+            },
+          ),
         ),
       ),
       Container(
@@ -82,14 +90,18 @@ class Options extends StatelessWidget {
           },
         ),
       ),
-      Container(
-        padding: EdgeInsets.all(5),
-        child: BuildCard(
-          title: 'Administración',
-          icon: Icons.admin_panel_settings,
-          onTap: () {
-            Navigator.push(context, createFadeRoute(ModulosAdmin()));
-          },
+      ProtectedWidget(
+        requiredPermission: 'Administrador',
+        child: Container(
+          padding: EdgeInsets.all(5),
+          child: BuildCard(
+            title: 'Administración',
+            icon: Icons.admin_panel_settings,
+            isEnabled: userPermissions.contains('Administrador'),
+            onTap: () {
+              Navigator.push(context, createFadeRoute(ModulosAdmin()));
+            },
+          ),
         ),
       ),
     ];

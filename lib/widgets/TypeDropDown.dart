@@ -14,7 +14,7 @@ class TypeDropDown extends StatefulWidget {
     required this.selectedValue,
     required this.onChanged,
     this.validator,
-    this.label = 'Tipo', // Etiqueta por defecto
+    this.label = 'Tipo',
   }) : super(key: key);
 
   @override
@@ -22,14 +22,12 @@ class TypeDropDown extends StatefulWidget {
 }
 
 class _TypeDropDownState extends State<TypeDropDown> {
-  // El estado ahora se maneja aquí, dentro de la clase State
   final UserController _userController = UserController();
   late Future<List<String>> _fetchTypesFuture;
 
   @override
   void initState() {
     super.initState();
-    // Iniciamos la carga de datos una sola vez cuando el widget se crea
     _fetchTypesFuture = _loadTypeNames();
   }
 
@@ -37,10 +35,9 @@ class _TypeDropDownState extends State<TypeDropDown> {
   Future<List<String>> _loadTypeNames() async {
     try {
       final typeNames = await _userController.fetchUserTypes();
-      // Añadimos la opción "Todos" al principio, ideal para filtros
+
       return ['Todos', ...typeNames];
     } catch (e) {
-      // Si hay un error, lo lanzamos para que el FutureBuilder lo capture
       debugPrint("Error cargando tipos de usuario para el dropdown: $e");
       throw Exception("No se pudieron cargar los tipos");
     }
@@ -48,7 +45,6 @@ class _TypeDropDownState extends State<TypeDropDown> {
 
   @override
   Widget build(BuildContext context) {
-    // Usamos un FutureBuilder para manejar los estados de carga, error y éxito
     return FutureBuilder<List<String>>(
       future: _fetchTypesFuture,
       builder: (context, snapshot) {
@@ -68,7 +64,7 @@ class _TypeDropDownState extends State<TypeDropDown> {
               ],
             ),
             items: const [],
-            onChanged: null, // Deshabilitado mientras carga
+            onChanged: null,
           );
         }
 
@@ -106,7 +102,6 @@ class _TypeDropDownState extends State<TypeDropDown> {
             );
           }).toList(),
           onChanged: widget.onChanged,
-          // Notifica al widget padre
           validator: widget.validator,
         );
       },

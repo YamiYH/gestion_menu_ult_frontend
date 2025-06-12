@@ -1,15 +1,41 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
+import 'package:gestion_menu_ult_frontend/controllers/InventoryController.dart';
+import 'package:gestion_menu_ult_frontend/models/Inventory.dart';
+import 'package:gestion_menu_ult_frontend/widgets/AddButton.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
-import 'package:gestion_menu_ult_frontend/widgets/RecipeTextField.dart';
-import 'package:http/http.dart' as http;
+import 'package:gestion_menu_ult_frontend/widgets/CustomTextFormField.dart';
 
+import '../../controllers/RecipeController.dart';
+import '../../models/Recipe.dart';
+import '../../utils/Validators.dart';
 import '../../widgets/Button.dart';
 
+// Clase auxiliar para gestionar los datos de cada fila de ingrediente
+class IngredientRowData {
+  String? product;
+  String? ingredientId; // Almacena el ID del producto seleccionado
+  final TextEditingController productController;
+  final TextEditingController weightController;
+  final TextEditingController netWeightController;
+
+  IngredientRowData({
+    this.product,
+    this.ingredientId,
+    required this.productController,
+    required this.weightController,
+    required this.netWeightController,
+  });
+
+  void dispose() {
+    productController.dispose();
+    weightController.dispose();
+    netWeightController.dispose();
+  }
+}
+
 class RecetaModelo extends StatefulWidget {
-  final Map<String, dynamic>? receta;
   final bool isEditMode;
+  final Recipe? receta;
 
   const RecetaModelo({
     Key? key,
@@ -22,457 +48,430 @@ class RecetaModelo extends StatefulWidget {
 }
 
 class _RecetaModeloState extends State<RecetaModelo> {
-  // Controladores para campos editables
+  final _formKey = GlobalKey<FormState>();
+  final RecipeController _recipeController = RecipeController();
+  final InventoryController _inventoryController = InventoryController();
+
+  bool _isSaving = false;
+  bool _isLoadingDependencies = true;
+
   late TextEditingController nombreController;
-  late TextEditingController recetaNumController;
   late TextEditingController proteinasController;
   late TextEditingController grasasController;
   late TextEditingController carbohidratosController;
   late TextEditingController energiaController;
   late TextEditingController pesoPorcionController;
-  late TextEditingController ingredientesController;
-  late TextEditingController pesoBrutoController;
-  late TextEditingController pesoNetoController;
   late TextEditingController preparacionController;
   late TextEditingController coccionController;
   late TextEditingController observacionesController;
   late TextEditingController temperaturaController;
   late TextEditingController tiempoCoccionController;
 
-  // Lista de controladores para las filas de ingredientes
-  List<Map<String, TextEditingController>> ingredientesControllerMap = [];
+  List<IngredientRowData> ingredientRows = [];
+  String? _selectedCategory;
+
+  List<String> _categoryOptions = [];
+  List<Inventory> _availableProducts = [];
 
   @override
   void initState() {
     super.initState();
+    _initializeControllers();
+    _loadDependencies();
+  }
 
-    nombreController = TextEditingController(
-        text: widget.receta != null ? widget.receta!['name'] : '');
-    recetaNumController = TextEditingController(
-        text: widget.receta != null ? widget.receta!['recipeNum'] : '');
-    proteinasController = TextEditingController(
-        text: widget.receta != null ? widget.receta!['proteins'] : '0');
-    grasasController = TextEditingController(
-        text: widget.receta != null ? widget.receta!['fats'] : '0');
-    carbohidratosController = TextEditingController(
-        text: widget.receta != null ? widget.receta!['carbs'] : '0');
-    energiaController = TextEditingController(
-        text: widget.receta != null ? widget.receta!['energy'] : '0');
-    pesoPorcionController = TextEditingController(
-        text: widget.receta != null ? widget.receta!['portionWeight'] : '0');
-    ingredientesController = TextEditingController(
-        text: widget.receta != null ? widget.receta!['ingredients'] : '');
-    pesoBrutoController = TextEditingController(
-        text: widget.receta != null ? '${widget.receta!['grossWeight']}' : '0');
-    pesoNetoController = TextEditingController(
-        text: widget.receta != null ? '${widget.receta!['netWeight']}' : '0');
-    preparacionController = TextEditingController(
-        text: widget.receta != null ? widget.receta!['preparation'] : '');
-    coccionController = TextEditingController(
-        text: widget.receta != null ? widget.receta!['cookingSteps'] : '');
-    observacionesController = TextEditingController(
-        text: widget.receta != null ? widget.receta!['observations'] : '');
-    temperaturaController = TextEditingController(
-        text: widget.receta != null ? widget.receta!['temperature'] : '0');
-    tiempoCoccionController = TextEditingController(
-        text: widget.receta != null ? widget.receta!['cookingTime'] : '0');
+  void _initializeControllers() {
+    final r = widget.receta;
+    nombreController = TextEditingController(text: r?.name ?? '');
+    proteinasController =
+        TextEditingController(text: r?.protein.toString() ?? '0');
+    grasasController = TextEditingController(text: r?.fat.toString() ?? '0');
+    carbohidratosController =
+        TextEditingController(text: r?.carbs.toString() ?? '0');
+    energiaController =
+        TextEditingController(text: r?.calories.toString() ?? '0');
+    pesoPorcionController =
+        TextEditingController(text: r?.totalWeight.toString() ?? '0');
+    preparacionController = TextEditingController(text: r?.preparation ?? '');
+    coccionController = TextEditingController(text: r?.cooking ?? '');
+    observacionesController =
+        TextEditingController(text: r?.observations ?? '');
+    temperaturaController =
+        TextEditingController(text: r?.temperature.toString() ?? '0');
+    tiempoCoccionController =
+        TextEditingController(text: r?.cookingTime.toString() ?? '0');
 
-    final List<dynamic> ingredientes = widget.receta?['ingredients'] ?? [];
-    for (var ingrediente in ingredientes) {
-      ingredientesControllerMap.add({
-        'name': TextEditingController(text: ingrediente['name'] ?? ''),
-        'grossWeight':
-            TextEditingController(text: '${ingrediente['grossWeight'] ?? 0}'),
-        'netWeight':
-            TextEditingController(text: '${ingrediente['netWeight'] ?? 0}'),
-      });
+    if (r?.ingredients != null) {
+      ingredientRows = r!.ingredients.map((ing) {
+        return IngredientRowData(
+          // Se asume que el ID del ingrediente es el ID del producto.
+          // Si el ID del ingrediente es diferente, necesitarías pasarlo por separado.
+          ingredientId: ing.id,
+          product: ing.product,
+          productController: TextEditingController(text: ing.productName),
+          weightController: TextEditingController(text: ing.weight.toString()),
+          netWeightController:
+              TextEditingController(text: ing.netWeight.toString()),
+        );
+      }).toList();
+    }
+  }
+
+  Future<void> _loadDependencies() async {
+    try {
+      final results = await Future.wait([
+        _recipeController.fetchCategories(),
+        _inventoryController.fetchFullListOfProducts(),
+      ]);
+
+      if (mounted) {
+        final categories = results[0] as List<String>;
+        final products = results[1] as List<Inventory>;
+
+        setState(() {
+          _categoryOptions = categories;
+          _availableProducts = products;
+
+          final r = widget.receta;
+          if (r != null && _categoryOptions.contains(r.category)) {
+            _selectedCategory = r.category;
+          } else if (_categoryOptions.isNotEmpty) {
+            _selectedCategory = _categoryOptions.first;
+          }
+          _isLoadingDependencies = false;
+        });
+      }
+    } catch (e) {
+      debugPrint("Error al cargar dependencias: $e");
+      if (mounted) {
+        setState(() => _isLoadingDependencies = false);
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('No se pudieron cargar los datos necesarios.')));
+      }
     }
   }
 
   @override
   void dispose() {
     nombreController.dispose();
-    recetaNumController.dispose();
     proteinasController.dispose();
     grasasController.dispose();
     carbohidratosController.dispose();
     energiaController.dispose();
     pesoPorcionController.dispose();
-    ingredientesController.dispose();
-    pesoBrutoController.dispose();
-    pesoNetoController.dispose();
     preparacionController.dispose();
     coccionController.dispose();
     observacionesController.dispose();
     temperaturaController.dispose();
     tiempoCoccionController.dispose();
-
-    for (var controllerMap in ingredientesControllerMap) {
-      controllerMap['name']?.dispose();
-      controllerMap['grossWeight']?.dispose();
-      controllerMap['netWeight']?.dispose();
+    for (var row in ingredientRows) {
+      row.dispose();
     }
     super.dispose();
   }
 
-  final List<String> _categoryOptions = const [
-    'Seleccionar',
-    'Carnes',
-    'Viandas',
-    'Vegetales',
-    'Especias',
-    'Carbohidratos',
-    'Refrescos'
-  ];
-
-  String? _selectedCategory;
-
   void addIngredienteRow() {
     setState(() {
-      ingredientesControllerMap.add({
-        'name': TextEditingController(),
-        'grossWeight': TextEditingController(),
-        'netWeight': TextEditingController(),
-      });
+      ingredientRows.add(IngredientRowData(
+        productController: TextEditingController(),
+        weightController: TextEditingController(),
+        netWeightController: TextEditingController(),
+      ));
     });
   }
 
   void _removeIngredienteRow(int index) {
     setState(() {
-      if (ingredientesControllerMap.isNotEmpty &&
-          index >= 0 &&
-          index < ingredientesControllerMap.length) {
-        ingredientesControllerMap[index]['name']?.dispose();
-        ingredientesControllerMap[index]['grossWeight']?.dispose();
-        ingredientesControllerMap[index]['netWeight']?.dispose();
-        ingredientesControllerMap.removeAt(index);
-      }
+      final row = ingredientRows.removeAt(index);
+      row.dispose();
     });
   }
 
   Future<void> saveRecipe() async {
+    if (!_formKey.currentState!.validate() || _isSaving) return;
+    setState(() => _isSaving = true);
     try {
-      if (nombreController.text.isEmpty || recetaNumController.text.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content:
-                  Text('Todos los campos obligatorios deben ser llenados')),
-        );
-        return;
-      }
+      final ingredientsList = ingredientRows.map((row) {
+        return {
+          'id': row.ingredientId,
+          'product': row.product, // Se usa el ID correcto del producto
+          'weight': double.tryParse(row.weightController.text) ?? 0.0,
+          'netWeight': double.tryParse(row.netWeightController.text) ?? 0.0,
+        };
+      }).toList();
 
-      final Map<String, dynamic> recipeData = {
+      final recipeData = {
+        'id': widget.receta?.id,
         'name': nombreController.text,
-        'recipeNum': recetaNumController.text,
-        'proteins': double.tryParse(proteinasController.text) ?? 0,
-        'fats': double.tryParse(grasasController.text) ?? 0,
-        'carbs': double.tryParse(carbohidratosController.text) ?? 0,
-        'energy': double.tryParse(energiaController.text) ?? 0,
-        'portionWeight': double.tryParse(pesoPorcionController.text) ?? 0,
-        'ingredients': ingredientesControllerMap
-            .map((controllerMap) => {
-                  'name': controllerMap['name']?.text ?? '',
-                  'grossWeight': double.tryParse(
-                          controllerMap['grossWeight']?.text ?? '0') ??
-                      0,
-                  'netWeight': double.tryParse(
-                          controllerMap['netWeight']?.text ?? '0') ??
-                      0,
-                })
-            .toList(),
+        'category': _selectedCategory,
+        'totalWeight': double.tryParse(pesoPorcionController.text) ?? 0.0,
+        'calories': double.tryParse(energiaController.text) ?? 0.0,
+        'protein': double.tryParse(proteinasController.text) ?? 0.0,
+        'fat': double.tryParse(grasasController.text) ?? 0.0,
+        'carbs': double.tryParse(carbohidratosController.text) ?? 0.0,
+        'cookingTime': int.tryParse(tiempoCoccionController.text) ?? 0,
+        'temperature': int.tryParse(temperaturaController.text) ?? 0,
         'preparation': preparacionController.text,
-        'cookingSteps': coccionController.text,
+        'cooking': coccionController.text,
         'observations': observacionesController.text,
-        'temperature': double.tryParse(temperaturaController.text) ?? 0,
-        'cookingTime': double.tryParse(tiempoCoccionController.text) ?? 0,
+        'ingredients': ingredientsList,
       };
 
-      final response = await http.post(
-        Uri.parse('https://tu-backend.com/api/recetas'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(recipeData),
-      );
+      if (widget.receta == null)
+        await _recipeController.createRecipe(recipeData);
+      else
+        await _recipeController.updateUser(recipeData);
 
-      if (response.statusCode == 201) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Receta guardada exitosamente')),
-        );
-        Navigator.pop(context, {'success': true});
-      } else {
-        throw Exception('Error al guardar la receta.');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('Receta "${nombreController.text}" guardada.')));
+        Navigator.of(context).pop(true);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error al guardar: ${e.toString()}')));
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    bool isMobile = MediaQuery.of(context).size.width < 600;
+    String appBarTitle = widget.isEditMode
+        ? (widget.receta == null ? 'Crear Receta' : 'Editar Receta')
+        : 'Detalles de la Receta';
     return Scaffold(
-      appBar: CustomAppBar(title: 'Receta'),
-      body: Padding(
-        padding: isMobile ? EdgeInsets.all(20.0) : EdgeInsets.all(30.0),
+      appBar: CustomAppBar(title: appBarTitle),
+      body: _isLoadingDependencies
+          ? const Center(child: CircularProgressIndicator())
+          : _buildForm(),
+    );
+  }
+
+  Widget _buildForm() {
+    bool isMobile = MediaQuery.of(context).size.width < 600;
+    return Padding(
+      padding:
+          isMobile ? const EdgeInsets.all(20.0) : const EdgeInsets.all(30.0),
+      child: Form(
+        key: _formKey,
         child: ListView(children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: CustomTextFormField(
+                        controller: nombreController,
+                        readOnly: !widget.isEditMode,
+                        labelText: 'Nombre del plato',
+                        validator: Validators.recipeName),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(child: _buildCategoryDropdown()),
+                ],
+              ),
+              const SizedBox(height: 16),
+              CustomTextFormField(
+                  controller: pesoPorcionController,
+                  readOnly: !widget.isEditMode,
+                  labelText: 'Peso de la porción (g)',
+                  validator: Validators.numeric,
+                  keyboardType: TextInputType.number),
+              const SizedBox(height: 24),
+              const Text('Valor Nutricional',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 16),
               Row(
                 children: [
                   Expanded(
-                    child: RecipeTextField(
-                      controller: nombreController,
-                      enabled: widget.isEditMode,
-                      text: isMobile ? 'Nombre plato' : 'Nombre del plato',
-                    ),
-                  ),
-                  SizedBox(width: 16),
-                  Expanded(child: CategoryDropdown(isMobile)),
+                      child: CustomTextFormField(
+                          controller: proteinasController,
+                          readOnly: !widget.isEditMode,
+                          labelText: 'Proteínas (g)',
+                          validator: Validators.numeric,
+                          keyboardType: TextInputType.number)),
+                  const SizedBox(width: 16),
+                  Expanded(
+                      child: CustomTextFormField(
+                          controller: grasasController,
+                          readOnly: !widget.isEditMode,
+                          labelText: 'Grasas (g)',
+                          keyboardType: TextInputType.number)),
                 ],
               ),
-              SizedBox(
-                height: 16,
-                width: isMobile ? 5 : 20,
-              ),
+              const SizedBox(height: 16),
               Row(
                 children: [
                   Expanded(
-                    child: RecipeTextField(
-                      controller: recetaNumController,
-                      enabled: widget.isEditMode,
-                      text: 'No. Receta',
-                    ),
-                  ),
-                  SizedBox(width: 16),
+                      child: CustomTextFormField(
+                          controller: carbohidratosController,
+                          readOnly: !widget.isEditMode,
+                          labelText: 'Carbohidratos (g)',
+                          validator: Validators.numeric,
+                          keyboardType: TextInputType.number)),
+                  const SizedBox(width: 16),
                   Expanded(
-                      child: RecipeTextField(
-                          controller: pesoPorcionController,
-                          enabled: widget.isEditMode,
-                          text: 'Peso de la porción (g)')),
+                      child: CustomTextFormField(
+                          controller: energiaController,
+                          readOnly: !widget.isEditMode,
+                          labelText: 'Energía (kcal)',
+                          validator: Validators.numeric,
+                          keyboardType: TextInputType.number)),
                 ],
               ),
-
-              SizedBox(height: 16),
-              // Información nutricional
-              Text(
-                'Valor Nutricional',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: RecipeTextField(
-                      controller: proteinasController,
-                      enabled: widget.isEditMode,
-                      text: 'Proteínas (g)',
-                    ),
-                  ),
-                  SizedBox(width: 16),
-                  Expanded(
-                    child: RecipeTextField(
-                      controller: grasasController,
-                      enabled: widget.isEditMode,
-                      text: 'Grasas (g)',
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 16),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: RecipeTextField(
-                      controller: carbohidratosController,
-                      enabled: widget.isEditMode,
-                      text: 'Carbohidratos (g)',
-                    ),
-                  ),
-                  SizedBox(width: 16),
-                  Expanded(
-                    child: RecipeTextField(
-                      controller: energiaController,
-                      enabled: widget.isEditMode,
-                      text: 'Energía (kcal)',
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 16),
-              Divider(),
-              // Ingredientes
-              Text(
-                'Ingredientes para una ración',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              Divider(),
-
-              // Encabezado de la tabla con botón "Agregar ingrediente"
+              const SizedBox(height: 24),
+              const Divider(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  isMobile ? HeaderIngredientesMobile() : HeaderIngredientes(),
+                  const Text('Ingredientes para una ración',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   if (widget.isEditMode)
-                    IconButton(
-                      onPressed: addIngredienteRow,
-                      icon:
-                          Icon(Icons.add_circle, color: Colors.green, size: 30),
-                    ),
+                    AddButton(
+                        onPressed: addIngredienteRow,
+                        text: 'Ingrediente',
+                        size: Size(isMobile ? 140 : 170, 45))
                 ],
               ),
-
-              // Filas de ingredientes
-              ...List.generate(
-                ingredientesControllerMap.length,
-                (index) {
-                  final controllers = ingredientesControllerMap[index];
-                  return Column(
+              const Divider(),
+              if (ingredientRows.isNotEmpty)
+                isMobile
+                    ? _buildHeaderIngredientesMobile()
+                    : _buildHeaderIngredientes(),
+              const SizedBox(height: 8),
+              ...ingredientRows.map((rowData) {
+                int index = ingredientRows.indexOf(rowData);
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              controller: controllers['name'],
-                              enabled: widget.isEditMode,
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(
-                                    borderSide:
-                                        BorderSide(color: Colors.black54)),
-                                labelStyle: TextStyle(
-                                    color: widget.isEditMode
-                                        ? Colors.black
-                                        : Colors.black87),
-                              ),
-                              style: TextStyle(
-                                  color: widget.isEditMode
-                                      ? Colors.black
-                                      : Colors.black87),
-                            ),
-                          ),
-                          SizedBox(width: 10, height: 16),
-                          Expanded(
-                            child: TextField(
-                              controller: controllers['grossWeight'],
-                              enabled: widget.isEditMode,
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(
-                                    borderSide:
-                                        BorderSide(color: Colors.black45)),
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 10, height: 16),
-                          Expanded(
-                            child: TextField(
-                              controller: controllers['netWeight'],
-                              enabled: widget.isEditMode,
-                              decoration: InputDecoration(
-                                labelText: '',
-                                border: OutlineInputBorder(
-                                    borderSide:
-                                        BorderSide(color: Colors.black45)),
-                              ),
-                            ),
-                          ),
-                          if (widget.isEditMode)
-                            IconButton(
-                              onPressed: () => _removeIngredienteRow(index),
-                              icon: Icon(Icons.remove_circle,
-                                  color: Colors.red, size: 30),
-                            ),
-                        ],
+                      Expanded(
+                        flex: 3,
+                        child: Autocomplete<Inventory>(
+                          displayStringForOption: (Inventory option) =>
+                              option.description,
+                          initialValue: TextEditingValue(
+                              text: rowData.productController.text),
+                          optionsBuilder: (TextEditingValue textEditingValue) {
+                            if (textEditingValue.text == '')
+                              return const Iterable<Inventory>.empty();
+                            return _availableProducts.where(
+                                (Inventory option) => option.description
+                                    .toLowerCase()
+                                    .contains(
+                                        textEditingValue.text.toLowerCase()));
+                          },
+                          onSelected: (Inventory selection) {
+                            setState(() {
+                              rowData.product = selection.code;
+                              rowData.productController.text =
+                                  selection.description;
+                            });
+                          },
+                          fieldViewBuilder: (context, textEditingController,
+                              focusNode, onFieldSubmitted) {
+                            return CustomTextFormField(
+                              controller: textEditingController,
+                              focusNode: focusNode,
+                              readOnly: !widget.isEditMode,
+                              labelText: '',
+                              onChanged: (value) =>
+                                  rowData.productController.text = value,
+                            );
+                          },
+                        ),
                       ),
-                      SizedBox(
-                        height: 10,
-                      )
+                      const SizedBox(width: 10),
+                      Expanded(
+                          flex: 2,
+                          child: CustomTextFormField(
+                              controller: rowData.weightController,
+                              readOnly: !widget.isEditMode,
+                              labelText: '',
+                              validator: Validators.numeric,
+                              keyboardType: TextInputType.number)),
+                      const SizedBox(width: 10),
+                      Expanded(
+                          flex: 2,
+                          child: CustomTextFormField(
+                              controller: rowData.netWeightController,
+                              readOnly: !widget.isEditMode,
+                              labelText: '',
+                              validator: Validators.numeric,
+                              keyboardType: TextInputType.number)),
+                      if (widget.isEditMode)
+                        IconButton(
+                            onPressed: () => _removeIngredienteRow(index),
+                            icon: const Icon(Icons.remove_circle,
+                                color: Colors.red, size: 28))
+                      else
+                        const SizedBox(width: 48),
                     ],
-                  );
-                },
-              ),
-
-              SizedBox(height: 16),
-
-              // Parámetros de cocción
-              Text(
-                'Parámetros de Cocción',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 16),
+                  ),
+                );
+              }).toList(),
+              const SizedBox(height: 24),
+              const Text('Parámetros de Cocción',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 16),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                    child: RecipeTextField(
-                      controller: temperaturaController,
-                      enabled: widget.isEditMode,
-                      text: 'Temperatura (°C)',
-                    ),
-                  ),
-                  SizedBox(width: 16),
+                      child: CustomTextFormField(
+                          controller: temperaturaController,
+                          readOnly: !widget.isEditMode,
+                          labelText: 'Temperatura (°C)',
+                          validator: Validators.numeric,
+                          keyboardType: TextInputType.number)),
+                  const SizedBox(width: 16),
                   Expanded(
-                    child: RecipeTextField(
-                      controller: tiempoCoccionController,
-                      enabled: widget.isEditMode,
-                      text: 'Tiempo cocción (min)',
-                    ),
-                  ),
+                      child: CustomTextFormField(
+                          controller: tiempoCoccionController,
+                          readOnly: !widget.isEditMode,
+                          labelText: 'Tiempo cocción (min)',
+                          validator: Validators.numeric,
+                          keyboardType: TextInputType.number)),
                 ],
               ),
-              Divider(),
-
-              // Preparación
-              Text(
-                'Preparación',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-
-              RecipeTextField(
-                controller: preparacionController,
-                enabled: widget.isEditMode,
-                lines: isMobile ? 5 : 3,
-                text: '',
-              ),
-
-              // Cocción
-              SizedBox(height: 16),
-              Text(
-                'Cocción',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-
-              RecipeTextField(
-                controller: coccionController,
-                enabled: widget.isEditMode,
-                text: '',
-                lines: isMobile ? 5 : 3,
-              ),
-
-              SizedBox(height: 16),
-              Text(
-                'Observaciones',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-
-              RecipeTextField(
-                controller: observacionesController,
-                enabled: widget.isEditMode,
-                text: '',
-                lines: isMobile ? 5 : 3,
-              ),
-              SizedBox(height: 20),
-              // Botón de guardar cambios (solo en modo edición)
+              const SizedBox(height: 24),
+              const Text('Preparación',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              CustomTextFormField(
+                  controller: preparacionController,
+                  readOnly: !widget.isEditMode,
+                  maxLines: 3,
+                  labelText: ''),
+              const SizedBox(height: 16),
+              const Text('Cocción',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              CustomTextFormField(
+                  controller: coccionController,
+                  readOnly: !widget.isEditMode,
+                  maxLines: 3,
+                  labelText: ''),
+              const SizedBox(height: 16),
+              const Text('Observaciones',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              CustomTextFormField(
+                  controller: observacionesController,
+                  readOnly: !widget.isEditMode,
+                  maxLines: 3,
+                  labelText: ''),
+              const SizedBox(height: 30),
               if (widget.isEditMode)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Button(onPressed: saveRecipe, text: 'Guardar'),
-                  ],
-                ),
-              SizedBox(height: 20)
+                Center(
+                    child: Button(
+                  onPressed: _isSaving ? null : saveRecipe,
+                  text: _isSaving ? 'Guardando...' : 'Guardar',
+                )),
+              const SizedBox(height: 20)
             ],
           ),
         ]),
@@ -480,15 +479,11 @@ class _RecetaModeloState extends State<RecetaModelo> {
     );
   }
 
-  DropdownButtonFormField<String> CategoryDropdown(bool isMobile) {
+  DropdownButtonFormField<String> _buildCategoryDropdown() {
     return DropdownButtonFormField<String>(
       value: _selectedCategory,
       onChanged: widget.isEditMode
-          ? (String? newValue) {
-              setState(() {
-                _selectedCategory = newValue;
-              });
-            }
+          ? (String? newValue) => setState(() => _selectedCategory = newValue)
           : null,
       decoration: InputDecoration(
         labelText: 'Categoría',
@@ -503,69 +498,51 @@ class _RecetaModeloState extends State<RecetaModelo> {
           child: Text(category, overflow: TextOverflow.ellipsis),
         );
       }).toList(),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Seleccionar';
-        }
-        return null;
-      },
+      validator: (value) =>
+          (value == null || value.isEmpty) ? 'Seleccione una categoría' : null,
     );
   }
 
-  Widget HeaderIngredientes() {
-    return Row(
+  Widget _buildHeaderIngredientes() {
+    return const Row(
       children: [
-        SizedBox(width: 16),
-        SizedBox(
-          width: MediaQuery.of(context).size.width * 0.35,
-          child: Text(
-            'Nombre',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ),
-        SizedBox(
-          width: MediaQuery.of(context).size.width * 0.30,
-          child: Text(
-            'Peso bruto (g)',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ),
-        SizedBox(
-          width: MediaQuery.of(context).size.width * 0.20,
-          child: Text(
-            'Peso neto (g)',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ),
+        Expanded(
+            flex: 3,
+            child: Text('Producto',
+                style: TextStyle(fontWeight: FontWeight.bold))),
+        SizedBox(width: 10),
+        Expanded(
+            flex: 2,
+            child: Text('Peso Bruto (g)',
+                style: TextStyle(fontWeight: FontWeight.bold))),
+        SizedBox(width: 10),
+        Expanded(
+            flex: 2,
+            child: Text('Peso Neto (g)',
+                style: TextStyle(fontWeight: FontWeight.bold))),
+        SizedBox(width: 48),
       ],
     );
   }
 
-  Widget HeaderIngredientesMobile() {
-    return Row(
+  Widget _buildHeaderIngredientesMobile() {
+    return const Row(
       children: [
+        Expanded(
+            flex: 3,
+            child: Text('Producto',
+                style: TextStyle(fontWeight: FontWeight.bold))),
         SizedBox(width: 10),
-        SizedBox(
-          width: MediaQuery.of(context).size.width * 0.25,
-          child: Text(
-            'Nombre',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ),
-        SizedBox(
-          width: MediaQuery.of(context).size.width * 0.25,
-          child: Text(
-            'P.Bruto(g)',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ),
-        SizedBox(
-          width: MediaQuery.of(context).size.width * 0.20,
-          child: Text(
-            'P.Neto(g)',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ),
+        Expanded(
+            flex: 2,
+            child: Text('P. Bruto',
+                style: TextStyle(fontWeight: FontWeight.bold))),
+        SizedBox(width: 10),
+        Expanded(
+            flex: 2,
+            child:
+                Text('P. Neto', style: TextStyle(fontWeight: FontWeight.bold))),
+        SizedBox(width: 48),
       ],
     );
   }

@@ -109,4 +109,38 @@ class Validators {
     }
     return null; // El valor es válido
   }
+
+  /// Valida un campo numérico con las siguientes reglas:
+  /// 1. Debe ser un número válido (entero o decimal).
+  static String? numeric(String? value) {
+    if (value!.trim().isEmpty) {
+      return null;
+    }
+    // Intenta convertir el valor a un número. Si falla, no es un número válido.
+    // Esto maneja tanto enteros como decimales (ej. "123", "123.45").
+    final validNumberPattern = RegExp(r'^-?\d+(\.\d+)?$');
+    if (!validNumberPattern.hasMatch(value!)) {
+      return 'Solo se permiten números';
+    }
+    return null; // El valor es válido
+  }
+
+  /// Valida un nombre de receta con las siguientes reglas:
+  /// 1. Requerido.
+  /// 2. No debe contener números ni caracteres especiales.
+  /// 3. La letra inicial de la frase debe ser mayúscula.
+  static String? recipeName(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'El nombre de la receta es requerido.';
+    }
+    // Verifica que no haya números o símbolos no deseados (permite letras y espacios)
+    if (RegExp(r'[^a-zA-Z\s]').hasMatch(value)) {
+      return 'Solo se permiten letras y espacios.';
+    }
+    // Verifica que la primera letra de toda la cadena sea mayúscula
+    if (value.trim()[0] != value.trim()[0].toUpperCase()) {
+      return 'La primera letra debe ser mayúscula.';
+    }
+    return null; // El valor es válido
+  }
 }
