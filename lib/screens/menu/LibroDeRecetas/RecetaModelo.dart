@@ -5,10 +5,10 @@ import 'package:gestion_menu_ult_frontend/widgets/AddButton.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomTextFormField.dart';
 
-import '../../controllers/menu/RecipeController.dart';
-import '../../models/Recipe.dart';
-import '../../utils/Validators.dart';
-import '../../widgets/Button.dart';
+import '../../../controllers/menu/RecipeController.dart';
+import '../../../models/Recipe.dart';
+import '../../../utils/Validators.dart';
+import '../../../widgets/Button.dart';
 
 // Clase auxiliar para gestionar los datos de cada fila de ingrediente
 class IngredientRowData {

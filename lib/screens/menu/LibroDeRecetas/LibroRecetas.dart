@@ -8,8 +8,8 @@ import 'package:gestion_menu_ult_frontend/widgets/AddButton.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 import 'package:gestion_menu_ult_frontend/widgets/Pagination.dart';
 
-import '../../widgets/Confirm.dart';
-import '../../widgets/CustomTextFormField.dart';
+import '../../../widgets/Confirm.dart';
+import '../../../widgets/CustomTextFormField.dart';
 import 'RecetaModelo.dart';
 
 class LibroRecetas extends StatefulWidget {

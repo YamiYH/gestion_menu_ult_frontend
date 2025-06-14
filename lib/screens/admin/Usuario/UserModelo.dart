@@ -5,10 +5,10 @@ import 'package:gestion_menu_ult_frontend/widgets/Button.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 import 'package:gestion_menu_ult_frontend/widgets/StatusCheckboxRow.dart';
 
-import '../../controllers/security/user/UserController.dart';
-import '../../utils/Validators.dart';
-import '../../widgets/CustomTextFormField.dart';
-import '../../widgets/RoleDropDown.dart';
+import '../../../controllers/security/user/UserController.dart';
+import '../../../utils/Validators.dart';
+import '../../../widgets/CustomTextFormField.dart';
+import '../../../widgets/RoleDropDown.dart';
 
 class UserModelo extends StatefulWidget {
   final Map<String, dynamic>? initialData;

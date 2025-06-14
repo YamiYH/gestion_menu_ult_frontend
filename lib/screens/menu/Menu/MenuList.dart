@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/controllers/menu/MenuController.dart';
 import 'package:gestion_menu_ult_frontend/models/MenuEntity.dart';
-import 'package:gestion_menu_ult_frontend/screens/menu/MenuPropuesta.dart';
+import 'package:gestion_menu_ult_frontend/screens/menu/Menu/MenuPropuesta.dart';
 
-import '../../routes/PageRouteBuilder.dart';
-import '../../widgets/Button.dart';
-import '../../widgets/Confirm.dart';
-import '../../widgets/CustomAppbar.dart';
-import '../../widgets/Pagination.dart';
+import '../../../routes/PageRouteBuilder.dart';
+import '../../../widgets/Button.dart';
+import '../../../widgets/Confirm.dart';
+import '../../../widgets/CustomAppbar.dart';
+import '../../../widgets/Pagination.dart';
 
 class MenuList extends StatefulWidget {
   @override

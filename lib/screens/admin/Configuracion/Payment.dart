@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 
-import '../../widgets/Button.dart'; // Asumo que este es tu AppBar personalizado
+import '../../../widgets/Button.dart'; // Asumo que este es tu AppBar personalizado
 // Si tienes un widget de Botón personalizado, podrías importarlo:
 // import 'package:gestion_menu_ult_frontend/widgets/Button.dart';
 

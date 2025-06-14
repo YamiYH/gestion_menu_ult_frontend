@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/routes/PageRouteBuilder.dart';
-import 'package:gestion_menu_ult_frontend/screens/admin/Payment.dart';
+import 'package:gestion_menu_ult_frontend/screens/admin/Configuracion/Payment.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 import 'package:gestion_menu_ult_frontend/widgets/DatePickerButton.dart';
 import 'package:intl/intl.dart' show DateFormat;

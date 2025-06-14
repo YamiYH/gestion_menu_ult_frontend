@@ -1,21 +1,21 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:gestion_menu_ult_frontend/screens/admin/UserModelo.dart';
+import 'package:gestion_menu_ult_frontend/screens/admin/Usuario/UserModelo.dart';
 import 'package:gestion_menu_ult_frontend/widgets/AddButton.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 import 'package:gestion_menu_ult_frontend/widgets/Pagination.dart';
 import 'package:gestion_menu_ult_frontend/widgets/StatusDropDown.dart';
 import 'package:gestion_menu_ult_frontend/widgets/TypeDropDown.dart';
 
-import '../../controllers/security/RoleController.dart';
-import '../../controllers/security/user/UserController.dart';
-import '../../models/UserEntity.dart';
-import '../../routes/PageRouteBuilder.dart';
-import '../../widgets/Button.dart';
-import '../../widgets/Confirm.dart';
-import '../../widgets/RoleDropDown.dart';
-import '../../widgets/UserTextFormField.dart';
+import '../../../controllers/security/RoleController.dart';
+import '../../../controllers/security/user/UserController.dart';
+import '../../../models/UserEntity.dart';
+import '../../../routes/PageRouteBuilder.dart';
+import '../../../widgets/Button.dart';
+import '../../../widgets/Confirm.dart';
+import '../../../widgets/RoleDropDown.dart';
+import '../../../widgets/UserTextFormField.dart';
 
 class Users extends StatefulWidget {
   const Users({super.key});

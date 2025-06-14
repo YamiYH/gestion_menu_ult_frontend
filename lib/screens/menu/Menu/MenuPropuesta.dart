@@ -3,13 +3,13 @@ import 'package:gestion_menu_ult_frontend/models/MenuEntity.dart';
 import 'package:gestion_menu_ult_frontend/models/Recipe.dart';
 import 'package:gestion_menu_ult_frontend/routes/PageRouteBuilder.dart';
 
-import '../../controllers/menu/MenuController.dart';
-import '../../controllers/menu/RecipeController.dart';
-import '../../widgets/AddButton.dart';
-import '../../widgets/Button.dart';
-import '../../widgets/CustomAppbar.dart';
-import '../../widgets/CustomTextFormField.dart';
-import '../../widgets/Date.dart';
+import '../../../controllers/menu/MenuController.dart';
+import '../../../controllers/menu/RecipeController.dart';
+import '../../../widgets/AddButton.dart';
+import '../../../widgets/Button.dart';
+import '../../../widgets/CustomAppbar.dart';
+import '../../../widgets/CustomTextFormField.dart';
+import '../../../widgets/Date.dart';
 import 'MenuList.dart';
 
 // --- MODELO AUXILIAR ---

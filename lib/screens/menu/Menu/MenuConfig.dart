@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/widgets/ScheduleButton.dart';
 
-import '../../widgets/Button.dart';
-import '../../widgets/CustomAppbar.dart';
+import '../../../widgets/Button.dart';
+import '../../../widgets/CustomAppbar.dart';
 
 class MenuConfig extends StatefulWidget {
   const MenuConfig({Key? key}) : super(key: key);

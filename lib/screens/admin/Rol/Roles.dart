@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/controllers/security/RoleController.dart';
 import 'package:gestion_menu_ult_frontend/models/RoleEntity.dart';
 import 'package:gestion_menu_ult_frontend/routes/PageRouteBuilder.dart';
-import 'package:gestion_menu_ult_frontend/screens/admin/RolModelo.dart';
+import 'package:gestion_menu_ult_frontend/screens/admin/Rol/RolModelo.dart';
 import 'package:gestion_menu_ult_frontend/widgets/AddButton.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 import 'package:gestion_menu_ult_frontend/widgets/Pagination.dart';
 
-import '../../widgets/Confirm.dart';
+import '../../../widgets/Confirm.dart';
 
 class Roles extends StatefulWidget {
   const Roles({super.key});

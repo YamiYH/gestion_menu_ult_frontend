@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/routes/PageRouteBuilder.dart';
-import 'package:gestion_menu_ult_frontend/screens/admin/Config.dart';
-import 'package:gestion_menu_ult_frontend/screens/admin/Roles.dart';
+import 'package:gestion_menu_ult_frontend/screens/admin/Configuracion/Config.dart';
+import 'package:gestion_menu_ult_frontend/screens/admin/Rol/Roles.dart';
 import 'package:gestion_menu_ult_frontend/widgets/BuildCard.dart';
 
 import '../../widgets/CustomAppbar.dart';
-import 'Logs.dart';
-import 'Users.dart';
+import 'Auditoria/Logs.dart';
+import 'Usuario/Users.dart';
 
 class ModulosAdmin extends StatefulWidget {
   const ModulosAdmin({super.key});

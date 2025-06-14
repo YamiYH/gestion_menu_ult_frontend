@@ -3,10 +3,10 @@ import 'package:gestion_menu_ult_frontend/utils/Validators.dart';
 import 'package:gestion_menu_ult_frontend/widgets/Button.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 
-import '../../controllers/security/RoleController.dart';
-import '../../widgets/CustomTextFormField.dart';
-import '../../widgets/MultiSelectAccessDropdown.dart';
-import '../../widgets/StatusCheckboxRow.dart'; // Ajusta la ruta
+import '../../../controllers/security/RoleController.dart';
+import '../../../widgets/CustomTextFormField.dart';
+import '../../../widgets/MultiSelectAccessDropdown.dart';
+import '../../../widgets/StatusCheckboxRow.dart'; // Ajusta la ruta
 
 class RolModelo extends StatefulWidget {
   final Map<String, dynamic>? initialData;

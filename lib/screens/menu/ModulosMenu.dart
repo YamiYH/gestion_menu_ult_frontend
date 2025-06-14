@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/routes/PageRouteBuilder.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/Contabilidad/Contabilidad.dart';
-import 'package:gestion_menu_ult_frontend/screens/menu/MenuPropuesta.dart';
+import 'package:gestion_menu_ult_frontend/screens/menu/Menu/MenuPropuesta.dart';
 import 'package:gestion_menu_ult_frontend/widgets/BuildCard.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/ProfileProvider.dart';
 import '../../widgets/ProtectedWidget.dart';
-import 'Inventario.dart';
-import 'LibroRecetas.dart';
-import 'MenuConfig.dart';
+import 'Inventario/Inventario.dart';
+import 'LibroDeRecetas/LibroRecetas.dart';
+import 'Menu/MenuConfig.dart';
 import 'Ventas/ModulosVenta.dart';
 
 class ModulosMenu extends StatelessWidget {
