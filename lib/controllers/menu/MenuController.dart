@@ -96,12 +96,12 @@ class MenuEntityController extends BaseController {
   }
 
   // --- MÉTODO PARA ACTUALIZAR EL STATUS DE UN MENU (SIMPLIFICADO) ---
-  Future<MenuEntity> changeStatusMenu(String status) async {
+  Future<MenuEntity> changeStatusMenu(String id, String status) async {
     Map<String, String> queryParams = {'status': status};
     try {
       // Llama al método PUT genérico
       final responseData =
-          await super.putWithParams(endPoint, queryParams: queryParams);
+          await super.putWithParams('$endPoint/$id', queryParams: queryParams);
       return MenuEntity.fromJson(responseData);
     } catch (e) {
       rethrow;

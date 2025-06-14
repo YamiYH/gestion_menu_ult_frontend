@@ -86,7 +86,7 @@ class AppRoutes {
       rolModelo: (context) => RolModelo(),
       perfil: (context) => Perfil(),
       contabilidad: (context) => Contabilidad(),
-      aprobarMenu: (context) => AprobarMenu(),
+      aprobarMenu: (context) => AprobarMenu(menu: null),
       help: (context) => Help(),
       menuList: (context) => MenuList(),
       menuVentas: (context) => MenuVentas(),

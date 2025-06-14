@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gestion_menu_ult_frontend/controllers/menu/MenuController.dart';
+import 'package:gestion_menu_ult_frontend/models/MenuEntity.dart';
 import 'package:gestion_menu_ult_frontend/routes/PageRouteBuilder.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/Contabilidad/AprobarMenu.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
@@ -16,59 +18,37 @@ class _ContabilidadState extends State<Contabilidad> {
   // Variables para almacenar las fechas seleccionadas
   DateTime? startDate;
   DateTime? endDate;
+  MenuEntityController controller = MenuEntityController();
 
   // Lista simulada de informes agrupados por fecha
-  final List<Map<String, dynamic>> propuestas = [
-    {
-      'fecha': '2025-03-01',
-      'propuestas': [
-        {
-          'nombre': 'Almuerzo',
-        },
-      ]
-    },
-  ];
-
-  List<Map<String, dynamic>> _filteredPropuestas = [];
+  List<MenuEntity> _menuList = [];
 
   @override
   void initState() {
     super.initState();
-    // Inicializa la lista filtrada con todos las propuestas al principio
-    _filteredPropuestas = List.from(propuestas);
+    _fetchInitialData();
   }
 
-  void _applyDateFilters() {
+  void _fetchInitialData() async {
+    Map<String, String> filters = {
+      "status": "Propuesto"
+    };
+    final menuListFiltered = await controller.fetchMenu(filters: filters);
     setState(() {
-      _filteredPropuestas = propuestas.where((propuesta) {
-        final fechaString = propuesta['fecha'] as String?;
-        // Ignorar propuestas sin fecha o con formato inválido
-        if (fechaString == null) return false;
-        final reportDate = DateTime.tryParse(fechaString);
-        if (reportDate == null) return false;
-
-        // Comprobar si la fecha está después o es igual a startDate (si existe)
-        final bool afterStartDate = startDate == null ||
-            reportDate.isAtSameMomentAs(startDate!) ||
-            reportDate.isAfter(startDate!);
-
-        final bool beforeEndDate;
-        if (endDate == null) {
-          beforeEndDate = true;
-        } else {
-          // Compara si la fecha de la propuesta es anterior al día siguiente de endDate
-          final nextDayOfEndDate =
-              DateTime(endDate!.year, endDate!.month, endDate!.day + 1);
-          beforeEndDate = reportDate.isBefore(nextDayOfEndDate);
-        }
-
-        // El informe se incluye si cumple ambas condiciones
-        return afterStartDate && beforeEndDate;
-      }).toList();
+      _menuList = menuListFiltered;
     });
-    // Opcional: Imprimir para depurar
-    print(
-        'Filtro aplicado. Start: $startDate, End: $endDate. Resultados: ${_filteredPropuestas.length}');
+  }
+
+  void _applyDateFilters() async {
+    Map<String, String> filters = {
+      "startDate" : startDate!.toIso8601String().split('T').first,
+      "endDate": endDate!.toIso8601String().split('T').first,
+      "status": "Propuesto"
+    };
+    final menuListFiltered = await controller.fetchMenu(filters: filters);
+    setState(() {
+      _menuList = menuListFiltered;
+    });
   }
 
   @override
@@ -113,10 +93,10 @@ class _ContabilidadState extends State<Contabilidad> {
               child: ListView.builder(
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
-                itemCount: _filteredPropuestas.length,
+                itemCount: _menuList.length,
                 itemBuilder: (context, index) {
-                  final informe = _filteredPropuestas[index];
-                  return _buildInformeCard(informe);
+                  final menu = _menuList[index];
+                  return _buildInformeCard(menu);
                 },
               ),
             ),
@@ -132,38 +112,39 @@ class _ContabilidadState extends State<Contabilidad> {
       children: [
         DatePickerButton(
           label: 'Desde',
-          selectedDate: startDate,
+          selectedDate: DateTime.now(),
           onDateSelected: (date) {
             setState(() {
               startDate = date;
             });
+            _applyDateFilters();
           },
-          firstDate: DateTime(2000),
-          lastDate: DateTime.now(),
+          firstDate: DateTime.now(),
+          lastDate: DateTime.now().add(Duration(days: 30))
         ),
         SizedBox(width: 10),
         Icon(Icons.arrow_forward, color: Colors.red[900]),
         SizedBox(width: 10),
         DatePickerButton(
           label: 'Hasta',
-          selectedDate: endDate,
+          selectedDate: DateTime.now().add(Duration(days: 30)),
           onDateSelected: (date) {
             setState(() {
               endDate = date;
             });
+            _applyDateFilters();
           },
-          firstDate: DateTime(2000),
-          lastDate: DateTime.now(),
+            firstDate: DateTime.now(),
+            lastDate: DateTime.now().add(Duration(days: 30))
         ),
       ],
     );
   }
 
   // Widget para construir una Card de informe
-  Widget _buildInformeCard(Map<String, dynamic> propuesta) {
+  Widget _buildInformeCard(MenuEntity menu) {
     bool isMobile = MediaQuery.of(context).size.width < 600;
-    final String fecha = propuesta['fecha'];
-    final List<dynamic> listaPropuestas = propuesta['propuestas'];
+    final String fecha = menu.date;
     return Card(
       elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -177,32 +158,18 @@ class _ContabilidadState extends State<Contabilidad> {
               children: [
                 // Fecha del informe
                 Text(
-                  isMobile ? 'Fecha: $fecha: ' : 'Fecha: $fecha :   ',
+                  isMobile ? 'Fecha: $fecha: ' : 'Fecha: $fecha : ${menu.category} ',
                   style: TextStyle(
                       fontSize: isMobile ? 14 : 16,
                       fontWeight: FontWeight.bold,
                       color: Colors.red[800]),
                 ),
                 SizedBox(height: 5),
-
-                ...listaPropuestas.map((item) {
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        item['nombre'],
-                        style: TextStyle(
-                            fontSize: isMobile ? 14 : 16,
-                            fontWeight: FontWeight.w600),
-                      ),
-                    ],
-                  );
-                }).toList(),
               ],
             ),
             SmallButton(
                 onPressed: () {
-                  Navigator.push(context, createFadeRoute(AprobarMenu()));
+                  Navigator.push(context, createFadeRoute(AprobarMenu(menu: menu)));
                 },
                 text: 'Revisar',
                 size: Size(
