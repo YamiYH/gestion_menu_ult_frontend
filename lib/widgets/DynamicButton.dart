@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
 class DynamicButton extends StatefulWidget {
-  final VoidCallback? onPressed; // Cambiado a nullable para poder deshabilitarlo
+  final VoidCallback? onPressed;
   final String text;
   final IconData? icon;
   final Color colorButton;
   final Size? size;
-  final bool isLoading; // <--- 1. AÑADIMOS EL PARÁMETRO 'isLoading'
+  final bool isLoading;
 
   const DynamicButton({
     Key? key,
@@ -15,7 +15,7 @@ class DynamicButton extends StatefulWidget {
     this.icon,
     required this.colorButton,
     required this.size,
-    this.isLoading = false, // <--- 2. LE DAMOS UN VALOR POR DEFECTO
+    this.isLoading = false,
   }) : super(key: key);
 
   @override
@@ -26,17 +26,13 @@ class _DynamicButtonState extends State<DynamicButton> {
   @override
   Widget build(BuildContext context) {
     bool isMobile = MediaQuery.of(context).size.width < 600;
-
-    // Si está cargando, el callback es null para deshabilitar el botón
     final VoidCallback? currentOnPressed = widget.isLoading ? null : widget.onPressed;
-
     return ElevatedButton(
-      onPressed: currentOnPressed, // <--- 3. USAMOS EL CALLBACK CONDICIONAL
+      onPressed: currentOnPressed,
       style: ElevatedButton.styleFrom(
         fixedSize: widget.size,
         elevation: 3,
         backgroundColor: widget.colorButton,
-        // Un detalle visual: si está deshabilitado (cargando), hacemos el color un poco más opaco
         disabledBackgroundColor: widget.colorButton.withOpacity(0.7),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         padding: EdgeInsets.symmetric(
@@ -44,9 +40,7 @@ class _DynamicButtonState extends State<DynamicButton> {
           vertical: isMobile ? 11 : 18,
         ),
       ),
-      // <--- 4. LA LÓGICA PRINCIPAL ESTÁ AQUÍ
       child: widget.isLoading
-      // SI ESTÁ CARGANDO, MUESTRA EL SPINNER
           ? const SizedBox(
         width: 24,
         height: 24,
@@ -55,7 +49,6 @@ class _DynamicButtonState extends State<DynamicButton> {
           valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
         ),
       )
-      // SI NO, MUESTRA EL CONTENIDO ORIGINAL
           : Row(
         mainAxisSize: MainAxisSize.min,
         children: [
