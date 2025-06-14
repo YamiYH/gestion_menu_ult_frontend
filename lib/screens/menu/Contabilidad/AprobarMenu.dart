@@ -9,7 +9,6 @@ import '../../../widgets/SmallButton.dart';
 import 'Contabilidad.dart';
 
 class AprobarMenu extends StatefulWidget {
-
   final MenuEntity? menu;
 
   const AprobarMenu({
@@ -22,7 +21,6 @@ class AprobarMenu extends StatefulWidget {
 }
 
 class _AprobarMenuState extends State<AprobarMenu> {
-
   final MenuEntityController _menuController = MenuEntityController();
   bool _isProcessingStatusChange = false;
   bool _isSaving = false;
@@ -85,7 +83,6 @@ class _AprobarMenuState extends State<AprobarMenu> {
           ),
         );
       }
-
     } catch (e) {
       // 7. Manejar errores y mostrar feedback
       if (mounted) {
@@ -119,7 +116,8 @@ class _AprobarMenuState extends State<AprobarMenu> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('El menú ha sido marcado como "$newStatus" con éxito.'),
+            content:
+                Text('El menú ha sido marcado como "$newStatus" con éxito.'),
             backgroundColor: Colors.green,
           ),
         );
@@ -174,7 +172,8 @@ class _AprobarMenuState extends State<AprobarMenu> {
             ),
             TextButton(
               style: TextButton.styleFrom(foregroundColor: actionColor),
-              child: Text(actionText, style: const TextStyle(fontWeight: FontWeight.bold)),
+              child: Text(actionText,
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
               onPressed: () {
                 Navigator.of(context).pop(); // Cierra el diálogo
                 _changeMenuStatus(statusToSet); // Ejecuta la acción
@@ -296,10 +295,8 @@ class _AprobarMenuState extends State<AprobarMenu> {
                   style:
                       TextButton.styleFrom(foregroundColor: Colors.grey[800]),
                   child: Text('Cancelar',
-                      style: TextStyle(
-                        color: Colors.black87,
-                        fontSize: isMobile ? 14 : 16,
-                      )),
+                      style:
+                          TextStyle(fontSize: 16, color: Colors.grey.shade700)),
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
@@ -309,7 +306,9 @@ class _AprobarMenuState extends State<AprobarMenu> {
                   onPressed: _saveChanges,
                   size: Size(isMobile ? 100 : 180, 40),
                   isLoading: _isSaving, // Simplemente pasas el flag
-                  text: isMobile ? 'Guardar' : 'Guardar Cambios', // Pasas el texto como hijo
+                  text: isMobile
+                      ? 'Guardar'
+                      : 'Guardar Cambios', // Pasas el texto como hijo
                 ),
               ],
             ),
@@ -332,7 +331,9 @@ class _AprobarMenuState extends State<AprobarMenu> {
             height: isMobile ? 50 : 0,
           ),
           DynamicButton(
-            onPressed: isAnyActionLoading ? null : () => _showConfirmationDialog('Aprobado'),
+            onPressed: isAnyActionLoading
+                ? null
+                : () => _showConfirmationDialog('Aprobado'),
             isLoading: _isProcessingStatusChange,
             text: 'Aprobar',
             colorButton: Colors.green,
@@ -343,7 +344,9 @@ class _AprobarMenuState extends State<AprobarMenu> {
             height: 20,
           ),
           DynamicButton(
-            onPressed: isAnyActionLoading ? null : () => _showConfirmationDialog('Rechazado'),
+            onPressed: isAnyActionLoading
+                ? null
+                : () => _showConfirmationDialog('Rechazado'),
             isLoading: _isProcessingStatusChange,
             text: 'Rechazar',
             colorButton: Colors.red[800]!, // Usamos un rojo estándar
@@ -355,8 +358,7 @@ class _AprobarMenuState extends State<AprobarMenu> {
     );
   }
 
-  Widget BuildCard(
-      MenuRecipe menuItem, TextEditingController priceController) {
+  Widget BuildCard(MenuRecipe menuItem, TextEditingController priceController) {
     return Card(
         margin: const EdgeInsets.symmetric(vertical: 5),
         shape: RoundedRectangleBorder(

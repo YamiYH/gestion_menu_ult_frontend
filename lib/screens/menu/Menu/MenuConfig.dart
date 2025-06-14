@@ -153,7 +153,8 @@ class _MenuConfigState extends State<MenuConfig> {
               // Botón para guardar los cambios
               Center(
                 child: Button(
-                  text: 'Guardar Cambios',
+                  icon: Icons.save_alt,
+                  text: 'Guardar',
                   onPressed: () {
                     // Aquí puedes guardar los horarios en una base de datos o en SharedPreferences
                     print('Horario de reserva: ${_formatTime(_horaReserva)}');
@@ -166,7 +167,7 @@ class _MenuConfigState extends State<MenuConfig> {
                           content: Text('Horarios guardados correctamente')),
                     );
                   },
-                  size: Size(isMobile ? 210 : 250, 50),
+                  size: Size(isMobile ? 180 : 250, 50),
                 ),
               ),
             ],

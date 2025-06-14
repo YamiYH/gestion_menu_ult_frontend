@@ -304,16 +304,16 @@ class _UsersState extends State<Users> {
         ? Column(
             children: [
               UserTextFormField(
-                  text: 'Buscar por Usuario', controller: _usernameController),
-              const SizedBox(height: 10),
+                  text: 'Buscar usuario', controller: _usernameController),
+              const SizedBox(height: 15),
               Row(
                 children: [
                   Expanded(child: Status()),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 15),
                   Expanded(child: Type()),
                 ],
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 15),
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 0.45,

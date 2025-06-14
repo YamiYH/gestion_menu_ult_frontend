@@ -180,16 +180,27 @@ class _GestionarTicketState extends State<GestionarTicket> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: _buildOptions(context, isMobile),
                       ),
-                SizedBox(height: isMobile ? 10 : 50),
+                SizedBox(height: isMobile ? 20 : 50),
                 Text(
                   'Menús Disponibles:',
                   style: TextStyle(
-                      fontSize: isMobile ? 15 : 18,
+                      fontSize: isMobile ? 16 : 18,
                       fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 10),
+                SizedBox(height: 20),
                 if (availableMenus.isEmpty)
-                  Center(child: Text('No hay menús disponibles'))
+                  Column(
+                    children: [
+                      SizedBox(height: 100),
+                      Center(
+                          child: Text(
+                        'No hay menús disponibles',
+                        style: TextStyle(
+                            color: Colors.grey.shade700,
+                            fontSize: isMobile ? 16 : 18),
+                      )),
+                    ],
+                  )
                 else
                   ListView.builder(
                     shrinkWrap: true,
@@ -219,7 +230,7 @@ class _GestionarTicketState extends State<GestionarTicket> {
         color: Colors.white,
       ),
       labelStyle: TextStyle(
-        fontSize: isMobile ? 15 : 20,
+        fontSize: isMobile ? 16 : 20,
         fontWeight: FontWeight.bold,
       ),
       labelColor: Colors.red[900],
@@ -231,7 +242,7 @@ class _GestionarTicketState extends State<GestionarTicket> {
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: Colors.transparent,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(5),
             ),
             child: Text(
               'Reservar Ticket',
@@ -243,7 +254,7 @@ class _GestionarTicketState extends State<GestionarTicket> {
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: Colors.transparent,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(5),
             ),
             child: Text('Mis Tickets'),
           ),
@@ -341,7 +352,16 @@ class _GestionarTicketState extends State<GestionarTicket> {
           children: [
             const SizedBox(height: 10),
             if (myTickets.isEmpty)
-              const Center(child: Text('No tienes tickets'))
+              Column(
+                children: [
+                  SizedBox(height: 100),
+                  Center(
+                      child: Text('No tienes tickets',
+                          style: TextStyle(
+                              color: Colors.grey.shade700,
+                              fontSize: isMobile ? 16 : 18))),
+                ],
+              )
             else
               ListView.builder(
                 shrinkWrap: true,
@@ -448,9 +468,9 @@ class _GestionarTicketState extends State<GestionarTicket> {
                 child: Text(
                   'CANCELAR RESERVA',
                   style: TextStyle(
-                      color: Colors.red.shade800,
-                      fontSize: isMobile ? 14 : 16,
-                      fontWeight: FontWeight.bold),
+                    fontSize: 16,
+                    color: Colors.grey.shade700,
+                  ),
                 ),
               ),
             TextButton(
@@ -515,7 +535,7 @@ class _GestionarTicketState extends State<GestionarTicket> {
             children: [
               SizedBox(height: 10),
               _buildOptionTitle('Comedor', Icons.restaurant_menu),
-              SizedBox(height: 8),
+              SizedBox(height: 10),
               PlaceDropDown(isMobile),
             ],
           ),
@@ -526,7 +546,7 @@ class _GestionarTicketState extends State<GestionarTicket> {
             children: [
               SizedBox(height: 10),
               _buildOptionTitle('Menú', Icons.food_bank),
-              SizedBox(height: 8),
+              SizedBox(height: 10),
               FoodDropDown(isMobile),
             ],
           ),
@@ -566,7 +586,7 @@ class _GestionarTicketState extends State<GestionarTicket> {
       // Botón BUSCAR
       Button(
         icon: Icons.search,
-        text: 'BUSCAR',
+        text: 'Buscar',
         onPressed: () {
           if (startDate != null && endDate != null) {
             _searchMenus();
@@ -583,7 +603,7 @@ class _GestionarTicketState extends State<GestionarTicket> {
   SizedBox PlaceDropDown(bool isMobile) {
     return SizedBox(
       width: isMobile ? 150 : 200,
-      height: isMobile ? 65 : 50,
+      height: isMobile ? 60 : 50,
       child: InputDecorator(
         decoration: InputDecoration(
           filled: true,
@@ -605,7 +625,7 @@ class _GestionarTicketState extends State<GestionarTicket> {
                 .map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem<String>(
                 value: value,
-                child: Text(value, style: TextStyle(fontSize: 18)),
+                child: Text(value, style: TextStyle(fontSize: 17)),
               );
             }).toList(),
             icon: Icon(Icons.arrow_drop_down_circle, color: Colors.red[900]),
@@ -621,7 +641,7 @@ class _GestionarTicketState extends State<GestionarTicket> {
   SizedBox FoodDropDown(bool isMobile) {
     return SizedBox(
       width: isMobile ? 150 : 200,
-      height: isMobile ? 65 : 50,
+      height: isMobile ? 60 : 50,
       child: InputDecorator(
         decoration: InputDecoration(
           filled: true,
@@ -643,7 +663,7 @@ class _GestionarTicketState extends State<GestionarTicket> {
                 .map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem<String>(
                 value: value,
-                child: Text(value, style: TextStyle(fontSize: 18)),
+                child: Text(value, style: TextStyle(fontSize: 17)),
               );
             }).toList(),
             icon: Icon(Icons.arrow_drop_down_circle, color: Colors.red[900]),

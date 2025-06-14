@@ -31,10 +31,7 @@ Future<bool?> showConfirmDeleteDialog({
           TextButton(
             style: TextButton.styleFrom(foregroundColor: Colors.grey[700]),
             child: Text(cancelActionText,
-                style: TextStyle(
-                  color: Colors.black87,
-                  fontSize: isMobile ? 16 : 16,
-                )),
+                style: TextStyle(fontSize: 16, color: Colors.grey.shade700)),
             onPressed: () {
               Navigator.of(dialogContext).pop(false);
             },

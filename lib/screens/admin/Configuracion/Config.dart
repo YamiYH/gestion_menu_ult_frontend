@@ -65,10 +65,15 @@ class ConfigSectionWidget extends StatelessWidget {
           isMobile ? _buildMobileLayout() : _buildNonMobileLayout(),
           const SizedBox(height: 24.0),
           isMobile
-              ? Button(onPressed: onSave, text: saveButtonText)
+              ? Button(
+                  onPressed: onSave, text: saveButtonText, icon: Icons.save_alt)
               : Align(
                   alignment: Alignment.centerRight,
-                  child: Button(onPressed: onSave, text: saveButtonText),
+                  child: Button(
+                    onPressed: onSave,
+                    text: saveButtonText,
+                    icon: Icons.save_alt,
+                  ),
                 ),
           const SizedBox(height: 24.0),
           const Divider(),

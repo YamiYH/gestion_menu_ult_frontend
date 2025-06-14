@@ -142,6 +142,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           actionsAlignment: MainAxisAlignment.spaceEvenly,
           actions: [
             TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Cerrar el diálogo
+              },
+              child: Text('Cancelar',
+                  style: TextStyle(fontSize: 16, color: Colors.grey.shade700)),
+            ),
+            TextButton(
               style: TextButton.styleFrom(foregroundColor: Colors.grey[700]),
               onPressed: () async {
                 final LoginController loginController = LoginController();
@@ -155,23 +162,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 );
               },
               child: Text(
-                'ACEPTAR',
+                'Aceptar',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: isMobile ? 14 : 16,
+                  fontSize: 18,
                   color: Colors.red.shade700,
                 ),
               ),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // Cerrar el diálogo
-              },
-              child: Text('CANCELAR',
-                  style: TextStyle(
-                      color: Colors.grey.shade700,
-                      fontWeight: FontWeight.bold,
-                      fontSize: isMobile ? 14 : 16)),
             ),
           ],
         );

@@ -64,7 +64,7 @@ class _RoleDropDownState extends State<RoleDropDown> {
                 SizedBox(
                   width: 16,
                   height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+                  child: CircularProgressIndicator(color: Colors.red),
                 ),
                 SizedBox(width: 8),
                 Text('Cargando roles...'),

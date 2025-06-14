@@ -46,22 +46,22 @@ class _TypeDropDownState extends State<TypeDropDown> {
 
   @override
   Widget build(BuildContext context) {
+    bool isMobile = MediaQuery.of(context).size.width < 600;
     return FutureBuilder<List<String>>(
       future: _fetchTypesFuture,
       builder: (context, snapshot) {
-        // --- ESTADO DE CARGA ---
         if (snapshot.connectionState == ConnectionState.waiting) {
           return DropdownButtonFormField<String>(
             decoration: _inputDecoration(widget.label),
-            hint: const Row(
+            hint: Row(
               children: [
-                SizedBox(
+                const SizedBox(
                   width: 16,
                   height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+                  child: CircularProgressIndicator(color: Colors.red),
                 ),
-                SizedBox(width: 8),
-                Text('Cargando tipos...'),
+                const SizedBox(width: 8),
+                Text(isMobile ? 'Cargando...' : 'Cargando tipos...'),
               ],
             ),
             items: const [],
@@ -114,7 +114,7 @@ class _TypeDropDownState extends State<TypeDropDown> {
     return InputDecoration(
       labelText: label,
       border: const OutlineInputBorder(),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
     );
   }
 }

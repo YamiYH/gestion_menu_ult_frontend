@@ -97,8 +97,8 @@ class _MultiSelectAccessDropdownState extends State<MultiSelectAccessDropdown> {
                   child: Text(
                     'Cancelar',
                     style: TextStyle(
-                        color: Colors.red[800],
-                        fontWeight: FontWeight.bold,
+                        color: Colors.grey.shade700,
+                        //fontWeight: FontWeight.bold,
                         fontSize: isMobile ? 16 : 18),
                   ),
                   onPressed: () {

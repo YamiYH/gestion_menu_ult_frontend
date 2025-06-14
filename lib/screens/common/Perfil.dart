@@ -73,7 +73,7 @@ class Perfil extends StatelessWidget {
   Widget _buildBody(
       BuildContext context, ProfileProvider provider, UserProfile? user) {
     if (provider.isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator(color: Colors.red));
     }
 
     if (provider.error != null || user == null) {

@@ -143,7 +143,7 @@ class _RolModeloState extends State<RolModelo> {
     return Padding(
       padding: const EdgeInsets.only(top: 30.0),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -154,10 +154,11 @@ class _RolModeloState extends State<RolModelo> {
           SizedBox(width: 15),
 
           Button(
-              size: Size(isMobile ? 160 : 180, 45),
-              onPressed: _saveForm,
-              text: 'Guardar',
-              icon: Icons.save_alt),
+            size: Size(isMobile ? 160 : 180, 50),
+            text: 'Guardar',
+            icon: Icons.save_alt,
+            onPressed: _saveForm,
+          ),
           // SizedBox(height: 50)
         ],
       ),

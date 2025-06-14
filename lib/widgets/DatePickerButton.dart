@@ -33,7 +33,7 @@ class DatePickerButton extends StatelessWidget {
 
     return ElevatedButton.icon(
       style: ElevatedButton.styleFrom(
-        fixedSize: Size(isMobile ? 150 : 170, isMobile ? 40 : 50),
+        fixedSize: Size(isMobile ? 150 : 170, 50),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
