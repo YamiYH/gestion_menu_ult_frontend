@@ -163,20 +163,24 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
     });
   }
 
-  Future<bool> _isCurrentProposalMade() async {
+  Future<bool> _isCurrentProposalMade(bool isStudent) async {
     if (widget.menu == null) {
-      bool estudiantes = await _menuController.isMenuProposal(
-          selectedDate!.toIso8601String().split('T').first,
-          "Estudiantes",
-          selectedMealType!);
-      bool trabajadores = await _menuController.isMenuProposal(
-          selectedDate!.toIso8601String().split('T').first,
-          "Trabajadores",
-          selectedMealType!);
-      return trabajadores || estudiantes;
+      if(isStudent){
+        return await _menuController.isMenuProposal(
+            selectedDate!.toIso8601String().split('T').first,
+            "Estudiantes",
+            selectedMealType!);
+      }
+      else {
+        return await _menuController.isMenuProposal(
+            selectedDate!.toIso8601String().split('T').first,
+            "Trabajadores",
+            selectedMealType!);
+      }
     }
     return false;
   }
+
 
   Future<void> _proposeMenu() async {
     if (_isLoadingRecipes) return;
@@ -186,56 +190,44 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
     });
 
     try {
-      List<MenuRecipe> studentRecipes = _studentMenuItems.map((item) {
-        return MenuRecipe(id: item.selectedRecipeId);
-      }).toList();
+      final String date = selectedDate!.toIso8601String().split('T').first;
 
-      List<MenuRecipe> workerRecipes = _workerMenuItems.map((item) {
-        return MenuRecipe(id: item.selectedRecipeId);
-      }).toList();
+      // 1. INICIAMOS UN FLAG PARA DETECTAR SI HUBO AL MENOS UN ÉXITO
+      bool atLeastOneSuccess = false;
 
-      MenuEntity studentMenu = MenuEntity(
-        category: 'Estudiantes',
-        date: selectedDate!.toIso8601String().split('T').first,
-        recipes: studentRecipes,
-        status: 'Propuesto',
-        type: selectedMealType!,
-      );
-      MenuEntity workerMenu = MenuEntity(
-        category: 'Trabajadores',
-        date: selectedDate!.toIso8601String().split('T').first,
-        recipes: workerRecipes,
-        status: 'Propuesto',
-        type: selectedMealType!,
-      );
-      bool exist = await _isCurrentProposalMade();
-      if (!exist) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Ya se ha propuesto un menú para esta fecha.'),
-            backgroundColor: Colors.red,
-          ),
+      // --- Procesar Menú de Estudiantes ---
+      if (_studentMenuItems.isNotEmpty) {
+        final success = await _processMenuCategory(
+          category: 'Estudiantes',
+          menuItems: _studentMenuItems,
+          date: date,
+          isStudentCategory: true,
         );
-        return;
-      } else {
-        await _menuController.createMenu(studentMenu.toJson());
-        await _menuController.createMenu(workerMenu.toJson());
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Propuesta de menú enviada con éxito.'),
-              backgroundColor: Colors.blue),
-        );
-        if (mounted) {
-          Navigator.push(context, createFadeRoute(MenuList()));
-        }
+        // 2. SI ESTA OPERACIÓN TUVO ÉXITO, ACTIVAMOS EL FLAG
+        if (success) atLeastOneSuccess = true;
       }
+
+      // --- Procesar Menú de Trabajadores ---
+      if (_workerMenuItems.isNotEmpty) {
+        final success = await _processMenuCategory(
+          category: 'Trabajadores',
+          menuItems: _workerMenuItems,
+          date: date,
+          isStudentCategory: false,
+        );
+        // 3. SI ESTA OPERACIÓN TAMBIÉN TUVO ÉXITO, EL FLAG PERMANECE ACTIVO
+        if (success) atLeastOneSuccess = true;
+      }
+
+      // 4. LA CONDICIÓN FINAL AHORA VERIFICA SI AL MENOS UNO TUVO ÉXITO
+      if (atLeastOneSuccess && mounted) {
+        // Pequeña espera para que el usuario pueda ver el último SnackBar de éxito
+        await Future.delayed(const Duration(milliseconds: 500));
+        Navigator.push(context, createFadeRoute(MenuList()));
+      }
+
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Error al proponer los menus'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showSnackBar('Ocurrió un error inesperado: $e', isError: true);
     } finally {
       if (mounted) {
         setState(() {
@@ -243,6 +235,60 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
         });
       }
     }
+  }
+
+  Future<bool> _processMenuCategory({
+    required String category,
+    required List<RecipeItem> menuItems,
+    required String date,
+    required bool isStudentCategory,
+  }) async {
+    // No procesar si no hay platos en el menú
+    if (menuItems.isEmpty) {
+      return false; // Consideramos éxito porque no había nada que proponer.
+    }
+
+    // 1. Validar si ya existe
+    if (await _isCurrentProposalMade(isStudentCategory)) {
+      print("$category verdadero");
+      _showSnackBar('Ya se ha propuesto un menú de $category para esta fecha.', isError: true);
+      return false; // Falla: ya existía
+    }
+
+    // 2. Mapear los items a recetas
+    final recipes = menuItems
+        .where((item) => item.selectedRecipeId != null) // Más robusto: evita enviar platos vacíos
+        .map((item) => MenuRecipe(id: item.selectedRecipeId))
+        .toList();
+
+    // Si después de filtrar no quedan recetas, no hacemos nada.
+    if (recipes.isEmpty) {
+      return true;
+    }
+
+    // 3. Construir la entidad del menú
+    final menu = MenuEntity(
+      category: category,
+      date: date,
+      recipes: recipes,
+      status: 'Propuesto',
+      type: selectedMealType!,
+    );
+
+    // 4. Crear el menú
+    await _menuController.createMenu(menu.toJson());
+    _showSnackBar('Propuesta de menú de $category enviada con éxito.');
+    return true; // Éxito
+  }
+
+  void _showSnackBar(String message, {bool isError = false}) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? Colors.red : Colors.green,
+      ),
+    );
   }
 
   Future<void> _showConfirmationDialog() async {
@@ -404,11 +450,15 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
                         )),
                       if (!_isLoadingRecipes)
                         Column(children: _buildMenuCards(isMobile)),
-
                       const SizedBox(height: 20)
                     ],
                   )
-                : Row(
+                // Desde aqui se construye la vista Web
+                //************************************
+                //*************************************
+                : Column (
+              children: [
+                Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -417,22 +467,22 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
                         height: 50,
                         child: isMenuView
                             ? InputDecorator(
-                                decoration: InputDecoration(
-                                  filled: true,
-                                  fillColor: Colors.grey[200],
-                                  border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide.none),
-                                ),
-                                child: Text(
-                                  menuMealType ?? '',
-                                  style: const TextStyle(fontSize: 18),
-                                ),
-                              )
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.grey[200],
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide.none),
+                          ),
+                          child: Text(
+                            menuMealType ?? '',
+                            style: const TextStyle(fontSize: 18),
+                          ),
+                        )
                             : FoodDropDown(selectedMealType, (newValue) {
-                                setState(() => selectedMealType = newValue);
-                                _resetForm();
-                              }, isMobile),
+                          setState(() => selectedMealType = newValue);
+                          _resetForm();
+                        }, isMobile),
                       ),
                       const SizedBox(width: 20),
                       // Fecha
@@ -440,28 +490,28 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
                         width: MediaQuery.of(context).size.width * 0.15,
                         child: isMenuView
                             ? InputDecorator(
-                                decoration: InputDecoration(
-                                  filled: true,
-                                  fillColor: Colors.grey[200],
-                                  border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide.none),
-                                ),
-                                child: Text(
-                                  menuDate != null
-                                      ? "${menuDate.day.toString().padLeft(2, '0')}/${menuDate.month.toString().padLeft(2, '0')}/${menuDate.year}"
-                                      : '',
-                                  style: const TextStyle(fontSize: 18),
-                                ),
-                              )
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.grey[200],
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide.none),
+                          ),
+                          child: Text(
+                            menuDate != null
+                                ? "${menuDate.day.toString().padLeft(2, '0')}/${menuDate.month.toString().padLeft(2, '0')}/${menuDate.year}"
+                                : '',
+                            style: const TextStyle(fontSize: 18),
+                          ),
+                        )
                             : DateWidget(
-                                selectedDate: selectedDate,
-                                onDateSelected: (date) {
-                                  setState(() => selectedDate = date);
-                                  _resetForm();
-                                },
-                                size: MediaQuery.of(context).size.width * 0.15,
-                              ),
+                          selectedDate: selectedDate,
+                          onDateSelected: (date) {
+                            setState(() => selectedDate = date);
+                            _resetForm();
+                          },
+                          size: MediaQuery.of(context).size.width * 0.15,
+                        ),
                       ),
                       const SizedBox(width: 20),
                       // Botón proponer
@@ -484,9 +534,37 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
                         text: 'Lista de Menús',
                         size: Size(isMobile ? 320 : 220, isMobile ? 60 : 50),
                       ),
-                    ],
-                  ),
-            SizedBox(height: isMobile ? 10 : 40),
+                      SizedBox(height: isMobile ? 10 : 40),
+                    ]
+                ),
+                SizedBox(height: isMobile ? 10 : 40),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _isLoadingRecipes
+                          ? const Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(10.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(height: 100),
+                                CircularProgressIndicator(
+                                  color: Colors.red,
+                                ),
+                                SizedBox(height: 10),
+                                Text("Cargando platos..."),
+                              ],
+                            ),
+                          ))
+                          : Row (
+                        children: _buildMenuCards(isMobile),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            )
           ],
         ),
       ),
@@ -497,35 +575,43 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
     if (widget.menu == null) {
       // Modo propuesta (formulario editable)
       return [
-        MenuCard(
-          isMobile: isMobile,
-          title: 'Menú Estudiantes',
-          isEstudiantes: true,
-          menu: null,
+        Expanded(
+          child: MenuCard(
+            isMobile: isMobile,
+            title: 'Menú Estudiantes',
+            isEstudiantes: true,
+            menu: null,
+          ),
         ),
         SizedBox(width: isMobile ? 0 : 20, height: isMobile ? 20 : 0),
-        MenuCard(
-          isMobile: isMobile,
-          title: 'Menú Trabajadores',
-          isEstudiantes: false,
-          menu: null,
+        Expanded(
+          child: MenuCard(
+            isMobile: isMobile,
+            title: 'Menú Trabajadores',
+            isEstudiantes: false,
+            menu: null,
+          ),
         ),
       ];
     } else {
       // Modo visualización (datos del menú)
       return [
-        MenuCard(
-          isMobile: isMobile,
-          title: 'Menú Estudiantes',
-          isEstudiantes: true,
-          menu: widget.menu,
+        Expanded(
+          child: MenuCard(
+            isMobile: isMobile,
+            title: 'Menú Estudiantes',
+            isEstudiantes: true,
+            menu: widget.menu,
+          ),
         ),
         SizedBox(width: isMobile ? 0 : 20, height: isMobile ? 20 : 0),
-        MenuCard(
-          isMobile: isMobile,
-          title: 'Menú Trabajadores',
-          isEstudiantes: false,
-          menu: widget.menu,
+        Expanded(
+          child: MenuCard(
+            isMobile: isMobile,
+            title: 'Menú Trabajadores',
+            isEstudiantes: false,
+            menu: widget.menu,
+          ),
         ),
       ];
     }

@@ -120,14 +120,13 @@ class MenuEntityController extends BaseController {
 
   Future<bool> isMenuProposal(String date, String category, String type) async {
     try {
-      final responseData =
+      final bool responseData =
           await super.get('$endPoint/isproposed', queryParams: {
         'date': date,
         'category': category,
         'type': type,
       });
-      print(responseData);
-      return responseData != null;
+      return responseData;
     } catch (e) {
       rethrow;
     }
