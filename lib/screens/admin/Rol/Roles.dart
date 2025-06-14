@@ -219,21 +219,9 @@ class _RolesState extends State<Roles> {
           SizedBox(
             width: MediaQuery.of(context).size.width * 0.02,
           ),
-          SizedBox(
-            width: MediaQuery.of(context).size.width * 0.2,
-            height: 25,
-            child: Text('Nombre', style: _headerStyle()),
-          ),
-          SizedBox(
-            width: MediaQuery.of(context).size.width * 0.55,
-            height: 25,
-            child: Text('Accesos', style: _headerStyle()),
-          ),
-          SizedBox(
-            width: MediaQuery.of(context).size.width * 0.05,
-            height: 25,
-            child: Text('Estado', style: _headerStyle()),
-          ),
+          _header('Nombre', 0.2),
+          _header('Accesos', 0.55),
+          _header('Estado', 0.5),
           SizedBox(
             width: MediaQuery.of(context).size.width * 0.03,
             height: 25,
@@ -423,6 +411,14 @@ class _RolesState extends State<Roles> {
       fontWeight: FontWeight.bold,
       color: Colors.red[900],
       fontSize: 16,
+    );
+  }
+
+  Widget _header(String title, double widthFactor) {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width * widthFactor,
+      height: 20,
+      child: Text(title, style: _headerStyle(),
     );
   }
 }
