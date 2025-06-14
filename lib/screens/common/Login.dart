@@ -4,7 +4,7 @@ import 'package:gestion_menu_ult_frontend/routes/PageRouteBuilder.dart';
 import 'package:gestion_menu_ult_frontend/screens/ticket/GestionarTicket.dart';
 import 'package:provider/provider.dart';
 
-import '../../controllers/auth/LoginController.dart';
+import '../../controllers/security/LoginController.dart';
 import '../../providers/ProfileProvider.dart';
 import 'Options.dart';
 

@@ -3,7 +3,7 @@ import 'package:gestion_menu_ult_frontend/utils/Validators.dart';
 import 'package:gestion_menu_ult_frontend/widgets/Button.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 
-import '../../controllers/RoleController.dart';
+import '../../controllers/security/RoleController.dart';
 import '../../widgets/CustomTextFormField.dart';
 import '../../widgets/MultiSelectAccessDropdown.dart';
 import '../../widgets/StatusCheckboxRow.dart'; // Ajusta la ruta

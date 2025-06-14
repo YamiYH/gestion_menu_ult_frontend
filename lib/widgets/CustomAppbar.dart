@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/routes/PageRouteBuilder.dart';
 import 'package:gestion_menu_ult_frontend/screens/common/Help.dart';
 import 'package:gestion_menu_ult_frontend/screens/common/Login.dart';
+import 'package:gestion_menu_ult_frontend/screens/common/Options.dart';
 import 'package:provider/provider.dart';
 
-import '../controllers/auth/LoginController.dart';
+import '../controllers/security/LoginController.dart';
 import '../providers/ProfileProvider.dart';
 import '../screens/common/Perfil.dart';
 
@@ -83,6 +84,12 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                       fontSize: isMobile ? 16 : 18,
                     )),
                 SizedBox(width: isMobile ? 5 : 20),
+                IconButton(
+                    tooltip: 'Página principal',
+                    onPressed: () {
+                      Navigator.push(context, createFadeRoute(Options()));
+                    },
+                    icon: Icon(Icons.home)),
                 IconButton(
                     tooltip: 'Manual de Usuarios',
                     onPressed: () {

@@ -36,7 +36,7 @@ class _ButtonState extends State<Button> {
         backgroundColor: Colors.red[900],
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         padding: EdgeInsets.symmetric(
-          horizontal: isMobile ? 30 : 40,
+          horizontal: isMobile ? 30 : 20,
           vertical: isMobile ? 11 : 18,
         ),
       ),

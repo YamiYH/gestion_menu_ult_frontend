@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:gestion_menu_ult_frontend/controllers/user/UserAuthContext.dart';
+import 'package:gestion_menu_ult_frontend/controllers/security/user/UserAuthContext.dart';
 import 'package:gestion_menu_ult_frontend/models/Login/UserLoginRequest.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';

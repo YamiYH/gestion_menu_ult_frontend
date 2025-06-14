@@ -1,6 +1,6 @@
 import 'package:gestion_menu_ult_frontend/controllers/BaseController.dart';
 
-import '../models/RoleEntity.dart';
+import '../../models/RoleEntity.dart';
 
 class RoleController extends BaseController {
   @override

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/routes/PageRouteBuilder.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/Ventas/ComedorAcceso.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/Ventas/InformesVentas.dart';
-import 'package:gestion_menu_ult_frontend/screens/menu/Ventas/Ventas.dart';
+import 'package:gestion_menu_ult_frontend/screens/menu/Ventas/MenuVenta.dart';
 import 'package:gestion_menu_ult_frontend/widgets/BuildCard.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -85,7 +85,7 @@ class ModulosVenta extends StatelessWidget {
             icon: Icons.attach_money,
             isEnabled: userPermissions.contains('Caja'),
             onTap: () {
-              Navigator.push(context, createFadeRoute(Ventas()));
+              Navigator.push(context, createFadeRoute(MenuVentas()));
             },
           ),
         ),

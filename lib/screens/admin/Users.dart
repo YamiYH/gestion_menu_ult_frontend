@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:gestion_menu_ult_frontend/controllers/user/UserController.dart';
 import 'package:gestion_menu_ult_frontend/screens/admin/UserModelo.dart';
 import 'package:gestion_menu_ult_frontend/widgets/AddButton.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
@@ -9,7 +8,8 @@ import 'package:gestion_menu_ult_frontend/widgets/Pagination.dart';
 import 'package:gestion_menu_ult_frontend/widgets/StatusDropDown.dart';
 import 'package:gestion_menu_ult_frontend/widgets/TypeDropDown.dart';
 
-import '../../controllers/RoleController.dart';
+import '../../controllers/security/RoleController.dart';
+import '../../controllers/security/user/UserController.dart';
 import '../../models/UserEntity.dart';
 import '../../routes/PageRouteBuilder.dart';
 import '../../widgets/Button.dart';
@@ -245,7 +245,10 @@ class _UsersState extends State<Users> {
           const SizedBox(height: 10),
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(
+                    child: CircularProgressIndicator(
+                    color: Colors.red,
+                  ))
                 : _errorMessage.isNotEmpty
                     ? Center(
                         child: Text(_errorMessage,
@@ -253,7 +256,8 @@ class _UsersState extends State<Users> {
                                 color: Colors.red, fontSize: 16),
                             textAlign: TextAlign.center))
                     : _users.isEmpty
-                        ? const Center(
+                        ? Container(
+                            padding: EdgeInsets.all(70),
                             child: Text(
                                 'No se encontraron usuarios con los filtros aplicados.',
                                 style: TextStyle(fontSize: 16)))
@@ -357,19 +361,16 @@ class _UsersState extends State<Users> {
           );
   }
 
-// lib/screens/admin/Users.dart
-
   Widget Status() {
     return StatusDropDown(
       selectedValue: _selectedStatus,
       onChanged: (value) {
-        // Prevenimos recargas innecesarias si el valor no cambia
         if (value == null || value == _selectedStatus) return;
 
         setState(() {
           _selectedStatus = value;
         });
-        // AÑADIMOS LA LLAMADA PARA EJECUTAR LA BÚSQUEDA
+
         _triggerSearch();
       },
     );
@@ -379,13 +380,12 @@ class _UsersState extends State<Users> {
     return TypeDropDown(
       selectedValue: _selectedUserType,
       onChanged: (newValue) {
-        // Prevenimos recargas innecesarias si el valor no cambia
         if (newValue == null || newValue == _selectedUserType) return;
 
         setState(() {
           _selectedUserType = newValue;
         });
-        // AÑADIMOS LA LLAMADA PARA EJECUTAR LA BÚSQUEDA
+
         _triggerSearch();
       },
     );
@@ -446,21 +446,11 @@ class _UsersState extends State<Users> {
       color: Colors.grey[200],
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Expanded(flex: 3, child: Text('Usuario', style: _headerStyle())),
-          Expanded(
-              flex: 2,
-              child: Text('Estado',
-                  style: _headerStyle(), textAlign: TextAlign.center)),
-          Expanded(
-              flex: 3,
-              child: Text('Tipo',
-                  style: _headerStyle(), textAlign: TextAlign.center)),
-          Expanded(
-              flex: 3,
-              child: Text('Acciones',
-                  style: _headerStyle(), textAlign: TextAlign.center)),
+          _header('Usuario', 0.35),
+          _header('Estado', 0.3),
+          _header('Acciones', 0.25),
         ],
       ),
     );
@@ -468,21 +458,20 @@ class _UsersState extends State<Users> {
 
   Widget _buildUserRowMobile(User user) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Expanded(
-              flex: 3,
+          SizedBox(
+              width: MediaQuery.of(context).size.width * 0.35,
               child: Text(user.username, overflow: TextOverflow.ellipsis)),
-          Expanded(
-              flex: 2,
-              child: Text(user.enabled ? 'Activo' : 'Inactivo',
-                  textAlign: TextAlign.center)),
-          Expanded(
-              flex: 3, child: Text(user.type, textAlign: TextAlign.center)),
-          Expanded(
-              flex: 3,
+          SizedBox(
+              width: MediaQuery.of(context).size.width * 0.3,
+              child: Text(
+                user.enabled ? 'Activo' : 'Inactivo',
+              )),
+          SizedBox(
+              width: MediaQuery.of(context).size.width * 0.25,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

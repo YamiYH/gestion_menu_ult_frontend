@@ -1,7 +1,8 @@
 // lib/widgets/TypeDropDown.dart
 
 import 'package:flutter/material.dart';
-import 'package:gestion_menu_ult_frontend/controllers/user/UserController.dart'; // Asegúrate que la ruta es correcta
+
+import '../controllers/security/user/UserController.dart'; // Asegúrate que la ruta es correcta
 
 class TypeDropDown extends StatefulWidget {
   final String selectedValue;

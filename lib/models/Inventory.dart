@@ -3,9 +3,9 @@
 class Inventory {
   final String code;
   final String description;
-  final double existence; // Cambiado a double
+  final double existence;
   final String measurementUnit;
-  final double price; // Cambiado a double
+  final double price;
 
   const Inventory({
     required this.code,
@@ -16,7 +16,6 @@ class Inventory {
   });
 
   factory Inventory.fromJson(Map<String, dynamic> json) {
-    // Función segura para parsear números que pueden venir como String o num
     double safeParseDouble(dynamic value) {
       if (value == null) return 0.0;
       if (value is double) return value;

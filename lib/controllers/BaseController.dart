@@ -2,8 +2,8 @@
 
 import 'dart:convert';
 
-import 'package:flutter/material.dart'; // Asumo que tu UserAuthContext está en esta ruta
-import 'package:gestion_menu_ult_frontend/controllers/user/UserAuthContext.dart';
+import 'package:flutter/material.dart'; // Asumo que tu UserAuthContext está en es
+import 'package:gestion_menu_ult_frontend/controllers/security/user/UserAuthContext.dart';
 import 'package:http/http.dart' as http;
 
 abstract class BaseController {
@@ -55,6 +55,19 @@ abstract class BaseController {
 
     final response =
         await http.put(uri, headers: headers, body: jsonEncode(body));
+    return _processResponse(response);
+  }
+
+  // Método PUT genérico
+  Future<dynamic> putWithParams(String path,
+      {required Map<String, dynamic> queryParams}) async {
+    final headers = await _getAuthenticatedHeaders();
+    final uri =
+        Uri.parse('$baseUrl$path').replace(queryParameters: queryParams);
+
+    debugPrint("PUT Request to: $uri");
+
+    final response = await http.put(uri, headers: headers);
     return _processResponse(response);
   }
 

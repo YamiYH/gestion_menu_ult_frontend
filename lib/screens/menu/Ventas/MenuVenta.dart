@@ -4,22 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/controllers/menu/RecipeController.dart';
 import 'package:gestion_menu_ult_frontend/models/Recipe.dart'; // Importa tu modelo
 import 'package:gestion_menu_ult_frontend/routes/PageRouteBuilder.dart';
-import 'package:gestion_menu_ult_frontend/widgets/AddButton.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
-import 'package:gestion_menu_ult_frontend/widgets/Pagination.dart';
 
-import '../../widgets/Confirm.dart';
-import '../../widgets/CustomTextFormField.dart';
-import 'RecetaModelo.dart';
+import 'Ventas.dart';
 
-class LibroRecetas extends StatefulWidget {
-  const LibroRecetas({super.key});
+class MenuVentas extends StatefulWidget {
+  const MenuVentas({super.key});
 
   @override
-  State<LibroRecetas> createState() => _LibroRecetasState();
+  State<MenuVentas> createState() => _MenuVentasState();
 }
 
-class _LibroRecetasState extends State<LibroRecetas> {
+class _MenuVentasState extends State<MenuVentas> {
   final RecipeController _recipeController = RecipeController();
   final TextEditingController _searchController = TextEditingController();
   Timer? _debounce;
@@ -172,64 +168,37 @@ class _LibroRecetasState extends State<LibroRecetas> {
     }
   }
 
-  Future<void> _navigateToRecipeForm({Recipe? receta}) async {
-    // Usa 'await' para esperar a que la pantalla RecetaModelo se cierre
-    final result = await Navigator.push(
-      context,
-      createFadeRoute(RecetaModelo(
-        // Si no hay receta, es para crear, por lo tanto isEditMode es true
-        isEditMode: true,
-        receta: receta,
-      )),
-    );
-
-    // Si `RecetaModelo` devolvió `true`, significa que se guardó algo
-    if (result == true && mounted) {
-      // Recarga los datos para reflejar los cambios (creación o edición)
-      _fetchRecipes();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     bool isMobile = MediaQuery.of(context).size.width < 700;
 
     return Scaffold(
-        appBar: CustomAppBar(title: 'Libro de Recetas'),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
-                child: isMobile
-                    ? _buildMobileHeader(isMobile)
-                    : _buildDesktopHeader(isMobile),
-              ),
-              Expanded(
-                child: _buildBody(),
-              ),
-            ],
-          ),
+      appBar: CustomAppBar(title: 'Menús a vender'),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Column(
+          children: [
+            SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Menús listos para la venta:',
+                  style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF8B0000)),
+                ),
+              ],
+            ),
+            SizedBox(height: 20),
+            Expanded(
+              child: _buildBody(),
+            ),
+          ],
         ),
-        bottomNavigationBar: Pagination(
-          currentPage: _recipeController.currentPage,
-          totalPages: _recipeController.totalPages,
-          itemsPerPage: _recipeController.pageSize,
-          onPageChanged: (newPage) {
-            if (_recipeController.currentPage != newPage) {
-              _recipeController.currentPage = newPage;
-              _loadInitialData();
-            }
-          },
-          onItemsPerPageChanged: (newSize) {
-            if (_recipeController.pageSize != newSize) {
-              _recipeController.pageSize = newSize;
-              _recipeController.currentPage = 0;
-              _loadInitialData();
-            }
-          },
-        ));
+      ),
+    );
   }
 
   Widget _buildBody() {
@@ -247,83 +216,13 @@ class _LibroRecetasState extends State<LibroRecetas> {
     if (_displayedRecetas.isEmpty) {
       return const Center(
         child: Text(
-          'No se encontraron recetas con los filtros aplicados.',
+          'No se encontraron menús para la venta',
           style: TextStyle(fontSize: 16, color: Colors.grey),
           textAlign: TextAlign.center,
         ),
       );
     }
     return _buildRecipeList();
-  }
-
-  Widget _buildMobileHeader(isMobile) {
-    return Column(
-      children: [
-        _buildSearchField(),
-        const SizedBox(height: 16),
-        _buildCategoryDropdown(),
-        const SizedBox(height: 16),
-        AddButton(
-          size: Size(isMobile ? 140 : 150, 50),
-          onPressed: () => _navigateToRecipeForm(),
-          text: 'Receta',
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDesktopHeader(isMobile) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-            width: MediaQuery.of(context).size.width * 0.2,
-            child: _buildSearchField()),
-        const SizedBox(width: 16),
-        SizedBox(
-            width: MediaQuery.of(context).size.width * 0.2,
-            child: _buildCategoryDropdown()),
-        const SizedBox(width: 16),
-        AddButton(
-          size: Size(isMobile ? 140 : 150, 50),
-          onPressed: () => _navigateToRecipeForm(),
-          text: 'Receta',
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSearchField() {
-    return CustomTextFormField(
-      controller: _searchController,
-      labelText: 'Buscar por nombre',
-      prefixIcon: const Icon(Icons.search),
-    );
-  }
-
-  // *** WIDGET REFACTORIZADO PARA CARGAR DATOS ASÍNCRONAMENTE ***
-  Widget _buildCategoryDropdown() {
-    return DropdownButtonFormField<String>(
-      value: _selectedCategory,
-      decoration: InputDecoration(
-        labelText: 'Categoría',
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(5.0)),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(5.0),
-          borderSide: BorderSide(color: Colors.grey[600] ?? Colors.grey),
-        ),
-        contentPadding:
-            const EdgeInsets.symmetric(vertical: 12.0, horizontal: 15.0),
-      ),
-      items: _allCategories.map((String category) {
-        return DropdownMenuItem<String>(
-          value: category,
-          child: Text(category),
-        );
-      }).toList(),
-      onChanged: _handleCategoryChanged,
-    );
   }
 
   Widget _buildRecipeList() {
@@ -348,31 +247,8 @@ class _LibroRecetasState extends State<LibroRecetas> {
             left: 16.0, right: 8.0, top: 8.0, bottom: 8.0),
         title: Text(receta.name,
             style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: Icon(Icons.edit, color: Colors.blue.shade700, size: 22),
-              tooltip: 'Editar Receta',
-              onPressed: () => _navigateToRecipeForm(receta: receta),
-            ),
-            IconButton(
-              icon: Icon(Icons.delete, color: Colors.red.shade700, size: 22),
-              tooltip: 'Eliminar Receta',
-              onPressed: () {
-                showConfirmDeleteDialog(
-                  context: context,
-                  itemName: receta.name,
-                  itemType: 'la receta',
-                  onConfirm: () => _handleDeleteRecipe(receta.id),
-                );
-              },
-            ),
-          ],
-        ),
         onTap: () {
-          Navigator.push(context,
-              createFadeRoute(RecetaModelo(isEditMode: false, receta: receta)));
+          Navigator.push(context, createFadeRoute(Ventas()));
         },
       ),
     );

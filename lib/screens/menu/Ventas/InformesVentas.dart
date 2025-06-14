@@ -1,7 +1,7 @@
 // lib/screens/admin/InformesVentas.dart
 
 import 'package:flutter/material.dart';
-import 'package:gestion_menu_ult_frontend/controllers/ReportController.dart';
+import 'package:gestion_menu_ult_frontend/controllers/sales/ReportController.dart';
 import 'package:gestion_menu_ult_frontend/models/SalesReport.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 import 'package:intl/intl.dart';
@@ -105,7 +105,10 @@ class _InformesVentasState extends State<InformesVentas> {
           ),
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(
+                    child: CircularProgressIndicator(
+                    color: Colors.red,
+                  ))
                 : _reportGroups.isEmpty
                     ? const Center(
                         child: Text(

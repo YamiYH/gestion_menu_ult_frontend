@@ -1,14 +1,11 @@
 // lib/screens/admin/Inventario.dart
 
 import 'package:flutter/material.dart';
-import 'package:gestion_menu_ult_frontend/controllers/InventoryController.dart';
+import 'package:gestion_menu_ult_frontend/controllers/inventory/InventoryController.dart';
 import 'package:gestion_menu_ult_frontend/models/Inventory.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 import 'package:gestion_menu_ult_frontend/widgets/Pagination.dart'; // Importa tu widget de paginación refactorizado
 import 'package:gestion_menu_ult_frontend/widgets/UserTextFormField.dart';
-
-import '../../widgets/Button.dart';
-import '../../widgets/NumField.dart';
 
 class Inventario extends StatefulWidget {
   const Inventario({super.key});
@@ -81,7 +78,10 @@ class _InventarioState extends State<Inventario> {
 
   @override
   Widget build(BuildContext context) {
-    bool isMobile = MediaQuery.of(context).size.width < 600;
+    bool isMobile = MediaQuery
+        .of(context)
+        .size
+        .width < 600;
     return Scaffold(
       appBar: CustomAppBar(title: 'Inventario'),
       body: Column(
@@ -94,17 +94,20 @@ class _InventarioState extends State<Inventario> {
           isMobile ? _buildHeaderRowMobile() : _buildHeaderRow(),
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(
+                child: CircularProgressIndicator(
+                  color: Colors.red,
+                ))
                 : _products.isEmpty
-                    ? const Center(
-                        child: Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Text(
-                            'No se encontraron productos con los filtros aplicados.'),
-                      ))
-                    : isMobile
-                        ? _buildProductListMobile()
-                        : _buildProductList(),
+                ? const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
+                      'No se encontraron productos con los filtros aplicados.'),
+                ))
+                : isMobile
+                ? _buildProductListMobile()
+                : _buildProductList(),
           ),
         ],
       ),
@@ -136,59 +139,25 @@ class _InventarioState extends State<Inventario> {
   Widget _buildFilterSection(bool isMobile) {
     return isMobile
         ? Column(
-            children: [
-              _buildSearchField(),
-              const SizedBox(height: 10),
-              SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.9,
-                  child: _buildQuantityRange()),
-              const SizedBox(height: 10),
-              Button(
-                  onPressed: _triggerSearch,
-                  text: 'BUSCAR',
-                  icon: Icons.search),
-            ],
-          )
+      children: [
+        const SizedBox(height: 10),
+        _buildSearchField(),
+      ],
+    )
         : Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(width: 300, child: _buildSearchField()),
-              const SizedBox(width: 20),
-              SizedBox(width: 300, child: _buildQuantityRange()),
-              const SizedBox(width: 20),
-              Button(
-                  onPressed: _triggerSearch,
-                  text: 'BUSCAR',
-                  icon: Icons.search),
-            ],
-          );
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(width: 300, child: _buildSearchField()),
+        const SizedBox(width: 20),
+      ],
+    );
   }
 
   Widget _buildSearchField() {
     return UserTextFormField(
-      text: 'Producto',
+      text: 'Buscar producto',
       controller: _searchController,
-    );
-  }
-
-  Widget _buildQuantityRange() {
-    return Row(
-      children: [
-        Expanded(
-            child: NumField(
-          controller: _minQuantityController,
-          text: 'Cant.Mínima',
-        )),
-        const SizedBox(width: 5),
-        Icon(Icons.arrow_forward, color: Colors.red[900]),
-        const SizedBox(width: 5),
-        Expanded(
-            child: NumField(
-          controller: _maxQuantityController,
-          text: 'Cant.Máxima',
-        )),
-      ],
     );
   }
 
@@ -198,10 +167,13 @@ class _InventarioState extends State<Inventario> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Row(
           children: [
-            SizedBox(width: MediaQuery.of(context).size.width * 0.02),
-            Expanded(flex: 4, child: Text('Producto', style: _headerStyle())),
-            Expanded(flex: 3, child: Text('Existencia', style: _headerStyle())),
-            Expanded(flex: 2, child: Text('U/M', style: _headerStyle())),
+            SizedBox(width: MediaQuery
+                .of(context)
+                .size
+                .width * 0.02),
+            SizedBox(child: Text('Producto', style: _headerStyle())),
+            SizedBox(child: Text('Existencia', style: _headerStyle())),
+            SizedBox(child: Text('U/M', style: _headerStyle())),
           ],
         ));
   }
@@ -212,12 +184,15 @@ class _InventarioState extends State<Inventario> {
       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 8),
       child: Row(
         children: [
-          SizedBox(width: MediaQuery.of(context).size.width * 0.02),
-          Expanded(flex: 2, child: Text('Código', style: _headerStyle())),
-          Expanded(flex: 3, child: Text('Producto', style: _headerStyle())),
-          Expanded(flex: 2, child: Text('Existencia', style: _headerStyle())),
-          Expanded(flex: 1, child: Text('U/M', style: _headerStyle())),
-          Expanded(flex: 2, child: Text('Precio', style: _headerStyle())),
+          SizedBox(width: MediaQuery
+              .of(context)
+              .size
+              .width * 0.02),
+          SizedBox(child: Text('Código', style: _headerStyle())),
+          SizedBox(child: Text('Producto', style: _headerStyle())),
+          SizedBox(child: Text('Existencia', style: _headerStyle())),
+          SizedBox(child: Text('U/M', style: _headerStyle())),
+          SizedBox(child: Text('Precio', style: _headerStyle())),
         ],
       ),
     );
@@ -233,19 +208,19 @@ class _InventarioState extends State<Inventario> {
           padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
           child: Row(
             children: [
-              SizedBox(width: MediaQuery.of(context).size.width * 0.02),
-              Expanded(
-                flex: 4,
+              SizedBox(width: MediaQuery
+                  .of(context)
+                  .size
+                  .width * 0.02),
+              SizedBox(
                 child: Text(product.description,
                     style: const TextStyle(fontSize: 14)),
               ),
-              Expanded(
-                flex: 3,
+              SizedBox(
                 child: Text(product.existence.toStringAsFixed(2),
                     style: const TextStyle(fontSize: 14)),
               ),
-              Expanded(
-                flex: 2,
+              SizedBox(
                 child: Text(product.measurementUnit,
                     style: const TextStyle(fontSize: 14)),
               ),
@@ -266,25 +241,23 @@ class _InventarioState extends State<Inventario> {
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
           child: Row(
             children: [
-              SizedBox(width: MediaQuery.of(context).size.width * 0.02),
-              Expanded(
-                  flex: 2,
+              SizedBox(width: MediaQuery
+                  .of(context)
+                  .size
+                  .width * 0.02),
+              SizedBox(
                   child:
-                      Text(product.code, style: const TextStyle(fontSize: 16))),
-              Expanded(
-                  flex: 3,
+                  Text(product.code, style: const TextStyle(fontSize: 16))),
+              SizedBox(
                   child: Text(product.description,
                       style: const TextStyle(fontSize: 16))),
-              Expanded(
-                  flex: 2,
+              SizedBox(
                   child: Text(product.existence.toStringAsFixed(2),
                       style: const TextStyle(fontSize: 16))),
-              Expanded(
-                  flex: 1,
+              SizedBox(
                   child: Text(product.measurementUnit,
                       style: const TextStyle(fontSize: 16))),
-              Expanded(
-                  flex: 2,
+              SizedBox(
                   child: Text("\$${product.price.toStringAsFixed(2)}",
                       style: const TextStyle(fontSize: 16))),
             ],
@@ -295,10 +268,11 @@ class _InventarioState extends State<Inventario> {
   }
 
   TextStyle _headerStyle() {
-    bool isMobile = MediaQuery.of(context).size.width < 600;
+    bool isMobile = MediaQuery
+        .of(context)
+        .size
+        .width < 600;
     return TextStyle(
-        fontWeight: FontWeight.bold,
-        color: Colors.red[900],
-        fontSize: isMobile ? 13 : 16);
+        fontWeight: FontWeight.bold, color: Colors.red[900], fontSize: 16);
   }
 }

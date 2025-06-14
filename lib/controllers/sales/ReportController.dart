@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:gestion_menu_ult_frontend/controllers/user/UserAuthContext.dart';
+import 'package:gestion_menu_ult_frontend/controllers/security/user/UserAuthContext.dart';
 import 'package:gestion_menu_ult_frontend/models/SalesReport.dart'; // Importa los nuevos modelos
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';

@@ -80,8 +80,7 @@ class _PaginationState extends State<Pagination> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 _buildPageControls(isMobile),
-                const SizedBox(height: 4),
-                _buildSizeAndGoControls(isMobile),
+                const SizedBox(height: 4)
               ],
             )
           : Row(

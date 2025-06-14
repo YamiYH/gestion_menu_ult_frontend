@@ -63,7 +63,7 @@ class _MenuConfigState extends State<MenuConfig> {
     bool isMobile = MediaQuery.of(context).size.width < 600;
     return Scaffold(
       appBar: CustomAppBar(
-          title: isMobile ? 'Configuración Menú' : 'Configuración de Menú'),
+          title: isMobile ? 'Configuración' : 'Configuración de Menú'),
       body: Container(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,

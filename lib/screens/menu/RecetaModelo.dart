@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:gestion_menu_ult_frontend/controllers/InventoryController.dart';
+import 'package:gestion_menu_ult_frontend/controllers/inventory/InventoryController.dart';
 import 'package:gestion_menu_ult_frontend/models/Inventory.dart';
 import 'package:gestion_menu_ult_frontend/widgets/AddButton.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomTextFormField.dart';
 
-import '../../controllers/RecipeController.dart';
+import '../../controllers/menu/RecipeController.dart';
 import '../../models/Recipe.dart';
 import '../../utils/Validators.dart';
 import '../../widgets/Button.dart';
@@ -220,7 +220,7 @@ class _RecetaModeloState extends State<RecetaModelo> {
       if (widget.receta == null)
         await _recipeController.createRecipe(recipeData);
       else
-        await _recipeController.updateUser(recipeData);
+        await _recipeController.updateRecipe(recipeData);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -244,7 +244,10 @@ class _RecetaModeloState extends State<RecetaModelo> {
     return Scaffold(
       appBar: CustomAppBar(title: appBarTitle),
       body: _isLoadingDependencies
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+              child: CircularProgressIndicator(
+              color: Colors.red,
+            ))
           : _buildForm(),
     );
   }

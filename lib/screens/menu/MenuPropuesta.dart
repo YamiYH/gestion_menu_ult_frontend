@@ -1,153 +1,278 @@
 import 'package:flutter/material.dart';
-import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
-import 'package:gestion_menu_ult_frontend/widgets/Date.dart'; // Asegúrate que la ruta es correcta
+import 'package:gestion_menu_ult_frontend/models/MenuEntity.dart';
+import 'package:gestion_menu_ult_frontend/models/Recipe.dart';
+import 'package:gestion_menu_ult_frontend/routes/PageRouteBuilder.dart';
 
-import '../../widgets/Button.dart'; // Asegúrate que la ruta es correcta
+import '../../controllers/menu/MenuController.dart';
+import '../../controllers/menu/RecipeController.dart';
+import '../../widgets/AddButton.dart';
+import '../../widgets/Button.dart';
+import '../../widgets/CustomAppbar.dart';
+import '../../widgets/CustomTextFormField.dart';
+import '../../widgets/Date.dart';
+import 'MenuList.dart';
 
+// --- MODELO AUXILIAR ---
+class RecipeItem {
+  final TextEditingController controller;
+  String? selectedRecipe;
+  String? selectedRecipeId;
+
+  RecipeItem(
+      {this.selectedRecipe, this.selectedRecipeId, required this.controller});
+
+  dispose() {
+    controller.dispose();
+  }
+}
+
+// --- WIDGET PRINCIPAL ---
 class MenuPropuesta extends StatefulWidget {
+  final MenuEntity? menu;
+
+  const MenuPropuesta({
+    Key? key,
+    this.menu,
+  }) : super(key: key);
+
   @override
   State<MenuPropuesta> createState() => _MenuPropuestaState();
 }
 
 class _MenuPropuestaState extends State<MenuPropuesta> {
-  final List<String> ensaladas = [
-    'Seleccionar Ensaladas y Vegetales',
-    'Ensalada de acelga',
-    'Ensalada de aguacate'
-  ];
-  final List<String> sopas = [
-    'Seleccionar Sopas, Caldos y Frijoles',
-    'Ajiaco',
-    'Sopa de chícharo c/  fideos'
-  ];
-  final List<String> arroces = [
-    'Seleccionar Arroces y Pastas',
-    'Arroz blanco',
-    'Arroz congrís'
-  ];
-  final List<String> huevos = [
-    'Seleccionar Huevos',
-    'Huevo frito',
-    'Huevo hervido'
-  ];
-  final List<String> carnes = [
-    'Seleccionar Carnes y Embutidos',
-    'Aporreado de tasajo',
-    'Aporreado de pollo '
-  ];
-  final List<String> pescados = [
-    'Seleccionar Pescados',
-    'Enchilado   de  pescado',
-    'Pescado frito'
-  ];
-  final List<String> harinas = [
-    'Seleccionar Harinas',
-    'Harina de maíz c/sal',
-    'Harina de maíz en dulce'
-  ];
-  final List<String> croquetas = [
-    'Seleccionar Croquetas y Frituras',
-    'Croquetas',
-    'Masa para croquetas fritas'
-  ];
-  final List<String> viandas = [
-    'Seleccionar Viandas',
-    'Papa  hervida',
-    'Papa frita '
-  ];
-  final List<String> panes = [
-    'Seleccionar Panes',
-    'Pan  con  huevo  frito',
-    'Pan con tomate'
-  ];
-  final List<String> frutas = [
-    'Seleccionar Frutas, Jugos y Dulces',
-    'Tajadas de  fruta bomba',
-    'Tajadas de mango'
-  ];
-  final List<String> salsas = [
-    'Seleccionar Salsas y Lácteos',
-    'Salsa criolla',
-    'Yogurt natural'
-  ];
-
-  String? selectedEnsaladasEstudiantes;
-  String? selectedSopasEstudiantes;
-  String? selectedArrocesEstudiantes;
-  String? selectedHuevosEstudiantes;
-  String? selectedCarnesEstudiantes;
-  String? selectedPescadosEstudiantes;
-  String? selectedHarinasEstudiantes;
-  String? selectedCroquetasEstudiantes;
-  String? selectedViandasEstudiantes;
-  String? selectedPanesEstudiantes;
-  String? selectedFrutasEstudiantes;
-  String? selectedSalsasEstudiantes;
-
-  String? selectedEnsaladasTrabajadores;
-  String? selectedSopasTrabajadores;
-  String? selectedArrocesTrabajadores;
-  String? selectedHuevosTrabajadores;
-  String? selectedCarnesTrabajadores;
-  String? selectedPescadosTrabajadores;
-  String? selectedHarinasTrabajadores;
-  String? selectedCroquetasTrabajadores;
-  String? selectedViandasTrabajadores;
-  String? selectedPanesTrabajadores;
-  String? selectedFrutasTrabajadores;
-  String? selectedSalsasTrabajadores;
+  // --- ESTADO Y CONTROLADORES ---
+  final RecipeController _recipeController = RecipeController();
+  final MenuEntityController _menuController = MenuEntityController();
 
   String? selectedMealType = 'Almuerzo';
-
+  DateTime? selectedDate = DateTime.now().add(const Duration(days: 1));
   bool isEstudiantesEnabled = true;
   bool isTrabajadoresEnabled = true;
+  bool isMenuProposed = false;
 
-  bool _isProposalConfirmed = false;
-  DateTime? selectedDate = DateTime.now().add(Duration(days: 1));
+  List<RecipeItem> _studentMenuItems = [];
+  List<RecipeItem> _workerMenuItems = [];
+  List<Recipe> _availableRecipes = [];
+  bool _isLoadingRecipes = true;
 
-  Future<void> _showConfirmationDialog(bool isMobile) async {
+  Future<void> _initializeControllers() async {
+    if (widget.menu == null) {
+    } else {
+      final r = widget.menu;
+      List<RecipeItem> recipeRows = [];
+      if (r?.recipes != null) {
+        recipeRows = r!.recipes.map((ing) {
+          return RecipeItem(
+            // Se asume que el ID del ingrediente es el ID del producto.
+            // Si el ID del ingrediente es diferente, necesitarías pasarlo por separado.
+            selectedRecipeId: ing.id,
+            selectedRecipe: ing.name,
+            controller: TextEditingController(text: ing.name),
+          );
+        }).toList();
+        if (r.category == 'Estudiantes') {
+          _studentMenuItems = recipeRows;
+        } else if (r.category == 'Trabajadores') {
+          _workerMenuItems = recipeRows;
+        }
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchMenuRecipe();
+    _initializeControllers();
+  }
+
+  @override
+  void dispose() {
+    // Limpiamos los controladores para evitar fugas de memoria
+    for (var item in _studentMenuItems) {
+      item.controller.dispose();
+    }
+    for (var item in _workerMenuItems) {
+      item.controller.dispose();
+    }
+    super.dispose();
+  }
+
+  Future<void> _fetchMenuRecipe() async {
+    setState(() {
+      _isLoadingRecipes = true;
+    });
+    try {
+      final recipe = await _recipeController.fetchAllRecipe();
+      if (mounted) {
+        setState(() {
+          _availableRecipes = recipe;
+        });
+      }
+    } catch (e) {
+      debugPrint("Error al cargar recetas: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al cargar recetas: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoadingRecipes = false;
+        });
+      }
+    }
+  }
+
+  void _addMenuItem(RecipeItem recipe, {required bool isEstudiantes}) {
+    setState(() {
+      if (isEstudiantes) {
+        _studentMenuItems.add(recipe);
+      } else {
+        _workerMenuItems.add(recipe);
+      }
+    });
+  }
+
+  void _removeMenuItem({required bool isEstudiantes, required int index}) {
+    setState(() {
+      if (isEstudiantes) {
+        _studentMenuItems[index].controller.dispose();
+        _studentMenuItems.removeAt(index);
+      } else {
+        _workerMenuItems[index].controller.dispose();
+        _workerMenuItems.removeAt(index);
+      }
+    });
+  }
+
+  void _resetForm() async {
+    for (var item in _studentMenuItems) {
+      item.controller.dispose();
+    }
+    for (var item in _workerMenuItems) {
+      item.controller.dispose();
+    }
+    setState(() {
+      _studentMenuItems = [];
+      _workerMenuItems = [];
+    });
+  }
+
+  Future<bool> _isCurrentProposalMade() async {
+    if (widget.menu == null) {
+      bool estudiantes = await _menuController.isMenuProposal(
+          selectedDate!.toIso8601String().split('T').first,
+          "Estudiantes",
+          selectedMealType!);
+      bool trabajadores = await _menuController.isMenuProposal(
+          selectedDate!.toIso8601String().split('T').first,
+          "Trabajadores",
+          selectedMealType!);
+      return trabajadores || estudiantes;
+    }
+    return false;
+  }
+
+  Future<void> _proposeMenu() async {
+    if (_isLoadingRecipes) return;
+
+    setState(() {
+      _isLoadingRecipes = true;
+    });
+
+    try {
+      List<MenuRecipe> studentRecipes = _studentMenuItems.map((item) {
+        return MenuRecipe(id: item.selectedRecipeId);
+      }).toList();
+
+      List<MenuRecipe> workerRecipes = _workerMenuItems.map((item) {
+        return MenuRecipe(id: item.selectedRecipeId);
+      }).toList();
+
+      MenuEntity studentMenu = MenuEntity(
+        category: 'Estudiantes',
+        date: selectedDate!.toIso8601String().split('T').first,
+        recipes: studentRecipes,
+        status: 'Propuesto',
+        type: selectedMealType!,
+      );
+      MenuEntity workerMenu = MenuEntity(
+        category: 'Trabajadores',
+        date: selectedDate!.toIso8601String().split('T').first,
+        recipes: workerRecipes,
+        status: 'Propuesto',
+        type: selectedMealType!,
+      );
+      bool exist = await _isCurrentProposalMade();
+      if (!exist) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Ya se ha propuesto un menú para esta fecha.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      } else {
+        await _menuController.createMenu(studentMenu.toJson());
+        await _menuController.createMenu(workerMenu.toJson());
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Propuesta de menú enviada con éxito.'),
+              backgroundColor: Colors.blue),
+        );
+        if (mounted) {
+          Navigator.push(context, createFadeRoute(MenuList()));
+        }
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Error al proponer los menus'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoadingRecipes = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _showConfirmationDialog() async {
     return showDialog<void>(
       context: context,
-      barrierDismissible: false,
       builder: (BuildContext context) {
         bool isMobile = MediaQuery.of(context).size.width < 600;
         return AlertDialog(
-          title: Center(child: Text('Confirmar Propuesta')),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: const <Widget>[
-                Text('¿Está seguro de que desea proponer este menú?'),
-                Text('Una vez propuesto, no podrá editarlo.'),
-              ],
-            ),
-          ),
+          title: const Center(child: Text('Confirmar Propuesta')),
+          content: const SingleChildScrollView(
+              child: ListBody(children: <Widget>[
+            Text('¿Está seguro de que desea proponer este menú?'),
+            Text('Una vez propuesto, no podrá editarlo en esta pantalla.')
+          ])),
+          actionsAlignment: MainAxisAlignment.spaceEvenly,
           actions: <Widget>[
             TextButton(
-              child: Text(
-                'Cancelar',
-                style: TextStyle(
-                    color: Colors.black87, fontSize: isMobile ? 14 : 18),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop(); // Cierra el diálogo
-              },
+              child: Text('Cancelar',
+                  style: TextStyle(
+                      color: Colors.grey[700], fontSize: isMobile ? 16 : 18)),
+              onPressed: () => Navigator.of(context).pop(),
             ),
             TextButton(
-              child: Text(
-                'Confirmar',
-                style: TextStyle(
-                    color: Colors.red,
-                    fontWeight: FontWeight.w600,
-                    fontSize: isMobile ? 14 : 18),
-              ),
+              child: Text('Confirmar',
+                  style: TextStyle(
+                      color: Colors.red[800],
+                      fontWeight: FontWeight.bold,
+                      fontSize: isMobile ? 16 : 18)),
               onPressed: () {
-                print('Propuesta confirmada');
-                setState(() {
-                  _isProposalConfirmed = true;
-                });
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Propuesta enviada (simulado)')),
-                );
+                _proposeMenu();
                 Navigator.of(context).pop();
               },
             ),
@@ -160,489 +285,466 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
   @override
   Widget build(BuildContext context) {
     bool isMobile = MediaQuery.of(context).size.width < 600;
-    return Scaffold(
-      appBar: CustomAppBar(
-        title: 'Propuestas de Menú',
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(12),
-          child: Column(
-            children: [
-              SizedBox(height: 15),
-              isMobile
-                  ? Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            FoodDropDown(selectedMealType, (newValue) {
-                              setState(() {
-                                selectedMealType = newValue;
-                              });
-                            }, isMobile),
-                            SizedBox(width: isMobile ? 10 : 20),
-                            DateWidget(
-                              selectedDate: selectedDate,
-                              onDateSelected: (date) {
-                                setState(() {
-                                  selectedDate = date;
-                                });
-                              },
-                              size: isMobile
-                                  ? MediaQuery.of(context).size.width * 0.45
-                                  : MediaQuery.of(context).size.width * 0.15,
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 10),
-                        Button(
-                          onPressed: _isProposalConfirmed
-                              ? null
-                              : () {
-                                  _showConfirmationDialog(isMobile);
-                                },
-                          text: _isProposalConfirmed
-                              ? 'Propuesta Enviada'
-                              : 'Proponer',
-                          size: Size(isMobile ? 320 : 170, isMobile ? 60 : 50),
-                          colorButton:
-                              _isProposalConfirmed ? Colors.grey : null,
-                        ),
-                      ],
-                    )
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        FoodDropDown(selectedMealType, (newValue) {
-                          setState(() {
-                            selectedMealType = newValue;
-                          });
-                        }, isMobile),
-                        SizedBox(width: isMobile ? 10 : 20),
-                        DateWidget(
-                          selectedDate: selectedDate,
-                          onDateSelected: (date) {
-                            setState(() {
-                              selectedDate = date;
-                            });
-                          },
-                          size: isMobile
-                              ? MediaQuery.of(context).size.width * 0.4
-                              : MediaQuery.of(context).size.width * 0.15,
-                        ),
-                        SizedBox(width: isMobile ? 10 : 20),
-                        Button(
-                          onPressed: _isProposalConfirmed
-                              ? null
-                              : () {
-                                  _showConfirmationDialog(isMobile);
-                                },
-                          text: _isProposalConfirmed ? 'Propuesto' : 'Proponer',
-                          size: Size(isMobile ? 320 : 180, isMobile ? 60 : 50),
-                          colorButton:
-                              _isProposalConfirmed ? Colors.grey : null,
-                        ),
-                      ],
-                    ),
-              SizedBox(height: isMobile ? 10 : 40, width: isMobile ? 0 : 20),
-              isMobile
-                  ? ListView(
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      children: Cards(isMobile))
-                  : Row(children: Cards(isMobile)),
-              SizedBox(height: 20)
-            ],
-          ),
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: CustomAppBar(
+          title: isMobile ? 'Propuestas' : 'Propuestas de Menú',
         ),
+        body: _buildProposalView(isMobile),
       ),
     );
   }
 
-  List<Widget> Cards(bool isMobile) {
-    return [
-      Expanded(
-        child: MenuCard(
-          isMobile,
-          'Menú Estudiantes',
-          true,
-          isEnabledByCheckbox: isEstudiantesEnabled,
-          isProposalConfirmed: _isProposalConfirmed,
-          onCheckboxChanged: (value) {
-            if (!_isProposalConfirmed) {
-              setState(() {
-                isEstudiantesEnabled = value!;
-              });
-            }
-          },
-        ),
-      ),
-      SizedBox(width: isMobile ? 0 : 20, height: isMobile ? 10 : 0),
-      Expanded(
-        child: MenuCard(isMobile, 'Menú Trabajadores', false,
-            isEnabledByCheckbox: isTrabajadoresEnabled,
-            isProposalConfirmed: _isProposalConfirmed,
-            onCheckboxChanged: (value) {
-          if (!_isProposalConfirmed) {
-            setState(() {
-              isTrabajadoresEnabled = value!;
-            });
-          }
-        }),
-      ),
-    ];
-  }
+  Widget _buildProposalView(bool isMobile) {
+    final bool isMenuView = widget.menu != null;
 
-  Widget MenuCard(bool isMobile, String title, bool isEstudiantes,
-      {required bool isEnabledByCheckbox,
-      required bool isProposalConfirmed,
-      required Function(bool?) onCheckboxChanged}) {
-    final bool areDropdownsEnabled =
-        !isProposalConfirmed && isEnabledByCheckbox;
+    // Si hay menú, usa sus datos
+    final String? menuMealType =
+        isMenuView ? widget.menu!.type : selectedMealType;
+    final DateTime? menuDate =
+        isMenuView ? DateTime.tryParse(widget.menu!.date) : selectedDate;
 
-    final bool isCheckboxEnabled = !isProposalConfirmed;
-
-    return Opacity(
-      opacity: isProposalConfirmed ? 0.5 : 1.0,
-      child: AbsorbPointer(
-        absorbing: isProposalConfirmed,
-        child: Card(
-          elevation: 5,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Container(
-            width: isMobile ? null : MediaQuery.of(context).size.width * 0.3,
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red[900],
-                      ),
-                    ),
-                    Checkbox(
-                      activeColor: Colors.red,
-                      value: isEnabledByCheckbox,
-                      onChanged: isCheckboxEnabled ? onCheckboxChanged : null,
-                    ),
-                  ],
-                ),
-                Divider(),
-                DropdownSelector(
-                  label: 'Ensaladas y vegetales',
-                  items: ensaladas,
-                  value: isEstudiantes
-                      ? selectedEnsaladasEstudiantes
-                      : selectedEnsaladasTrabajadores,
-                  onChanged: areDropdownsEnabled
-                      ? (value) {
-                          setState(() {
-                            if (isEstudiantes)
-                              selectedEnsaladasEstudiantes = value;
-                            else
-                              selectedEnsaladasTrabajadores = value;
-                          });
-                        }
-                      : null,
-                  isEnabled: areDropdownsEnabled,
-                ),
-                DropdownSelector(
-                  label: 'Sopas, caldos y frijoles',
-                  items: sopas,
-                  value: isEstudiantes
-                      ? selectedSopasEstudiantes
-                      : selectedSopasTrabajadores,
-                  onChanged: areDropdownsEnabled
-                      ? (value) {
-                          setState(() {
-                            if (isEstudiantes) {
-                              selectedSopasEstudiantes = value;
-                            } else {
-                              selectedSopasTrabajadores = value;
-                            }
-                          });
-                        }
-                      : null,
-                  isEnabled: areDropdownsEnabled,
-                ),
-                DropdownSelector(
-                  label: 'Arroces y pastas',
-                  items: arroces,
-                  value: isEstudiantes
-                      ? selectedArrocesEstudiantes
-                      : selectedArrocesTrabajadores,
-                  onChanged: areDropdownsEnabled
-                      ? (value) {
-                          setState(() {
-                            if (isEstudiantes)
-                              selectedArrocesEstudiantes = value;
-                            else
-                              selectedArrocesTrabajadores = value;
-                          });
-                        }
-                      : null,
-                  isEnabled: areDropdownsEnabled,
-                ),
-                DropdownSelector(
-                  label: 'Huevos',
-                  items: huevos,
-                  value: isEstudiantes
-                      ? selectedHuevosEstudiantes
-                      : selectedHuevosTrabajadores,
-                  onChanged: areDropdownsEnabled
-                      ? (value) {
-                          setState(() {
-                            if (isEstudiantes)
-                              selectedHuevosEstudiantes = value;
-                            else
-                              selectedHuevosTrabajadores = value;
-                          });
-                        }
-                      : null,
-                  isEnabled: areDropdownsEnabled,
-                ),
-                DropdownSelector(
-                  label: 'Carnes y embutidos',
-                  items: carnes,
-                  value: isEstudiantes
-                      ? selectedCarnesEstudiantes
-                      : selectedCarnesTrabajadores,
-                  onChanged: areDropdownsEnabled
-                      ? (value) {
-                          setState(() {
-                            if (isEstudiantes)
-                              selectedCarnesEstudiantes = value;
-                            else
-                              selectedCarnesTrabajadores = value;
-                          });
-                        }
-                      : null,
-                  isEnabled: areDropdownsEnabled,
-                ),
-                DropdownSelector(
-                  label: 'Pescados',
-                  items: pescados,
-                  value: isEstudiantes
-                      ? selectedPescadosEstudiantes
-                      : selectedPescadosTrabajadores,
-                  onChanged: areDropdownsEnabled
-                      ? (value) {
-                          setState(() {
-                            if (isEstudiantes)
-                              selectedPescadosEstudiantes = value;
-                            else
-                              selectedPescadosTrabajadores = value;
-                          });
-                        }
-                      : null,
-                  isEnabled: areDropdownsEnabled,
-                ),
-                DropdownSelector(
-                  label: 'Harinas',
-                  items: harinas,
-                  value: isEstudiantes
-                      ? selectedHarinasEstudiantes
-                      : selectedHarinasTrabajadores,
-                  onChanged: areDropdownsEnabled
-                      ? (value) {
-                          setState(() {
-                            if (isEstudiantes)
-                              selectedHarinasEstudiantes = value;
-                            else
-                              selectedHarinasTrabajadores = value;
-                          });
-                        }
-                      : null,
-                  isEnabled: areDropdownsEnabled,
-                ),
-                DropdownSelector(
-                  label: 'Croquetas y frituras',
-                  items: croquetas,
-                  value: isEstudiantes
-                      ? selectedCroquetasEstudiantes
-                      : selectedCroquetasTrabajadores,
-                  onChanged: areDropdownsEnabled
-                      ? (value) {
-                          setState(() {
-                            if (isEstudiantes)
-                              selectedCroquetasEstudiantes = value;
-                            else
-                              selectedCroquetasTrabajadores = value;
-                          });
-                        }
-                      : null,
-                  isEnabled: areDropdownsEnabled,
-                ),
-                DropdownSelector(
-                  label: 'Viandas',
-                  items: viandas,
-                  value: isEstudiantes
-                      ? selectedViandasEstudiantes
-                      : selectedViandasTrabajadores,
-                  onChanged: areDropdownsEnabled
-                      ? (value) {
-                          setState(() {
-                            if (isEstudiantes)
-                              selectedViandasEstudiantes = value;
-                            else
-                              selectedViandasTrabajadores = value;
-                          });
-                        }
-                      : null,
-                  isEnabled: areDropdownsEnabled,
-                ),
-                DropdownSelector(
-                  label: 'Panes',
-                  items: panes,
-                  value: isEstudiantes
-                      ? selectedPanesEstudiantes
-                      : selectedPanesTrabajadores,
-                  onChanged: areDropdownsEnabled
-                      ? (value) {
-                          setState(() {
-                            if (isEstudiantes)
-                              selectedPanesEstudiantes = value;
-                            else
-                              selectedPanesTrabajadores = value;
-                          });
-                        }
-                      : null,
-                  isEnabled: areDropdownsEnabled,
-                ),
-                DropdownSelector(
-                  label: 'Frutas, Jugos y Dulces',
-                  items: frutas,
-                  value: isEstudiantes
-                      ? selectedFrutasEstudiantes
-                      : selectedFrutasTrabajadores,
-                  onChanged: areDropdownsEnabled
-                      ? (value) {
-                          setState(() {
-                            if (isEstudiantes)
-                              selectedFrutasEstudiantes = value;
-                            else
-                              selectedFrutasTrabajadores = value;
-                          });
-                        }
-                      : null,
-                  isEnabled: areDropdownsEnabled,
-                ),
-                DropdownSelector(
-                  label: 'Salsas y Lácteos',
-                  items: salsas,
-                  value: isEstudiantes
-                      ? selectedSalsasEstudiantes
-                      : selectedSalsasTrabajadores,
-                  onChanged: areDropdownsEnabled
-                      ? (value) {
-                          setState(() {
-                            if (isEstudiantes)
-                              selectedSalsasEstudiantes = value;
-                            else
-                              selectedSalsasTrabajadores = value;
-                          });
-                        }
-                      : null,
-                  isEnabled: areDropdownsEnabled,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class DropdownSelector extends StatelessWidget {
-  final String label;
-  final List<String> items;
-  final String? value;
-  final void Function(String?)? onChanged;
-  final bool? isEnabled;
-
-  const DropdownSelector({
-    Key? key,
-    required this.label,
-    required this.items,
-    this.value,
-    required this.onChanged,
-    required this.isEnabled,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return IgnorePointer(
-      ignoring: !(isEnabled ?? true),
-      child: Opacity(
-        opacity: (isEnabled ?? true) ? 1.0 : 0.5,
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(12),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 5),
-            DropdownButton<String>(
-              value: value,
-              hint: Text('$label'),
-              isExpanded: true,
-              onChanged: onChanged,
-              items: items.map((String item) {
-                return DropdownMenuItem<String>(
-                  value: item,
-                  child: Text(item),
-                );
-              }).toList(),
-              iconDisabledColor: Colors.grey,
-              iconEnabledColor: Colors.red[900],
-            ),
-            SizedBox(height: 10),
+            const SizedBox(height: 15),
+            isMobile
+                ? Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Tipo de comida
+                          SizedBox(
+                            width: 160,
+                            height: 55,
+                            child: isMenuView
+                                ? InputDecorator(
+                                    decoration: InputDecoration(
+                                      filled: true,
+                                      fillColor: Colors.grey[200],
+                                      border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          borderSide: BorderSide.none),
+                                    ),
+                                    child: Text(
+                                      menuMealType ?? '',
+                                      style: const TextStyle(fontSize: 18),
+                                    ),
+                                  )
+                                : FoodDropDown(selectedMealType, (newValue) {
+                                    setState(() => selectedMealType = newValue);
+                                    _resetForm();
+                                  }, isMobile),
+                          ),
+                          const SizedBox(width: 10),
+                          // Fecha
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.45,
+                            child: isMenuView
+                                ? InputDecorator(
+                                    decoration: InputDecoration(
+                                      filled: true,
+                                      fillColor: Colors.grey[200],
+                                      border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          borderSide: BorderSide.none),
+                                    ),
+                                    child: Text(
+                                      menuDate != null
+                                          ? "${menuDate.day.toString().padLeft(2, '0')}/${menuDate.month.toString().padLeft(2, '0')}/${menuDate.year}"
+                                          : '',
+                                      style: const TextStyle(fontSize: 18),
+                                    ),
+                                  )
+                                : DateWidget(
+                                    selectedDate: selectedDate,
+                                    onDateSelected: (date) {
+                                      setState(() => selectedDate = date);
+                                      _resetForm();
+                                    },
+                                    size: MediaQuery.of(context).size.width *
+                                        0.45,
+                                  ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      // Botón proponer
+                      Button(
+                        onPressed: isMenuView || _isLoadingRecipes
+                            ? null
+                            : () => _showConfirmationDialog(),
+                        text: isMenuView ? 'Propuesto' : 'Proponer',
+                        colorButton: (isMenuView || _isLoadingRecipes)
+                            ? Colors.grey
+                            : null,
+                        size: Size(isMobile ? 320 : 180, isMobile ? 60 : 50),
+                      ),
+                      SizedBox(height: isMobile ? 10 : 40),
+                      if (_isLoadingRecipes)
+                        const Center(
+                            child: Padding(
+                          padding: EdgeInsets.all(10.0),
+                          child: Column(
+                            children: [
+                              SizedBox(height: 100),
+                              CircularProgressIndicator(
+                                color: Colors.red,
+                              ),
+                              SizedBox(height: 10),
+                              Text("Cargando platos..."),
+                            ],
+                          ),
+                        )),
+                      if (!_isLoadingRecipes)
+                        Column(children: _buildMenuCards(isMobile)),
+
+                      const SizedBox(height: 20)
+                    ],
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 200,
+                        height: 50,
+                        child: isMenuView
+                            ? InputDecorator(
+                                decoration: InputDecoration(
+                                  filled: true,
+                                  fillColor: Colors.grey[200],
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide.none),
+                                ),
+                                child: Text(
+                                  menuMealType ?? '',
+                                  style: const TextStyle(fontSize: 18),
+                                ),
+                              )
+                            : FoodDropDown(selectedMealType, (newValue) {
+                                setState(() => selectedMealType = newValue);
+                                _resetForm();
+                              }, isMobile),
+                      ),
+                      const SizedBox(width: 20),
+                      // Fecha
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.15,
+                        child: isMenuView
+                            ? InputDecorator(
+                                decoration: InputDecoration(
+                                  filled: true,
+                                  fillColor: Colors.grey[200],
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide.none),
+                                ),
+                                child: Text(
+                                  menuDate != null
+                                      ? "${menuDate.day.toString().padLeft(2, '0')}/${menuDate.month.toString().padLeft(2, '0')}/${menuDate.year}"
+                                      : '',
+                                  style: const TextStyle(fontSize: 18),
+                                ),
+                              )
+                            : DateWidget(
+                                selectedDate: selectedDate,
+                                onDateSelected: (date) {
+                                  setState(() => selectedDate = date);
+                                  _resetForm();
+                                },
+                                size: MediaQuery.of(context).size.width * 0.15,
+                              ),
+                      ),
+                      const SizedBox(width: 20),
+                      // Botón proponer
+                      Button(
+                        onPressed: isMenuView || _isLoadingRecipes
+                            ? null
+                            : () => _showConfirmationDialog(),
+                        text: isMenuView ? 'Propuesto' : 'Proponer',
+                        colorButton: (isMenuView || _isLoadingRecipes)
+                            ? Colors.grey
+                            : null,
+                        size: Size(isMobile ? 320 : 180, isMobile ? 60 : 50),
+                      ),
+                      const SizedBox(width: 20),
+                      // Botón lista de menús
+                      Button(
+                        onPressed: () {
+                          Navigator.push(context, createFadeRoute(MenuList()));
+                        },
+                        text: 'Lista de Menús',
+                        size: Size(isMobile ? 320 : 220, isMobile ? 60 : 50),
+                      ),
+                    ],
+                  ),
+            SizedBox(height: isMobile ? 10 : 40),
           ],
         ),
       ),
     );
   }
-}
 
-Widget FoodDropDown(
-    String? selectedMealType, Function(String?) onChanged, isMobile) {
-  return SizedBox(
-    width: isMobile ? 160 : 200,
-    height: isMobile ? 55 : 50,
-    child: InputDecorator(
-      decoration: InputDecoration(
-        filled: true,
-        fillColor: Colors.grey[200],
-        border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide.none),
+  List<Widget> _buildMenuCards(bool isMobile) {
+    if (widget.menu == null) {
+      // Modo propuesta (formulario editable)
+      return [
+        MenuCard(
+          isMobile: isMobile,
+          title: 'Menú Estudiantes',
+          isEstudiantes: true,
+          menu: null,
+        ),
+        SizedBox(width: isMobile ? 0 : 20, height: isMobile ? 20 : 0),
+        MenuCard(
+          isMobile: isMobile,
+          title: 'Menú Trabajadores',
+          isEstudiantes: false,
+          menu: null,
+        ),
+      ];
+    } else {
+      // Modo visualización (datos del menú)
+      return [
+        MenuCard(
+          isMobile: isMobile,
+          title: 'Menú Estudiantes',
+          isEstudiantes: true,
+          menu: widget.menu,
+        ),
+        SizedBox(width: isMobile ? 0 : 20, height: isMobile ? 20 : 0),
+        MenuCard(
+          isMobile: isMobile,
+          title: 'Menú Trabajadores',
+          isEstudiantes: false,
+          menu: widget.menu,
+        ),
+      ];
+    }
+  }
+
+  Widget MenuCard({
+    required bool isMobile,
+    required String title,
+    required bool isEstudiantes,
+    MenuEntity? menu,
+  }) {
+    if (menu != null &&
+        ((isEstudiantes && menu.category != 'Estudiantes') ||
+            (!isEstudiantes && menu.category != 'Trabajadores'))) {
+      return Card(
+        elevation: 2,
+        color: Colors.grey[200],
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        child: SizedBox(
+          height: 70,
+          child: Center(
+            child: Text(
+              'No disponible',
+              style: TextStyle(
+                color: Colors.grey[500],
+                fontSize: isMobile ? 16 : 18,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    final isEditing = menu != null;
+    final menuItems = isEstudiantes ? _studentMenuItems : _workerMenuItems;
+
+    return Card(
+      elevation: 5,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding:
+                const EdgeInsets.only(left: 20, right: 8, top: 8, bottom: 0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(title,
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red[900])),
+              ],
+            ),
+          ),
+          const Divider(),
+          Padding(
+            padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
+            child: Column(
+              children: [
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: menuItems.length,
+                  itemBuilder: (context, index) {
+                    final menuItem = menuItems[index];
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Autocomplete<Recipe>(
+                              displayStringForOption: (Recipe option) =>
+                                  option.name,
+                              initialValue: TextEditingValue(
+                                  text: menuItem.controller.text),
+                              optionsBuilder:
+                                  (TextEditingValue textEditingValue) {
+                                if (textEditingValue.text.isEmpty ||
+                                    _isLoadingRecipes) {
+                                  return const Iterable<Recipe>.empty();
+                                }
+                                return _availableRecipes.where(
+                                    (Recipe option) => option.name
+                                        .toLowerCase()
+                                        .contains(textEditingValue.text
+                                            .toLowerCase()));
+                              },
+                              onSelected: (Recipe selection) {
+                                setState(() {
+                                  menuItem.selectedRecipeId = selection.id;
+                                  menuItem.controller.text = selection.name;
+                                });
+                              },
+                              // Dentro de MenuCard, en el Autocomplete<Recipe>
+                              fieldViewBuilder: (context, textEditingController,
+                                  focusNode, onFieldSubmitted) {
+                                return CustomTextFormField(
+                                  controller: textEditingController,
+                                  focusNode: focusNode,
+                                  labelText: 'Plato ${index + 1}',
+                                  onChanged: (value) {
+                                    menuItem.controller.text = value;
+                                    menuItem.selectedRecipeId = null;
+                                  },
+                                );
+                              },
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.remove_circle_outline,
+                                color: Colors.red),
+                            onPressed: () {
+                              setState(() {
+                                if (isEditing) {
+                                  menuItems.removeAt(index);
+                                } else {
+                                  _removeMenuItem(
+                                      isEstudiantes: isEstudiantes,
+                                      index: index);
+                                }
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    AddButton(
+                      onPressed: () {
+                        setState(() {
+                          if (isEditing) {
+                            menuItems.add(RecipeItem(
+                                controller: TextEditingController()));
+                          } else {
+                            _addMenuItem(
+                                RecipeItem(controller: TextEditingController()),
+                                isEstudiantes: isEstudiantes);
+                          }
+                        });
+                      },
+                      text: 'Plato',
+                      size: Size(isMobile ? double.infinity : 170, 45),
+                    ),
+                    Expanded(child: SizedBox()),
+                    if (isEditing)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 40.0),
+                        child: Button(
+                          onPressed: () async {
+                            await _updateMenu(menu, menuItems);
+                          },
+                          text: 'Guardar',
+                          colorButton: Colors.blue,
+                          size: Size(isMobile ? 320 : 180, isMobile ? 60 : 50),
+                        ),
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: selectedMealType,
-          onChanged: onChanged,
-          items: ['Desayuno', 'Almuerzo', 'Comida', 'Merienda']
-              .map<DropdownMenuItem<String>>((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Text(value, style: TextStyle(fontSize: 18)),
-            );
-          }).toList(),
-          icon: Icon(Icons.arrow_drop_down_circle, color: Colors.red[900]),
-          dropdownColor: Colors.grey[200],
-          borderRadius: BorderRadius.circular(10),
-          isExpanded: false,
+    );
+  }
+
+  Future<void> _updateMenu(MenuEntity menu, List<RecipeItem> menuItems) async {
+    // Solo guarda los platos con receta seleccionada
+    menu.recipes.clear();
+    menu.recipes = menuItems
+        .where((item) => item.selectedRecipeId != null)
+        .map((item) => MenuRecipe(id: item.selectedRecipeId))
+        .toList();
+    await _menuController.updateMenu(menu.toJson());
+    Navigator.pushReplacement(
+      context,
+      createFadeRoute(MenuList()),
+    );
+  }
+
+// Widget sin cambios
+  Widget FoodDropDown(
+      String? selectedMealType, Function(String?) onChanged, bool isMobile) {
+    return SizedBox(
+      width: isMobile ? 160 : 200,
+      height: isMobile ? 55 : 50,
+      child: InputDecorator(
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: Colors.grey[200],
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide.none),
+        ),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<String>(
+            value: selectedMealType,
+            onChanged: onChanged,
+            items: ['Desayuno', 'Almuerzo', 'Comida', 'Merienda']
+                .map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value, style: const TextStyle(fontSize: 18)));
+            }).toList(),
+            icon: Icon(Icons.arrow_drop_down_circle, color: Colors.red[900]),
+            dropdownColor: Colors.grey[200],
+            borderRadius: BorderRadius.circular(10),
+            isExpanded: false,
+          ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }

@@ -1,8 +1,9 @@
 // lib/providers/ProfileProvider.dart
 
-import 'package:flutter/material.dart';
-import 'package:gestion_menu_ult_frontend/controllers/user/UserController.dart'; // O un nuevo ProfileController
+import 'package:flutter/material.dart'; // O un nuevo ProfileController
 import 'package:gestion_menu_ult_frontend/models/UserProfile.dart';
+
+import '../controllers/security/user/UserController.dart';
 
 class ProfileProvider extends ChangeNotifier {
   final UserController _userController =

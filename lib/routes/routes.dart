@@ -8,6 +8,7 @@ import 'package:gestion_menu_ult_frontend/screens/common/Help.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/Contabilidad/AprobarMenu.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/Contabilidad/Contabilidad.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/LibroRecetas.dart';
+import 'package:gestion_menu_ult_frontend/screens/menu/MenuList.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/MenuPropuesta.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/RecetaModelo.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/Ventas/ComedorAcceso.dart';
@@ -23,6 +24,7 @@ import '../screens/menu/Inventario.dart';
 import '../screens/menu/MenuConfig.dart';
 import '../screens/menu/ModulosMenu.dart';
 import '../screens/menu/Ventas/InformesVentas.dart';
+import '../screens/menu/Ventas/MenuVenta.dart';
 import '../screens/menu/Ventas/Ventas.dart';
 import '../screens/ticket/GestionarTicket.dart';
 
@@ -55,6 +57,8 @@ class AppRoutes {
   static const String contabilidad = '/contabilidad';
   static const String aprobarMenu = '/aprobar_menu';
   static const String help = '/help';
+  static const String menuList = '/menu_list';
+  static const String menuVentas = '/menu_ventas';
 
   // Mapeamos las rutas a las pantallas correspondientes
   static Map<String, WidgetBuilder> getRoutes() {
@@ -83,7 +87,9 @@ class AppRoutes {
       perfil: (context) => Perfil(),
       contabilidad: (context) => Contabilidad(),
       aprobarMenu: (context) => AprobarMenu(),
-      help: (context) => Help()
+      help: (context) => Help(),
+      menuList: (context) => MenuList(),
+      menuVentas: (context) => MenuVentas(),
     };
   }
 }

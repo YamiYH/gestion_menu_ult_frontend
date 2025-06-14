@@ -1,7 +1,7 @@
 // lib/controllers/user/UserController.dart
 
-import '../models/Recipe.dart';
-import 'BaseController.dart';
+import '../../models/Recipe.dart';
+import '../BaseController.dart';
 
 class RecipeController extends BaseController {
   @override
@@ -39,6 +39,33 @@ class RecipeController extends BaseController {
     }
   }
 
+  Future<List<Recipe>> fetchAllRecipe() async {
+    Map<String, String> queryParams = {
+      'pageNo': '0',
+      'pageSize': '500',
+      'sortType': 'asc',
+      'sortBy': 'name',
+    };
+
+    try {
+      // Llama al método GET genérico de la clase padre
+      final responseData = await super.get(endPoint, queryParams: queryParams);
+
+      // Interpreta la respuesta JSON específica de este método
+      if (responseData is Map<String, dynamic> &&
+          responseData.containsKey('content')) {
+        List<dynamic> recipeListJson = responseData['content'];
+        super.totalPages = responseData['totalPages'] ?? 1;
+        super.currentPage = responseData['number'] ?? 0;
+        return recipeListJson.map((data) => Recipe.fromJson(data)).toList();
+      } else {
+        throw Exception("Formato de respuesta de recetas inesperado.");
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   // --- MÉTODO PARA CREAR UNA RECETA (SIMPLIFICADO) ---
   Future<Recipe> createRecipe(Map<String, dynamic> recipeData) async {
     try {
@@ -51,7 +78,7 @@ class RecipeController extends BaseController {
   }
 
   // --- MÉTODO PARA ACTUALIZAR UNA RECETA (SIMPLIFICADO) ---
-  Future<Recipe> updateUser(Map<String, dynamic> recipeData) async {
+  Future<Recipe> updateRecipe(Map<String, dynamic> recipeData) async {
     try {
       // Llama al método PUT genérico
       final responseData = await super.put(endPoint, body: recipeData);

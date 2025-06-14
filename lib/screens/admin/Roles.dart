@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gestion_menu_ult_frontend/controllers/RoleController.dart';
+import 'package:gestion_menu_ult_frontend/controllers/security/RoleController.dart';
 import 'package:gestion_menu_ult_frontend/models/RoleEntity.dart';
 import 'package:gestion_menu_ult_frontend/routes/PageRouteBuilder.dart';
 import 'package:gestion_menu_ult_frontend/screens/admin/RolModelo.dart';
@@ -172,9 +172,9 @@ class _RolesState extends State<Roles> {
           ),
           isMobile
               ? Padding(
-                  padding: EdgeInsets.fromLTRB(0, 0, 20, 300),
+                  padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       AddButton(
                         onPressed: () {

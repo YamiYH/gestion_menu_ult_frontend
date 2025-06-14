@@ -1,7 +1,7 @@
 // lib/controllers/user/UserController.dart
 
-import '../../models/UserEntity.dart';
-import '../BaseController.dart';
+import '../../../models/UserEntity.dart';
+import '../../BaseController.dart';
 
 class UserController extends BaseController {
   @override

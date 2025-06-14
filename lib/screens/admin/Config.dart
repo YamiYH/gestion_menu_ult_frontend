@@ -337,7 +337,8 @@ class _ConfigState extends State<Config> {
     bool isMobile = MediaQuery.of(context).size.width < 700;
 
     return Scaffold(
-      appBar: CustomAppBar(title: 'Configuración General'),
+      appBar: CustomAppBar(
+          title: isMobile ? 'Configuración' : 'Configuración General'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(30.0),
         child: Column(

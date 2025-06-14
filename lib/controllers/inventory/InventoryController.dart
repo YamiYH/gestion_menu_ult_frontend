@@ -4,9 +4,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/controllers/BaseController.dart';
-import 'package:gestion_menu_ult_frontend/controllers/user/UserAuthContext.dart';
 import 'package:gestion_menu_ult_frontend/models/Inventory.dart'; // Asegúrate que la ruta sea correcta
 import 'package:http/http.dart' as http;
+
+import '../security/user/UserAuthContext.dart';
 
 class InventoryController extends BaseController {
   // Estado y Filtros

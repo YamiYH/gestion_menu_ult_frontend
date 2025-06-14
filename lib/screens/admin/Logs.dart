@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' show DateFormat;
 
-import '../../controllers/RoleController.dart';
 import '../../controllers/logs/LogsController.dart';
+import '../../controllers/security/RoleController.dart';
 import '../../models/Logs.dart';
 import '../../widgets/CustomAppbar.dart';
 import '../../widgets/DatePickerButton.dart';
@@ -503,8 +503,10 @@ class _LogsState extends State<Logs> {
           width: MediaQuery.of(context).size.width * 0.14,
           child: Text(formattedDate, overflow: TextOverflow.ellipsis)),
       SizedBox(
-          width: MediaQuery.of(context).size.width * 0.17,
-          child: Text(details, overflow: TextOverflow.ellipsis, maxLines: 1))
+          width: MediaQuery.of(context).size.width * 0.3,
+          child: Tooltip(
+              child:
+                  Text(details, overflow: TextOverflow.ellipsis, maxLines: 1)))
     ]);
   }
 

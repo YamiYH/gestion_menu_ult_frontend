@@ -4,10 +4,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/controllers/BaseController.dart';
-import 'package:gestion_menu_ult_frontend/controllers/user/UserAuthContext.dart';
 import 'package:gestion_menu_ult_frontend/models/Logs.dart'; // Asegúrate que la ruta sea correcta
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+
+import '../security/user/UserAuthContext.dart';
 
 class LogsController extends BaseController {
   // --- ESTADO DE FILTROS ---
