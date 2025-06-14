@@ -60,7 +60,7 @@ class _DateWidgetState extends State<DateWidget> {
                         bodyLarge: TextStyle(fontSize: 14),
                         bodyMedium: TextStyle(fontSize: 12),
                       ),
-                      dialogTheme: DialogTheme(
+                      dialogTheme: DialogThemeData(
                         backgroundColor: Colors.white,
                       ),
                     ),
