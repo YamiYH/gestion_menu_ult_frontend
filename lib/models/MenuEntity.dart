@@ -3,7 +3,7 @@ class MenuEntity {
   final String date;
   String? id;
   List<MenuRecipe> recipes;
-  final String status;
+  String status;
   double? totalPrice;
   final String type;
 

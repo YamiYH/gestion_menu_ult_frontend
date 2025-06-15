@@ -5,9 +5,9 @@ import 'package:gestion_menu_ult_frontend/routes/PageRouteBuilder.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/Contabilidad/AprobarMenu.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 
-import '../../../widgets/Button.dart';
 import '../../../widgets/DatePickerButton.dart';
-import '../../../widgets/SmallButton.dart';
+import '../../../widgets/MenuCardWithAction.dart';
+import '../../../widgets/Pagination.dart';
 
 class Contabilidad extends StatefulWidget {
   @override
@@ -16,44 +16,63 @@ class Contabilidad extends StatefulWidget {
 
 class _ContabilidadState extends State<Contabilidad> {
   // Variables para almacenar las fechas seleccionadas
-  DateTime? startDate;
-  DateTime? endDate;
-  MenuEntityController controller = MenuEntityController();
+  DateTime? startDate = DateTime.now();
+  DateTime? endDate = DateTime.now().add(Duration(days: 30));
+  MenuEntityController _controller = MenuEntityController();
 
   // Lista simulada de informes agrupados por fecha
   List<MenuEntity> _menuList = [];
 
+  bool _isLoading = false;
+
   @override
   void initState() {
     super.initState();
-    _fetchInitialData();
+    _fetchMenus();
   }
 
-  void _fetchInitialData() async {
-    Map<String, String> filters = {
-      "status": "Propuesto"
-    };
-    final menuListFiltered = await controller.fetchMenu(filters: filters);
-    setState(() {
-      _menuList = menuListFiltered;
-    });
-  }
+  Future<void> _fetchMenus() async {
+    if (_isLoading) return;
 
-  void _applyDateFilters() async {
-    Map<String, String> filters = {
-      "startDate" : startDate!.toIso8601String().split('T').first,
-      "endDate": endDate!.toIso8601String().split('T').first,
-      "status": "Propuesto"
-    };
-    final menuListFiltered = await controller.fetchMenu(filters: filters);
     setState(() {
-      _menuList = menuListFiltered;
+      _isLoading = true;
     });
+
+    try {
+      Map<String, String> filters = {
+        "status": "Propuesto",
+        if (startDate != null)
+          "startDate": startDate!.toIso8601String().split('T').first,
+        if (endDate != null)
+          "endDate": endDate!.toIso8601String().split('T').first,
+      };
+      final menuListFiltered = await _controller.fetchMenu(filters: filters);
+      if (mounted) {
+        setState(() {
+          _menuList = menuListFiltered;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al cargar los menús: $e'), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    bool isMobile = MediaQuery.of(context).size.width < 600;
+    bool isMobile = MediaQuery
+        .of(context)
+        .size
+        .width < 600;
 
     return Scaffold(
       appBar: CustomAppBar(title: 'Contabilidad'),
@@ -65,30 +84,24 @@ class _ContabilidadState extends State<Contabilidad> {
               padding: EdgeInsets.all(16.0),
               child: isMobile
                   ? Column(
-                      children: [
-                        buildRow(),
-                        SizedBox(height: 15),
-                        Button(
-                          onPressed: _applyDateFilters,
-                          icon: Icons.search,
-                          text: 'Buscar',
-                        )
-                      ],
-                    )
+                children: [
+                  buildRow(),
+                ],
+              )
                   : Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        buildRow(),
-                        SizedBox(width: 30),
-                        Button(
-                          onPressed: _applyDateFilters,
-                          icon: Icons.search,
-                          text: 'Buscar',
-                        )
-                      ],
-                    ),
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  buildRow(),
+                ],
+              ),
             ),
-            Padding(
+            _isLoading
+                ? const Center(
+              child: Padding(
+                padding: EdgeInsets.all(32.0),
+                child: CircularProgressIndicator(),
+              ),
+            ) :Padding(
               padding: const EdgeInsets.all(16.0),
               child: ListView.builder(
                 shrinkWrap: true,
@@ -96,13 +109,36 @@ class _ContabilidadState extends State<Contabilidad> {
                 itemCount: _menuList.length,
                 itemBuilder: (context, index) {
                   final menu = _menuList[index];
-                  return _buildInformeCard(menu);
+                  return MenuCardWithAction(context: context,
+                      actionText: 'Revisar',
+                      onPressed: () {
+                        Navigator.push(context, createFadeRoute(AprobarMenu(menu: menu)));
+                      }
+                      ,menu: menu);
                 },
               ),
             ),
           ],
         ),
       ),
+        bottomNavigationBar: Pagination(
+          currentPage: _controller.currentPage,
+          totalPages: _controller.totalPages,
+          itemsPerPage: _controller.pageSize,
+          onPageChanged: (newPage) {
+            if (_controller.currentPage != newPage) {
+              _controller.currentPage = newPage;
+              _fetchMenus();
+            }
+          },
+          onItemsPerPageChanged: (newSize) {
+            if (_controller.pageSize != newSize) {
+              _controller.pageSize = newSize;
+              _controller.currentPage = 0;
+              _fetchMenus();
+            }
+          },
+        )
     );
   }
 
@@ -111,74 +147,33 @@ class _ContabilidadState extends State<Contabilidad> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         DatePickerButton(
-          label: 'Desde',
-          selectedDate: DateTime.now(),
-          onDateSelected: (date) {
-            setState(() {
-              startDate = date;
-            });
-            _applyDateFilters();
-          },
-          firstDate: DateTime.now(),
-          lastDate: DateTime.now().add(Duration(days: 30))
+            label: 'Desde',
+            selectedDate: startDate,
+            onDateSelected: (date) {
+              setState(() {
+                startDate = date;
+              });
+              _fetchMenus();
+            },
+            firstDate: DateTime.now(),
+            lastDate: DateTime.now().add(Duration(days: 30))
         ),
         SizedBox(width: 10),
         Icon(Icons.arrow_forward, color: Colors.red[900]),
         SizedBox(width: 10),
         DatePickerButton(
-          label: 'Hasta',
-          selectedDate: DateTime.now().add(Duration(days: 30)),
-          onDateSelected: (date) {
-            setState(() {
-              endDate = date;
-            });
-            _applyDateFilters();
-          },
+            label: 'Hasta',
+            selectedDate: endDate,
+            onDateSelected: (date) {
+              setState(() {
+                endDate = date;
+              });
+              _fetchMenus();
+            },
             firstDate: DateTime.now(),
             lastDate: DateTime.now().add(Duration(days: 30))
         ),
       ],
-    );
-  }
-
-  // Widget para construir una Card de informe
-  Widget _buildInformeCard(MenuEntity menu) {
-    bool isMobile = MediaQuery.of(context).size.width < 600;
-    final String fecha = menu.date;
-    return Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      child: Padding(
-        padding: isMobile ? EdgeInsets.all(10.0) : EdgeInsets.all(15.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Fecha del informe
-                Text(
-                  isMobile ? 'Fecha: $fecha: ' : 'Fecha: $fecha : ${menu.category} ',
-                  style: TextStyle(
-                      fontSize: isMobile ? 14 : 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.red[800]),
-                ),
-                SizedBox(height: 5),
-              ],
-            ),
-            SmallButton(
-                onPressed: () {
-                  Navigator.push(context, createFadeRoute(AprobarMenu(menu: menu)));
-                },
-                text: 'Revisar',
-                size: Size(
-                  isMobile ? 95 : 120,
-                  40,
-                ))
-          ],
-        ),
-      ),
     );
   }
 }

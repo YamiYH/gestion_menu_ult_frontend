@@ -419,6 +419,6 @@ class _RolesState extends State<Roles> {
       width: MediaQuery.of(context).size.width * widthFactor,
       height: 20,
       child: Text(title, style: _headerStyle(),
-    );
+    ));
   }
 }

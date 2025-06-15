@@ -793,6 +793,7 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
         .where((item) => item.selectedRecipeId != null)
         .map((item) => MenuRecipe(id: item.selectedRecipeId))
         .toList();
+    menu.status = "Propuesto";
     await _menuController.updateMenu(menu.toJson());
     Navigator.pushReplacement(
       context,
