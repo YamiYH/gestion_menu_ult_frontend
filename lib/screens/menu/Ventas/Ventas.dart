@@ -1,17 +1,17 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/controllers/security/user/UserController.dart';
 import 'package:gestion_menu_ult_frontend/models/UserEntity.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../models/MenuEntity.dart';
 import '../../../widgets/DynamicButton.dart';
-import 'package:qr_flutter/qr_flutter.dart';
-import 'dart:async';
-import 'dart:convert';
 
 class Ventas extends StatefulWidget {
-
   final MenuEntity? menu;
 
   const Ventas({
@@ -24,7 +24,6 @@ class Ventas extends StatefulWidget {
 }
 
 class _VentasState extends State<Ventas> {
-
   UserController userController = UserController();
   late TextEditingController userListController;
   Timer? _debounce; // El temporizador para el delay
@@ -75,13 +74,11 @@ class _VentasState extends State<Ventas> {
   Future<void> _fetchUsers() async {
     try {
       userList = await userController.getAllUsers();
-      setState(() {
-      });
+      setState(() {});
     } catch (e) {
       print('Error fetching users: $e');
     }
   }
-
 
   String _generateQrDataString() {
     // 1. Extraemos los nombres de los platos
@@ -90,13 +87,15 @@ class _VentasState extends State<Ventas> {
       if (entry.value) {
         recipeNames.add(entry.key.name as String);
       }
-    };
+    }
+    ;
 
     // 2. Creamos un mapa con toda la información
     final Map<String, dynamic> data = {
       'id': const Uuid().v4(), // Generamos un ID único para la venta
       'user': selectedUser ?? 'No seleccionado',
       'menuId': widget.menu!.id,
+      'status': widget.menu!.status,
       'date': widget.menu!.date,
       'recipes': recipeNames,
       'totalPrice': totalPrice, // Usamos el getter que ya calcula el total
@@ -152,14 +151,17 @@ class _VentasState extends State<Ventas> {
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
               child: _isQrGenerating
-                  ? const CircularProgressIndicator(color: Colors.red) // Muestra el spinner
-                  : QrImageView( // Muestra el QR cuando está listo
-                key: ValueKey(_qrDataString), // Key para que la animación funcione
-                data: _qrDataString!,
-                version: QrVersions.auto,
-                size: size,
-                backgroundColor: Colors.white,
-              ),
+                  ? const CircularProgressIndicator(
+                      color: Colors.red) // Muestra el spinner
+                  : QrImageView(
+                      // Muestra el QR cuando está listo
+                      key: ValueKey(
+                          _qrDataString), // Key para que la animación funcione
+                      data: _qrDataString!,
+                      version: QrVersions.auto,
+                      size: size,
+                      backgroundColor: Colors.white,
+                    ),
             ),
           ),
         ),
@@ -270,8 +272,10 @@ class _VentasState extends State<Ventas> {
               ),
               child: Text(
                 widget.menu!.date,
-                style: TextStyle(color: Colors.red[900]!,
-                fontSize: isMobile ? 18 : 20, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    color: Colors.red[900]!,
+                    fontSize: isMobile ? 18 : 20,
+                    fontWeight: FontWeight.bold),
               ),
             ),
           ),
@@ -287,18 +291,16 @@ class _VentasState extends State<Ventas> {
             child: SingleChildScrollView(
               child: Autocomplete<User>(
                 displayStringForOption: (User option) =>
-                '${option.name} ${option.lastName}',
-                initialValue: TextEditingValue(
-                    text: userListController.text),
+                    '${option.name} ${option.lastName}',
+                initialValue: TextEditingValue(text: userListController.text),
                 optionsBuilder: (TextEditingValue textEditingValue) {
                   if (textEditingValue.text == '') {
                     return const Iterable<User>.empty();
                   }
-                  return userList.where(
-                          (User option) => '${option.name} ${option.lastName}'
+                  return userList.where((User option) =>
+                      '${option.name} ${option.lastName}'
                           .toLowerCase()
-                          .contains(
-                          textEditingValue.text.toLowerCase()));
+                          .contains(textEditingValue.text.toLowerCase()));
                 },
                 onSelected: (User selection) {
                   setState(() {
@@ -326,18 +328,17 @@ class _VentasState extends State<Ventas> {
 
           // Espacio para Código QR
           Container(
-            width: isMobile
-                ? MediaQuery.of(context).size.width * 0.70
-                : MediaQuery.of(context).size.width * 0.20,
-            height: isMobile
-                ? MediaQuery.of(context).size.width * 0.70
-                : MediaQuery.of(context).size.width * 0.20,
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: _buildQrSection(isMobile)
-          ),
+              width: isMobile
+                  ? MediaQuery.of(context).size.width * 0.70
+                  : MediaQuery.of(context).size.width * 0.20,
+              height: isMobile
+                  ? MediaQuery.of(context).size.width * 0.70
+                  : MediaQuery.of(context).size.width * 0.20,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: _buildQrSection(isMobile)),
           SizedBox(height: 30),
 
           isMobile
@@ -424,8 +425,10 @@ class _VentasState extends State<Ventas> {
           menuItem.name as String,
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        subtitle: Text('\$${menuItem.price}',
-        style: TextStyle(fontSize: 22),),
+        subtitle: Text(
+          '\$${menuItem.price}',
+          style: TextStyle(fontSize: 22),
+        ),
         trailing: Checkbox(
           activeColor: Colors.red,
           value: selectedItems[menuItem] ?? false,
