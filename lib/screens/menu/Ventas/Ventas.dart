@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/controllers/security/user/UserController.dart';
 import 'package:gestion_menu_ult_frontend/models/UserEntity.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
-import 'package:gestion_menu_ult_frontend/widgets/SmallButton.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:uuid/uuid.dart';
 
