@@ -25,8 +25,8 @@ class _MenuListState extends State<MenuList> {
   List<String> _allTypes = [];
   List<String> _allStatus = [];
   String _selectedCategory = 'Todas';
-  String _selectedType = 'Todas';
-  String _selectedStatus = 'Todas';
+  String _selectedType = 'Todos';
+  String _selectedStatus = 'Todos';
   MenuEntityController _menuEntityController = MenuEntityController();
 
   @override
@@ -69,15 +69,12 @@ class _MenuListState extends State<MenuList> {
   }
 
   Future<void> _navigateToMenuProposal({MenuEntity? menu}) async {
-    // Usa 'await' para esperar a que la pantalla RecetaModelo se cierre
     final result = await Navigator.push(
       context,
       createFadeRoute(MenuPropuesta(menu: menu)),
     );
 
-    // Si `RecetaModelo` devolvió `true`, significa que se guardó algo
     if (result == true && mounted) {
-      // Recarga los datos para reflejar los cambios (creación o edición)
       _fetchMenus();
     }
   }
@@ -101,12 +98,12 @@ class _MenuListState extends State<MenuList> {
       final status = await _menuEntityController.fetchMenuStatus();
       if (mounted) {
         setState(() {
-          _allStatus = ['Todas', ...status];
+          _allStatus = ['Todos', ...status];
         });
       }
     } catch (e) {
       debugPrint("No se pudieron cargar las categorías: $e");
-      if (mounted) setState(() => _allStatus = ['Todas']);
+      if (mounted) setState(() => _allStatus = ['Todos']);
     }
   }
 
@@ -115,12 +112,12 @@ class _MenuListState extends State<MenuList> {
       final types = await _menuEntityController.fetchMenuTypes();
       if (mounted) {
         setState(() {
-          _allTypes = ['Todas', ...types];
+          _allTypes = ['Todos', ...types];
         });
       }
     } catch (e) {
       debugPrint("No se pudieron cargar las categorías: $e");
-      if (mounted) setState(() => _allTypes = ['Todas']);
+      if (mounted) setState(() => _allTypes = ['Todos']);
     }
   }
 
@@ -136,10 +133,10 @@ class _MenuListState extends State<MenuList> {
     if (categoryToFilter != 'Todas') {
       filters['category'] = categoryToFilter;
     }
-    if (statusToFilter != 'Todas') {
+    if (statusToFilter != 'Todos') {
       filters['status'] = statusToFilter;
     }
-    if (typeToFilter != 'Todas') {
+    if (typeToFilter != 'Todos') {
       filters['type'] = typeToFilter;
     }
 
@@ -193,7 +190,6 @@ class _MenuListState extends State<MenuList> {
         _selectedCategory = newValue;
         _menuEntityController.currentPage = 0;
       });
-      // Se llama a fetchRecipes con el nuevo valor para garantizar que el filtro se aplique inmediatamente.
       _fetchMenus();
     }
   }
@@ -204,7 +200,6 @@ class _MenuListState extends State<MenuList> {
         _selectedType = newValue;
         _menuEntityController.currentPage = 0;
       });
-      // Se llama a fetchRecipes con el nuevo valor para garantizar que el filtro se aplique inmediatamente.
       _fetchMenus();
     }
   }
@@ -215,7 +210,7 @@ class _MenuListState extends State<MenuList> {
         _selectedStatus = newValue;
         _menuEntityController.currentPage = 0;
       });
-      // Se llama a fetchRecipes con el nuevo valor para garantizar que el filtro se aplique inmediatamente.
+
       _fetchMenus();
     }
   }
@@ -239,67 +234,56 @@ class _MenuListState extends State<MenuList> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
                       child: ListTile(
                         title: Text(
                           'Menú de ${menu.category}',
                           style: TextStyle(
-                              fontSize: isMobile ? 14 : 17,
+                              fontSize: 17,
                               color: Colors.red[900],
                               fontWeight: FontWeight.bold),
                         ),
                         subtitle: Text(
                           '${menu.type} (${menu.date})',
                           style: TextStyle(
-                              fontSize: isMobile ? 13 : 16,
+                              fontSize: isMobile ? 14 : 16,
                               fontStyle: FontStyle.italic),
                         ),
                       ),
                     ),
                     Tooltip(
-                      // El mensaje cambia según la condición.
                       message: menu.status == 'Propuesto' ||
                               menu.status == 'Rechazado'
                           ? 'Editar menú'
                           : 'Este menú no se puede editar',
-
                       child: IconButton(
-                        // El color del ícono también cambia.
                         icon: Icon(Icons.edit,
                             color: menu.status == 'Propuesto' ||
                                     menu.status == 'Rechazado'
                                 ? Colors.blueAccent
                                 : Colors.grey),
-
-                        // La lógica de onPressed se mantiene igual.
                         onPressed: menu.status == 'Propuesto' ||
                                 menu.status == 'Rechazado'
                             ? () {
                                 _navigateToMenuProposal(menu: menu);
                               }
-                            : null, // <-- Deshabilitado si no se cumple la condición
+                            : null,
                       ),
                     ),
                     Tooltip(
-                      // El mensaje cambia según la condición.
                       message: menu.status == 'Propuesto' ||
                               menu.status == 'Rechazado'
                           ? 'Eliminar menú'
                           : 'Este menú no se puede eliminar',
-
                       child: IconButton(
-                        // El color del ícono también cambia.
                         icon: Icon(
                           Icons.delete,
                           color: menu.status == 'Propuesto' ||
                                   menu.status == 'Rechazado'
                               ? Colors.red
-                              : Colors.grey, // <-- Color condicional
+                              : Colors.grey,
                         ),
-
-                        // La lógica de onPressed se mantiene igual.
                         onPressed: menu.status == 'Propuesto' ||
                                 menu.status == 'Rechazado'
                             ? () {
@@ -313,9 +297,14 @@ class _MenuListState extends State<MenuList> {
                                   );
                                 }
                               }
-                            : null, // <-- Deshabilitado si no se cumple la condición
+                            : null,
                       ),
                     ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
                     SizedBox(width: 20),
                     _buildStatusChip(menu.status),
                     SizedBox(width: 20)
@@ -331,7 +320,7 @@ class _MenuListState extends State<MenuList> {
                       Text(
                         'Platos:',
                         style: TextStyle(
-                            fontSize: isMobile ? 14 : 17,
+                            fontSize: isMobile ? 16 : 17,
                             fontWeight: FontWeight.bold),
                       ),
                       SizedBox(height: 10),
@@ -340,7 +329,7 @@ class _MenuListState extends State<MenuList> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Icon(Icons.restaurant_menu,
-                                size: isMobile ? 16 : 20,
+                                size: isMobile ? 18 : 20,
                                 color: Colors.red[700]),
                             SizedBox(width: 6),
                             Expanded(
@@ -349,7 +338,7 @@ class _MenuListState extends State<MenuList> {
                                 child: Text(
                                   '- ${recipe.name}',
                                   style:
-                                      TextStyle(fontSize: isMobile ? 13 : 16),
+                                      TextStyle(fontSize: isMobile ? 15 : 16),
                                 ),
                               ),
                             ),
@@ -357,7 +346,7 @@ class _MenuListState extends State<MenuList> {
                             Text(
                               '\$ ${recipe.price}',
                               style: TextStyle(
-                                  fontSize: isMobile ? 13 : 16,
+                                  fontSize: isMobile ? 15 : 16,
                                   fontWeight: FontWeight.bold),
                             ),
                           ],
@@ -376,7 +365,7 @@ class _MenuListState extends State<MenuList> {
                       Text(
                         'Precio Total: \$ ${menu.totalPrice}',
                         style: TextStyle(
-                            fontSize: isMobile ? 14 : 17,
+                            fontSize: isMobile ? 15 : 17,
                             fontWeight: FontWeight.bold),
                       ),
                     ],
@@ -408,47 +397,37 @@ class _MenuListState extends State<MenuList> {
                       ),
                     ),
                     Tooltip(
-                      // El mensaje cambia según la condición.
                       message: menu.status == 'Propuesto' ||
                               menu.status == 'Rechazado'
                           ? 'Editar menú'
                           : 'Este menú no se puede editar',
-
                       child: IconButton(
-                        // El color del ícono también cambia.
                         icon: Icon(Icons.edit,
                             color: menu.status == 'Propuesto' ||
                                     menu.status == 'Rechazado'
                                 ? Colors.blueAccent
                                 : Colors.grey),
-
-                        // La lógica de onPressed se mantiene igual.
                         onPressed: menu.status == 'Propuesto' ||
                                 menu.status == 'Rechazado'
                             ? () {
                                 _navigateToMenuProposal(menu: menu);
                               }
-                            : null, // <-- Deshabilitado si no se cumple la condición
+                            : null,
                       ),
                     ),
                     Tooltip(
-                      // El mensaje cambia según la condición.
                       message: menu.status == 'Propuesto' ||
                               menu.status == 'Rechazado'
                           ? 'Eliminar menú'
                           : 'Este menú no se puede eliminar',
-
                       child: IconButton(
-                        // El color del ícono también cambia.
                         icon: Icon(
                           Icons.delete,
                           color: menu.status == 'Propuesto' ||
                                   menu.status == 'Rechazado'
                               ? Colors.red
-                              : Colors.grey, // <-- Color condicional
+                              : Colors.grey,
                         ),
-
-                        // La lógica de onPressed se mantiene igual.
                         onPressed: menu.status == 'Propuesto' ||
                                 menu.status == 'Rechazado'
                             ? () {
@@ -462,7 +441,7 @@ class _MenuListState extends State<MenuList> {
                                   );
                                 }
                               }
-                            : null, // <-- Deshabilitado si no se cumple la condición
+                            : null,
                       ),
                     ),
                     SizedBox(width: 20),
@@ -650,7 +629,6 @@ class _MenuListState extends State<MenuList> {
     );
   }
 
-  // *** WIDGET REFACTORIZADO PARA CARGAR DATOS ASÍNCRONAMENTE ***
   Widget _buildCategoryDropdown() {
     return DropdownButtonFormField<String>(
       value: _selectedCategory,

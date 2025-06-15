@@ -162,7 +162,8 @@ class _LogsState extends State<Logs> {
           isMobile ? _buildHeadersMobile() : _buildHeaders(),
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(
+                    child: CircularProgressIndicator(color: Colors.red))
                 : _errorMessage.isNotEmpty
                     ? Center(
                         child: Text(_errorMessage,
@@ -484,7 +485,7 @@ class _LogsState extends State<Logs> {
   }
 
   String _formatLogDate(DateTime dateValue) {
-    return DateFormat('yyyy-MM-dd hh:mm', 'es_ES').format(dateValue);
+    return DateFormat('yyyy-MM-dd hh:mm a', 'es_ES').format(dateValue);
   }
 
   TextStyle _headerStyle() {

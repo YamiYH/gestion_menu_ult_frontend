@@ -78,10 +78,7 @@ class _InventarioState extends State<Inventario> {
 
   @override
   Widget build(BuildContext context) {
-    bool isMobile = MediaQuery
-        .of(context)
-        .size
-        .width < 600;
+    bool isMobile = MediaQuery.of(context).size.width < 600;
     return Scaffold(
       appBar: CustomAppBar(title: 'Inventario'),
       body: Column(
@@ -95,19 +92,19 @@ class _InventarioState extends State<Inventario> {
           Expanded(
             child: _isLoading
                 ? const Center(
-                child: CircularProgressIndicator(
-                  color: Colors.red,
-                ))
+                    child: CircularProgressIndicator(
+                    color: Colors.red,
+                  ))
                 : _products.isEmpty
-                ? const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text(
-                      'No se encontraron productos con los filtros aplicados.'),
-                ))
-                : isMobile
-                ? _buildProductListMobile()
-                : _buildProductList(),
+                    ? const Center(
+                        child: Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Text(
+                            'No se encontraron productos con los filtros aplicados.'),
+                      ))
+                    : isMobile
+                        ? _buildProductListMobile()
+                        : _buildProductList(),
           ),
         ],
       ),
@@ -139,19 +136,19 @@ class _InventarioState extends State<Inventario> {
   Widget _buildFilterSection(bool isMobile) {
     return isMobile
         ? Column(
-      children: [
-        const SizedBox(height: 10),
-        _buildSearchField(),
-      ],
-    )
+            children: [
+              const SizedBox(height: 10),
+              _buildSearchField(),
+            ],
+          )
         : Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(width: 300, child: _buildSearchField()),
-        const SizedBox(width: 20),
-      ],
-    );
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(width: 300, child: _buildSearchField()),
+              const SizedBox(width: 20),
+            ],
+          );
   }
 
   Widget _buildSearchField() {
@@ -167,13 +164,10 @@ class _InventarioState extends State<Inventario> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Row(
           children: [
-            SizedBox(width: MediaQuery
-                .of(context)
-                .size
-                .width * 0.02),
-            SizedBox(child: Text('Producto', style: _headerStyle())),
-            SizedBox(child: Text('Existencia', style: _headerStyle())),
-            SizedBox(child: Text('U/M', style: _headerStyle())),
+            SizedBox(width: MediaQuery.of(context).size.width * 0.02),
+            _header('Producto', 0.48),
+            _header('Existencia', 0.26),
+            _header('U/M', 0.1),
           ],
         ));
   }
@@ -184,15 +178,12 @@ class _InventarioState extends State<Inventario> {
       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 8),
       child: Row(
         children: [
-          SizedBox(width: MediaQuery
-              .of(context)
-              .size
-              .width * 0.02),
-          SizedBox(child: Text('Código', style: _headerStyle())),
-          SizedBox(child: Text('Producto', style: _headerStyle())),
-          SizedBox(child: Text('Existencia', style: _headerStyle())),
-          SizedBox(child: Text('U/M', style: _headerStyle())),
-          SizedBox(child: Text('Precio', style: _headerStyle())),
+          SizedBox(width: MediaQuery.of(context).size.width * 0.02),
+          _header('Código', 0.2),
+          _header('Producto', 0.2),
+          _header('Existencia', 0.2),
+          _header('U/M', 0.1),
+          _header('Precio', 0.1),
         ],
       ),
     );
@@ -208,22 +199,10 @@ class _InventarioState extends State<Inventario> {
           padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
           child: Row(
             children: [
-              SizedBox(width: MediaQuery
-                  .of(context)
-                  .size
-                  .width * 0.02),
-              SizedBox(
-                child: Text(product.description,
-                    style: const TextStyle(fontSize: 14)),
-              ),
-              SizedBox(
-                child: Text(product.existence.toStringAsFixed(2),
-                    style: const TextStyle(fontSize: 14)),
-              ),
-              SizedBox(
-                child: Text(product.measurementUnit,
-                    style: const TextStyle(fontSize: 14)),
-              ),
+              SizedBox(width: MediaQuery.of(context).size.width * 0.02),
+              _listStyle(product.description, 0.5),
+              _listStyle(product.existence.toStringAsFixed(2), 0.21),
+              _listStyle(product.measurementUnit, 0.2),
             ],
           ),
         );
@@ -241,25 +220,12 @@ class _InventarioState extends State<Inventario> {
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
           child: Row(
             children: [
-              SizedBox(width: MediaQuery
-                  .of(context)
-                  .size
-                  .width * 0.02),
-              SizedBox(
-                  child:
-                  Text(product.code, style: const TextStyle(fontSize: 16))),
-              SizedBox(
-                  child: Text(product.description,
-                      style: const TextStyle(fontSize: 16))),
-              SizedBox(
-                  child: Text(product.existence.toStringAsFixed(2),
-                      style: const TextStyle(fontSize: 16))),
-              SizedBox(
-                  child: Text(product.measurementUnit,
-                      style: const TextStyle(fontSize: 16))),
-              SizedBox(
-                  child: Text("\$${product.price.toStringAsFixed(2)}",
-                      style: const TextStyle(fontSize: 16))),
+              SizedBox(width: MediaQuery.of(context).size.width * 0.02),
+              _listStyle(product.code, 0.2),
+              _listStyle(product.description, 0.4),
+              _listStyle(product.existence.toStringAsFixed(2), 0.2),
+              _listStyle(product.measurementUnit, 0.1),
+              _listStyle("\$${product.price.toStringAsFixed(2)}", 0.1),
             ],
           ),
         );
@@ -268,11 +234,22 @@ class _InventarioState extends State<Inventario> {
   }
 
   TextStyle _headerStyle() {
-    bool isMobile = MediaQuery
-        .of(context)
-        .size
-        .width < 600;
     return TextStyle(
         fontWeight: FontWeight.bold, color: Colors.red[900], fontSize: 16);
+  }
+
+  Widget _listStyle(String title, widthFactor) {
+    return SizedBox(
+        width: MediaQuery.of(context).size.width * widthFactor,
+        child: Text(title, style: TextStyle(fontSize: 15)));
+  }
+
+  Widget _header(String title, double widthFactor) {
+    return SizedBox(
+        width: MediaQuery.of(context).size.width * widthFactor,
+        child: Text(
+          title,
+          style: _headerStyle(),
+        ));
   }
 }

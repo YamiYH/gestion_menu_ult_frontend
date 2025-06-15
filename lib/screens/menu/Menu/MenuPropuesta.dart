@@ -404,7 +404,7 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 15),
+                      const SizedBox(height: 20),
                       Button(
                         onPressed: isMenuView || _isLoadingRecipes
                             ? null
@@ -413,6 +413,17 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
                         colorButton: (isMenuView || _isLoadingRecipes)
                             ? Colors.grey
                             : null,
+                        size: Size(isMobile ? 340 : 180, isMobile ? 60 : 50),
+                      ),
+                      SizedBox(height: 15),
+                      Button(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            createFadeRoute(MenuList()),
+                          );
+                        },
+                        text: 'Lista de Menús',
                         size: Size(isMobile ? 340 : 180, isMobile ? 60 : 50),
                       ),
                       SizedBox(height: isMobile ? 30 : 40),
@@ -712,9 +723,7 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
                 ),
                 const SizedBox(height: 10),
                 Row(
-                  mainAxisAlignment: isMobile
-                      ? MainAxisAlignment.center
-                      : MainAxisAlignment.start,
+                  //mainAxisAlignment:MainAxisAlignment.start,
                   children: [
                     AddButton(
                       onPressed: () {

@@ -237,12 +237,12 @@ class _UserModeloState extends State<UserModelo> {
       body: Container(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
-        decoration: BoxDecoration(
-            image: DecorationImage(
-                image: isMobile
-                    ? AssetImage('assets/img/background2.png')
-                    : AssetImage('assets/img/background0.png'),
-                fit: isMobile ? BoxFit.cover : BoxFit.fill)),
+        decoration: isMobile
+            ? null
+            : BoxDecoration(
+                image: DecorationImage(
+                    image: AssetImage('assets/img/background0.png'),
+                    fit: isMobile ? BoxFit.cover : BoxFit.fill)),
         child: SingleChildScrollView(
           child: Center(
             child: ConstrainedBox(
@@ -254,7 +254,7 @@ class _UserModeloState extends State<UserModelo> {
                     ? const Center(
                         child: Padding(
                           padding: EdgeInsets.all(32.0),
-                          child: CircularProgressIndicator(),
+                          child: CircularProgressIndicator(color: Colors.red),
                         ),
                       )
                     : Form(
