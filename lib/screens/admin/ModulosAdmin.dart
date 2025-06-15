@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/routes/PageRouteBuilder.dart';
 import 'package:gestion_menu_ult_frontend/screens/admin/Configuracion/Config.dart';
 import 'package:gestion_menu_ult_frontend/screens/admin/Rol/Roles.dart';
-import 'package:gestion_menu_ult_frontend/widgets/BuildCard.dart';
 
+import '../../widgets/CardStyle.dart';
 import '../../widgets/CustomAppbar.dart';
 import 'Auditoria/Logs.dart';
 import 'Usuario/Users.dart';
@@ -65,46 +65,33 @@ class _ModulosAdminState extends State<ModulosAdmin> {
   // Método para construir las Cards de administracion
   List<Widget> _buildAdmin() {
     return [
-      Container(
-        padding: EdgeInsets.all(5),
-        child: BuildCard(
-          title: 'Usuarios',
+      CardStyle(
           icon: Icons.people,
+          title: 'Usuarios',
           onTap: () {
             Navigator.push(context, createFadeRoute(Users()));
-          },
-        ),
+          }),
+      CardStyle(
+        icon: Icons.admin_panel_settings,
+        title: 'Roles',
+        onTap: () {
+          Navigator.push(context, createFadeRoute(Roles()));
+        },
       ),
-      Container(
-        padding: EdgeInsets.all(5),
-        child: BuildCard(
-          title: 'Roles',
-          icon: Icons.admin_panel_settings,
-          onTap: () {
-            Navigator.push(context, createFadeRoute(Roles()));
-          },
-        ),
+      CardStyle(
+        icon: Icons.security,
+        title: 'Auditoría',
+        onTap: () {
+          Navigator.push(context, createFadeRoute(Logs()));
+        },
       ),
-      Container(
-        padding: EdgeInsets.all(5),
-        child: BuildCard(
-          title: 'Auditoría',
-          icon: Icons.security,
-          onTap: () {
-            Navigator.push(context, createFadeRoute(Logs()));
-          },
-        ),
-      ),
-      Container(
-        padding: EdgeInsets.all(5),
-        child: BuildCard(
-          title: 'Configuración',
-          icon: Icons.settings,
-          onTap: () {
-            Navigator.push(context, createFadeRoute(Config()));
-          },
-        ),
-      ),
+      CardStyle(
+        icon: Icons.settings,
+        title: 'Configuración',
+        onTap: () {
+          Navigator.push(context, createFadeRoute(Config()));
+        },
+      )
     ];
   }
 }

@@ -56,23 +56,19 @@ class _UsersState extends State<Users> {
     _emailController.addListener(_onSearchChanged);
   }
 
-  // NUEVO MÉTODO: Carga los datos de los filtros solo una vez.
   Future<void> _loadDropdownData() async {
     try {
-      // Ejecuta ambas llamadas en paralelo para mayor eficiencia
       final results = await Future.wait([
         _roleController.fetchRoleNames(),
         _userController.fetchUserTypes(),
       ]);
 
-      // Asigna los resultados de forma limpia, evitando duplicados.
       setState(() {
         _availableRoles = ['Todos', ...results[0]];
         _availableTypes = ['Todos', ...results[1]];
       });
     } catch (e) {
       if (mounted) {
-        // Maneja el error si los filtros no se pueden cargar
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content:

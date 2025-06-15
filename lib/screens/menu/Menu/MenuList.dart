@@ -599,17 +599,11 @@ class _MenuListState extends State<MenuList> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(width: 16),
-        SizedBox(
-            width: MediaQuery.of(context).size.width * 0.2,
-            child: _buildCategoryDropdown()),
+        _buildHeader(_buildCategoryDropdown()),
         const SizedBox(width: 16),
-        SizedBox(
-            width: MediaQuery.of(context).size.width * 0.2,
-            child: _buildStatusDropdown()),
+        _buildHeader(_buildStatusDropdown()),
         const SizedBox(width: 16),
-        SizedBox(
-            width: MediaQuery.of(context).size.width * 0.2,
-            child: _buildTypeDropdown()),
+        _buildHeader(_buildTypeDropdown()),
         _buildNavigationButton(isMobile),
       ],
     );
@@ -737,5 +731,10 @@ class _MenuListState extends State<MenuList> {
       backgroundColor: color,
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
     );
+  }
+
+  Widget _buildHeader(Widget child) {
+    return SizedBox(
+        width: MediaQuery.of(context).size.width * 0.2, child: child);
   }
 }

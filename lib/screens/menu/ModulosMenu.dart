@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/routes/PageRouteBuilder.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/Contabilidad/Contabilidad.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/Menu/MenuPropuesta.dart';
-import 'package:gestion_menu_ult_frontend/widgets/BuildCard.dart';
+import 'package:gestion_menu_ult_frontend/widgets/CardStyle.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 import 'package:provider/provider.dart';
 
@@ -70,88 +70,61 @@ class ModulosMenu extends StatelessWidget {
     return [
       ProtectedWidget(
         requiredPermission: 'Inventario',
-        child: Container(
-          padding: EdgeInsets.all(5),
-          child: BuildCard(
+        child: CardStyle(
             title: 'Inventario',
             icon: Icons.inventory,
-            isEnabled: userPermissions.contains('Inventario'),
             onTap: () {
               Navigator.push(context, createFadeRoute(Inventario()));
             },
-          ),
-        ),
+            isEnabled: userPermissions.contains('Inventario')),
       ),
       ProtectedWidget(
-        requiredPermission: 'Propuestas',
-        child: Container(
-          padding: EdgeInsets.all(5),
-          child: BuildCard(
-            title: 'Propuestas de Menú',
-            icon: Icons.fastfood_sharp,
-            isEnabled: userPermissions.contains('Propuestas'),
-            onTap: () {
-              Navigator.push(context, createFadeRoute(MenuPropuesta()));
-            },
-          ),
-        ),
-      ),
+          requiredPermission: 'Propuestas',
+          child: CardStyle(
+              title: 'Propuestas de Menú',
+              icon: Icons.fastfood_sharp,
+              onTap: () {
+                Navigator.push(context, createFadeRoute(MenuPropuesta()));
+              },
+              isEnabled: userPermissions.contains('Propuestas'))),
       ProtectedWidget(
-        requiredPermission: 'Ventas',
-        child: Container(
-          padding: EdgeInsets.all(5),
-          child: BuildCard(
-            title: 'Ventas',
-            icon: Icons.attach_money,
-            isEnabled: userPermissions.contains('Ventas'),
-            onTap: () {
-              Navigator.push(context, createFadeRoute(ModulosVenta()));
-            },
-          ),
-        ),
-      ),
+          requiredPermission: 'Ventas',
+          child: CardStyle(
+              title: 'Ventas',
+              icon: Icons.attach_money,
+              onTap: () {
+                Navigator.push(context, createFadeRoute(ModulosVenta()));
+              },
+              isEnabled: userPermissions.contains('Ventas'))),
       ProtectedWidget(
-        requiredPermission: 'Recetas',
-        child: Container(
-          padding: EdgeInsets.all(5),
-          child: BuildCard(
+          requiredPermission: 'Recetas',
+          child: CardStyle(
             title: 'Libro de Recetas',
             icon: Icons.book,
-            isEnabled: userPermissions.contains('Recetas'),
             onTap: () {
               Navigator.push(context, createFadeRoute(LibroRecetas()));
             },
-          ),
-        ),
-      ),
+            isEnabled: userPermissions.contains('Recetas'),
+          )),
       ProtectedWidget(
-        requiredPermission: 'Contabilidad',
-        child: Container(
-          padding: EdgeInsets.all(5),
-          child: BuildCard(
-            title: 'Contabilidad',
-            icon: Icons.calculate_outlined,
-            isEnabled: userPermissions.contains('Contabilidad'),
-            onTap: () {
-              Navigator.push(context, createFadeRoute(Contabilidad()));
-            },
-          ),
-        ),
-      ),
+          requiredPermission: 'Contabilidad',
+          child: CardStyle(
+              title: 'Contabilidad',
+              icon: Icons.calculate_outlined,
+              onTap: () {
+                Navigator.push(context, createFadeRoute(Contabilidad()));
+              },
+              isEnabled: userPermissions.contains('Contabilidad'))),
       ProtectedWidget(
-        requiredPermission: 'Configuraciones',
-        child: Container(
-          padding: EdgeInsets.all(5),
-          child: BuildCard(
+          requiredPermission: 'Configuraciones',
+          child: CardStyle(
             title: 'Configuración',
             icon: Icons.settings,
-            isEnabled: userPermissions.contains('Configuraciones'),
             onTap: () {
               Navigator.push(context, createFadeRoute(MenuConfig()));
             },
-          ),
-        ),
-      ),
+            isEnabled: userPermissions.contains('Configuraciones'),
+          )),
     ];
   }
 }

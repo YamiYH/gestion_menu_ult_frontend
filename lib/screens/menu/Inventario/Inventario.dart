@@ -1,5 +1,7 @@
 // lib/screens/admin/Inventario.dart
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/controllers/inventory/InventoryController.dart';
 import 'package:gestion_menu_ult_frontend/models/Inventory.dart';
@@ -18,39 +20,46 @@ class _InventarioState extends State<Inventario> {
   final InventoryController _controller = InventoryController();
   bool _isLoading = true;
   List<Inventory> _products = [];
+  Timer? _debounce;
 
   // Controladores para los campos de texto de la UI
   final TextEditingController _searchController = TextEditingController();
-  final TextEditingController _minQuantityController = TextEditingController();
-  final TextEditingController _maxQuantityController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _fetchData(); // Carga inicial de datos
+    _fetchData(_searchController.text);
+
+    _searchController.addListener(_onSearchChanged);
   }
 
   @override
   void dispose() {
     _searchController.dispose();
-    _minQuantityController.dispose();
-    _maxQuantityController.dispose();
+    _searchController.removeListener(_onSearchChanged);
     super.dispose();
   }
 
-  Future<void> _fetchData() async {
+  void _onSearchChanged() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(seconds: 1), () {
+      _triggerSearch();
+    });
+  }
+
+  Future<void> _fetchData(String filter) async {
     if (!mounted) return;
     setState(() {
       _isLoading = true;
     });
 
-    // Actualiza el controlador con los filtros de la UI ANTES de la llamada
+    Map<String, String> filters = {
+      'description': filter,
+    };
     _controller.searchTerm = _searchController.text;
-    _controller.minQuantity = double.tryParse(_minQuantityController.text);
-    _controller.maxQuantity = double.tryParse(_maxQuantityController.text);
 
     try {
-      final productsFromApi = await _controller.fetchProducts();
+      final productsFromApi = await _controller.fetchProducts(filters: filters);
       setState(() {
         _products = productsFromApi;
       });
@@ -71,9 +80,8 @@ class _InventarioState extends State<Inventario> {
   }
 
   void _triggerSearch() {
-    // Al buscar, siempre volvemos a la primera página
     _controller.currentPage = 0;
-    _fetchData();
+    _fetchData(_searchController.text);
   }
 
   @override
@@ -117,7 +125,7 @@ class _InventarioState extends State<Inventario> {
             setState(() {
               _controller.currentPage = newPage;
             });
-            _fetchData();
+            _fetchData(_searchController.text);
           }
         },
         onItemsPerPageChanged: (newSize) {
@@ -126,7 +134,7 @@ class _InventarioState extends State<Inventario> {
               _controller.pageSize = newSize;
               _controller.currentPage = 0;
             });
-            _fetchData();
+            _fetchData(_searchController.text);
           }
         },
       ),

@@ -18,7 +18,6 @@ class BuildCard extends StatelessWidget {
   Widget build(BuildContext context) {
     bool isMobile = MediaQuery.of(context).size.width < 600;
 
-    // --- AÑADIDO: Definimos los colores basados en el estado ---
     final Color activeColor = Colors.red[900]!;
     final Color disabledColor = Colors.grey.shade600;
     final Color currentColor = isEnabled ? activeColor : disabledColor;
@@ -51,7 +50,7 @@ class BuildCard extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: isMobile
-                        ? 16
+                        ? 18
                         : MediaQuery.of(context).size.width * 0.015,
                     fontWeight: FontWeight.bold,
                     color: currentColor,

@@ -55,7 +55,9 @@ class _ContabilidadState extends State<Contabilidad> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al cargar los menús: $e'), backgroundColor: Colors.red),
+          SnackBar(
+              content: Text('Error al cargar los menús: $e'),
+              backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -69,58 +71,58 @@ class _ContabilidadState extends State<Contabilidad> {
 
   @override
   Widget build(BuildContext context) {
-    bool isMobile = MediaQuery
-        .of(context)
-        .size
-        .width < 600;
+    bool isMobile = MediaQuery.of(context).size.width < 600;
 
     return Scaffold(
-      appBar: CustomAppBar(title: 'Contabilidad'),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: EdgeInsets.all(16.0),
-              child: isMobile
-                  ? Column(
-                children: [
-                  buildRow(),
-                ],
-              )
-                  : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  buildRow(),
-                ],
+        appBar: CustomAppBar(title: 'Contabilidad'),
+        body: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: EdgeInsets.all(16.0),
+                child: isMobile
+                    ? Column(
+                        children: [
+                          buildRow(),
+                        ],
+                      )
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          buildRow(),
+                        ],
+                      ),
               ),
-            ),
-            _isLoading
-                ? const Center(
-              child: Padding(
-                padding: EdgeInsets.all(32.0),
-                child: CircularProgressIndicator(),
-              ),
-            ) :Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ListView.builder(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                itemCount: _menuList.length,
-                itemBuilder: (context, index) {
-                  final menu = _menuList[index];
-                  return MenuCardWithAction(context: context,
-                      actionText: 'Revisar',
-                      onPressed: () {
-                        Navigator.push(context, createFadeRoute(AprobarMenu(menu: menu)));
-                      }
-                      ,menu: menu);
-                },
-              ),
-            ),
-          ],
+              _isLoading
+                  ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(32.0),
+                        child: CircularProgressIndicator(color: Colors.red),
+                      ),
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: _menuList.length,
+                        itemBuilder: (context, index) {
+                          final menu = _menuList[index];
+                          return MenuCardWithAction(
+                              context: context,
+                              actionText: 'Revisar',
+                              onPressed: () {
+                                Navigator.push(context,
+                                    createFadeRoute(AprobarMenu(menu: menu)));
+                              },
+                              menu: menu);
+                        },
+                      ),
+                    ),
+            ],
+          ),
         ),
-      ),
         bottomNavigationBar: Pagination(
           currentPage: _controller.currentPage,
           totalPages: _controller.totalPages,
@@ -138,8 +140,7 @@ class _ContabilidadState extends State<Contabilidad> {
               _fetchMenus();
             }
           },
-        )
-    );
+        ));
   }
 
   Widget buildRow() {
@@ -156,8 +157,7 @@ class _ContabilidadState extends State<Contabilidad> {
               _fetchMenus();
             },
             firstDate: DateTime.now(),
-            lastDate: DateTime.now().add(Duration(days: 30))
-        ),
+            lastDate: DateTime.now().add(Duration(days: 30))),
         SizedBox(width: 10),
         Icon(Icons.arrow_forward, color: Colors.red[900]),
         SizedBox(width: 10),
@@ -171,8 +171,7 @@ class _ContabilidadState extends State<Contabilidad> {
               _fetchMenus();
             },
             firstDate: DateTime.now(),
-            lastDate: DateTime.now().add(Duration(days: 30))
-        ),
+            lastDate: DateTime.now().add(Duration(days: 30))),
       ],
     );
   }

@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/screens/admin/ModulosAdmin.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/ModulosMenu.dart';
 import 'package:gestion_menu_ult_frontend/screens/ticket/GestionarTicket.dart';
+import 'package:gestion_menu_ult_frontend/widgets/CardStyle.dart';
 import 'package:gestion_menu_ult_frontend/widgets/ProtectedWidget.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/ProfileProvider.dart';
 import '../../routes/PageRouteBuilder.dart';
-import '../../widgets/BuildCard.dart';
 import '../../widgets/CustomAppbar.dart';
 
 class Options extends StatelessWidget {
@@ -67,42 +67,30 @@ class Options extends StatelessWidget {
       BuildContext context, List<String> userPermissions) {
     return [
       ProtectedWidget(
-        requiredPermission: 'Menu',
-        child: Container(
-          padding: EdgeInsets.all(5),
-          child: BuildCard(
-            title: 'Menú',
-            icon: Icons.restaurant_menu,
-            isEnabled: userPermissions.contains('Menu'),
-            onTap: () {
-              Navigator.push(context, createFadeRoute(ModulosMenu()));
-            },
-          ),
-        ),
-      ),
-      Container(
-        padding: EdgeInsets.all(5),
-        child: BuildCard(
-          title: 'Tickets',
-          icon: Icons.qr_code,
-          onTap: () {
-            Navigator.push(context, createFadeRoute(GestionarTicket()));
-          },
-        ),
+          requiredPermission: 'Menu',
+          child: CardStyle(
+              title: 'Menú',
+              icon: Icons.restaurant_menu,
+              onTap: () {
+                Navigator.push(context, createFadeRoute(ModulosMenu()));
+              },
+              isEnabled: userPermissions.contains('Menu'))),
+      CardStyle(
+        title: 'Tickets',
+        icon: Icons.qr_code,
+        onTap: () {
+          Navigator.push(context, createFadeRoute(GestionarTicket()));
+        },
       ),
       ProtectedWidget(
         requiredPermission: 'Administrador',
-        child: Container(
-          padding: EdgeInsets.all(5),
-          child: BuildCard(
+        child: CardStyle(
             title: 'Administración',
             icon: Icons.admin_panel_settings,
-            isEnabled: userPermissions.contains('Administrador'),
             onTap: () {
               Navigator.push(context, createFadeRoute(ModulosAdmin()));
             },
-          ),
-        ),
+            isEnabled: userPermissions.contains('Administrador')),
       ),
     ];
   }

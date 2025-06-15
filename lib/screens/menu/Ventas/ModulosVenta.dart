@@ -3,7 +3,7 @@ import 'package:gestion_menu_ult_frontend/routes/PageRouteBuilder.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/Ventas/ComedorAcceso.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/Ventas/InformesVentas.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/Ventas/MenuVenta.dart';
-import 'package:gestion_menu_ult_frontend/widgets/BuildCard.dart';
+import 'package:gestion_menu_ult_frontend/widgets/CardStyle.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
@@ -78,50 +78,40 @@ class ModulosVenta extends StatelessWidget {
     return [
       ProtectedWidget(
         requiredPermission: 'Caja',
-        child: Container(
-          padding: EdgeInsets.all(5),
-          child: BuildCard(
-            title: 'Iniciar Ventas',
-            icon: Icons.attach_money,
-            isEnabled: userPermissions.contains('Caja'),
-            onTap: () {
-              Navigator.push(context, createFadeRoute(MenuVentas()));
-            },
-          ),
+        child: CardStyle(
+          title: 'Iniciar Ventas',
+          icon: Icons.attach_money,
+          onTap: () {
+            Navigator.push(context, createFadeRoute(MenuVentas()));
+          },
+          isEnabled: userPermissions.contains('Caja'),
         ),
       ),
       ProtectedWidget(
         requiredPermission: 'Reportes',
-        child: Container(
-          padding: EdgeInsets.all(5),
-          child: BuildCard(
-            title: 'Informes de Ventas',
-            icon: Icons.bar_chart,
-            isEnabled: userPermissions.contains('Reportes'),
-            onTap: () {
-              Navigator.push(context, createFadeRoute(InformesVentas()));
-            },
-          ),
+        child: CardStyle(
+          title: 'Informes de Ventas',
+          icon: Icons.bar_chart,
+          onTap: () {
+            Navigator.push(context, createFadeRoute(InformesVentas()));
+          },
+          isEnabled: userPermissions.contains('Reportes'),
         ),
       ),
       if (isMobile)
         ProtectedWidget(
-          requiredPermission: 'Caja',
-          child: Container(
-            padding: EdgeInsets.all(5),
-            child: BuildCard(
+            requiredPermission: 'Caja',
+            child: CardStyle(
               title: 'Acceso al Comedor',
               icon: Icons.qr_code,
-              isEnabled: userPermissions.contains('Caja'),
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => ComedorAcceso()),
                 );
               },
-            ),
-          ),
-        )
+              isEnabled: userPermissions.contains('Caja'),
+            ))
     ];
   }
 }

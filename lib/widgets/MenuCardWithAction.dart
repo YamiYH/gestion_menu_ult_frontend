@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../models/MenuEntity.dart';
@@ -34,14 +33,14 @@ class MenuCardWithAction extends StatelessWidget {
                   title: Text(
                     'Menú de ${menu.category}',
                     style: TextStyle(
-                        fontSize: isMobile ? 14 : 17,
+                        fontSize: 16,
                         color: Colors.red[900],
                         fontWeight: FontWeight.bold),
                   ),
                   subtitle: Text(
                     '${menu.type} (${menu.date})',
                     style: TextStyle(
-                        fontSize: isMobile ? 13 : 16,
+                        fontSize: isMobile ? 14 : 16,
                         fontStyle: FontStyle.italic),
                   ),
                 ),
@@ -67,7 +66,7 @@ class MenuCardWithAction extends StatelessWidget {
                 Text(
                   'Platos:',
                   style: TextStyle(
-                      fontSize: isMobile ? 14 : 17,
+                      fontSize: isMobile ? 16 : 17,
                       fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 10),
@@ -76,14 +75,14 @@ class MenuCardWithAction extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Icon(Icons.restaurant_menu,
-                          size: isMobile ? 16 : 20, color: Colors.red[700]),
+                          size: isMobile ? 18 : 20, color: Colors.red[700]),
                       SizedBox(width: 6),
                       Expanded(
                         child: Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
                             '- ${recipe.name}',
-                            style: TextStyle(fontSize: isMobile ? 13 : 16),
+                            style: TextStyle(fontSize: isMobile ? 15 : 16),
                           ),
                         ),
                       ),
@@ -91,7 +90,7 @@ class MenuCardWithAction extends StatelessWidget {
                       Text(
                         '\$ ${recipe.price}',
                         style: TextStyle(
-                            fontSize: isMobile ? 13 : 16,
+                            fontSize: isMobile ? 15 : 16,
                             fontWeight: FontWeight.bold),
                       ),
                     ],
@@ -103,14 +102,14 @@ class MenuCardWithAction extends StatelessWidget {
           Divider(),
           Padding(
             padding:
-            const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Text(
                   'Precio Total: \$ ${menu.totalPrice}',
                   style: TextStyle(
-                      fontSize: isMobile ? 14 : 17,
+                      fontSize: isMobile ? 15 : 17,
                       fontWeight: FontWeight.bold),
                 ),
               ],

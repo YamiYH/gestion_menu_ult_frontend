@@ -19,7 +19,7 @@ class ScheduleButton extends StatelessWidget {
         elevation: 3,
         backgroundColor: Colors.grey.shade300,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: BorderRadius.circular(10),
         ),
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       ),
