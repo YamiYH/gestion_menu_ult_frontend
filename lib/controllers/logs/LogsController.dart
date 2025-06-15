@@ -62,11 +62,11 @@ class LogsController extends BaseController {
     }
     if (startDateFilter != null) {
       queryParams['startDate'] =
-          DateFormat("yyyy-MM-dd'T'HH:mm:ss").format(startDateFilter!);
+          DateFormat("yyyy-MM-dd'T'hh:mm:ss").format(startDateFilter!);
     }
     if (endDateFilter != null) {
       queryParams['endDate'] =
-          DateFormat("yyyy-MM-dd'T'HH:mm:ss").format(endDateFilter!);
+          DateFormat("yyyy-MM-dd'T'hh:mm:ss").format(endDateFilter!);
     }
     if (selectedModuleFilter != 'Todos') {
       queryParams['module'] = selectedModuleFilter;
