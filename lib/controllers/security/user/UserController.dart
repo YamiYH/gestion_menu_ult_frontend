@@ -1,5 +1,7 @@
 // lib/controllers/user/UserController.dart
 
+import 'package:gestion_menu_ult_frontend/models/MenuEntity.dart';
+
 import '../../../models/UserEntity.dart';
 import '../../BaseController.dart';
 
@@ -88,6 +90,33 @@ class UserController extends BaseController {
       // Llama al método DELETE genérico, construyendo la ruta completa del recurso
       final responseData = await super.getById('$endPoint/$username');
       return User.fromJson(responseData);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<List<User>> getAllUsers() async {
+    Map<String, String> queryParams = {
+      'pageNo': '0',
+      'pageSize': '9000',
+      'sortType': 'asc',
+      'sortBy': 'name',
+    };
+
+    try {
+      // Llama al método GET genérico de la clase padre
+      final responseData = await super.get(endPoint, queryParams: queryParams);
+
+      // Interpreta la respuesta JSON específica de este método
+      if (responseData is Map<String, dynamic> &&
+          responseData.containsKey('content')) {
+        List<dynamic> userListJson = responseData['content'];
+        super.totalPages = responseData['totalPages'] ?? 1;
+        super.currentPage = responseData['number'] ?? 0;
+        return userListJson.map((data) => User.fromJson(data)).toList();
+      } else {
+        throw Exception("Formato de respuesta de usuarios inesperado.");
+      }
     } catch (e) {
       rethrow;
     }

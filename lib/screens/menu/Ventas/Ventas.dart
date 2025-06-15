@@ -1,14 +1,17 @@
-import 'dart:async';
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
+import 'package:gestion_menu_ult_frontend/controllers/security/user/UserController.dart';
+import 'package:gestion_menu_ult_frontend/models/UserEntity.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
-import 'package:qr_flutter/qr_flutter.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../models/MenuEntity.dart';
 import '../../../widgets/DynamicButton.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'dart:async';
+import 'dart:convert';
 
 class Ventas extends StatefulWidget {
+
   final MenuEntity? menu;
 
   const Ventas({
@@ -21,6 +24,9 @@ class Ventas extends StatefulWidget {
 }
 
 class _VentasState extends State<Ventas> {
+
+  UserController userController = UserController();
+  late TextEditingController userListController;
   Timer? _debounce; // El temporizador para el delay
   String? _qrDataString; // Los datos del QR en formato String (JSON)
   bool _isQrGenerating = true; // Flag para mostrar el spinner de carga del QR
@@ -29,7 +35,7 @@ class _VentasState extends State<Ventas> {
   Map<MenuRecipe, bool> selectedItems = {};
 
   // Lista simulada de nombres para el Autocomplete
-  List<String> userNames = [];
+  List<User> userList = [];
 
   // Nombre seleccionado
   String? selectedUser;
@@ -48,6 +54,8 @@ class _VentasState extends State<Ventas> {
   @override
   void initState() {
     super.initState();
+    _fetchUsers();
+    _initializeUserList();
     _onDataChangedForQr();
   }
 
@@ -57,47 +65,74 @@ class _VentasState extends State<Ventas> {
     super.dispose();
   }
 
+  void _initializeUserList() {
+    userListController = TextEditingController();
+    userListController.addListener(() {
+      _onDataChangedForQr();
+    });
+  }
+
+  Future<void> _fetchUsers() async {
+    try {
+      userList = await userController.getAllUsers();
+      setState(() {
+      });
+    } catch (e) {
+      print('Error fetching users: $e');
+    }
+  }
+
+
   String _generateQrDataString() {
+    // 1. Extraemos los nombres de los platos
     final List<String> recipeNames = [];
     for (var entry in selectedItems.entries) {
       if (entry.value) {
         recipeNames.add(entry.key.name as String);
       }
-    }
-    ;
-
-    final Map<String, dynamic> data = {
-      'menuId': widget.menu!.id,
-      'date': widget.menu!.date,
-      'type': widget.menu!.type,
-      'recipes': recipeNames,
-      'totalPrice': totalPrice,
     };
 
+    // 2. Creamos un mapa con toda la información
+    final Map<String, dynamic> data = {
+      'id': const Uuid().v4(), // Generamos un ID único para la venta
+      'user': selectedUser ?? 'No seleccionado',
+      'menuId': widget.menu!.id,
+      'date': widget.menu!.date,
+      'recipes': recipeNames,
+      'totalPrice': totalPrice, // Usamos el getter que ya calcula el total
+    };
+
+    // 3. Convertimos el mapa a un string en formato JSON
     return jsonEncode(data);
   }
 
   void _onDataChangedForQr() {
+    // Si ya hay un timer corriendo, lo cancelamos para empezar de nuevo
     if (_debounce?.isActive ?? false) _debounce!.cancel();
 
+    // Mostramos el indicador de carga inmediatamente
     setState(() {
       _isQrGenerating = true;
     });
 
+    // Creamos un nuevo timer con el delay de 1 segundo
     _debounce = Timer(const Duration(seconds: 1), () {
+      // Cuando el timer termina, generamos los datos y actualizamos el estado
       final newData = _generateQrDataString();
       if (mounted) {
         setState(() {
           _qrDataString = newData;
-          _isQrGenerating = false;
+          _isQrGenerating = false; // Ocultamos el indicador de carga
         });
       }
     });
   }
 
   void _updateTotal() {
-    setState(() {});
-
+    setState(() {
+      // Esta llamada a setState es para actualizar el precio total inmediatamente
+    });
+    // Adicionalmente, disparamos la lógica de regeneración del QR
     _onDataChangedForQr();
   }
 
@@ -113,17 +148,18 @@ class _VentasState extends State<Ventas> {
           child: SizedBox(
             width: size,
             height: size,
+            // Usamos un AnimatedSwitcher para una transición suave entre el spinner y el QR
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
               child: _isQrGenerating
-                  ? const CircularProgressIndicator(color: Colors.red)
-                  : QrImageView(
-                      key: ValueKey(_qrDataString),
-                      data: _qrDataString!,
-                      version: QrVersions.auto,
-                      size: size,
-                      backgroundColor: Colors.white,
-                    ),
+                  ? const CircularProgressIndicator(color: Colors.red) // Muestra el spinner
+                  : QrImageView( // Muestra el QR cuando está listo
+                key: ValueKey(_qrDataString), // Key para que la animación funcione
+                data: _qrDataString!,
+                version: QrVersions.auto,
+                size: size,
+                backgroundColor: Colors.white,
+              ),
             ),
           ),
         ),
@@ -234,10 +270,8 @@ class _VentasState extends State<Ventas> {
               ),
               child: Text(
                 widget.menu!.date,
-                style: TextStyle(
-                    color: Colors.red[900]!,
-                    fontSize: isMobile ? 18 : 20,
-                    fontWeight: FontWeight.bold),
+                style: TextStyle(color: Colors.red[900]!,
+                fontSize: isMobile ? 18 : 20, fontWeight: FontWeight.bold),
               ),
             ),
           ),
@@ -251,21 +285,26 @@ class _VentasState extends State<Ventas> {
                 ? MediaQuery.of(context).size.height * 0.08
                 : MediaQuery.of(context).size.height * 0.08,
             child: SingleChildScrollView(
-              child: Autocomplete<String>(
+              child: Autocomplete<User>(
+                displayStringForOption: (User option) =>
+                '${option.name} ${option.lastName}',
+                initialValue: TextEditingValue(
+                    text: userListController.text),
                 optionsBuilder: (TextEditingValue textEditingValue) {
-                  if (textEditingValue.text.isEmpty) {
-                    return const Iterable<String>.empty();
+                  if (textEditingValue.text == '') {
+                    return const Iterable<User>.empty();
                   }
-                  return userNames.where((String option) {
-                    return option
-                        .toLowerCase()
-                        .contains(textEditingValue.text.toLowerCase());
-                  });
+                  return userList.where(
+                          (User option) => '${option.name} ${option.lastName}'
+                          .toLowerCase()
+                          .contains(
+                          textEditingValue.text.toLowerCase()));
                 },
-                onSelected: (String selection) {
+                onSelected: (User selection) {
                   setState(() {
-                    selectedUser = selection;
+                    selectedUser = selection.username;
                   });
+                  _updateTotal();
                 },
                 fieldViewBuilder: (context, textEditingController, focusNode,
                     onFieldSubmitted) {
@@ -280,7 +319,6 @@ class _VentasState extends State<Ventas> {
                     ),
                   );
                 },
-                displayStringForOption: (String option) => option,
               ),
             ),
           ),
@@ -288,17 +326,18 @@ class _VentasState extends State<Ventas> {
 
           // Espacio para Código QR
           Container(
-              width: isMobile
-                  ? MediaQuery.of(context).size.width * 0.70
-                  : MediaQuery.of(context).size.width * 0.20,
-              height: isMobile
-                  ? MediaQuery.of(context).size.width * 0.70
-                  : MediaQuery.of(context).size.width * 0.20,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: _buildQrSection(isMobile)),
+            width: isMobile
+                ? MediaQuery.of(context).size.width * 0.70
+                : MediaQuery.of(context).size.width * 0.20,
+            height: isMobile
+                ? MediaQuery.of(context).size.width * 0.70
+                : MediaQuery.of(context).size.width * 0.20,
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: _buildQrSection(isMobile)
+          ),
           SizedBox(height: 30),
 
           isMobile
@@ -385,10 +424,8 @@ class _VentasState extends State<Ventas> {
           menuItem.name as String,
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        subtitle: Text(
-          '\$${menuItem.price}',
-          style: TextStyle(fontSize: 22),
-        ),
+        subtitle: Text('\$${menuItem.price}',
+        style: TextStyle(fontSize: 22),),
         trailing: Checkbox(
           activeColor: Colors.red,
           value: selectedItems[menuItem] ?? false,
