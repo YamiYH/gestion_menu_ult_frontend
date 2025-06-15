@@ -19,21 +19,18 @@ class Logs extends StatefulWidget {
 }
 
 class _LogsState extends State<Logs> {
-  // --- CONTROLLERS ---
   final LogsController _controller = LogsController();
   final RoleController _roleController = RoleController();
   final TextEditingController _userControllerText = TextEditingController();
 
-  // --- UI STATE ---
   bool _isLoading = true;
   bool _areFiltersLoading = true;
   String _errorMessage = '';
   Timer? _debounce;
 
-  // --- DYNAMIC FILTER OPTIONS ---
   List<String> _moduleOptions = ['Todos'];
   List<String> _actionOptions = ['Todos'];
-  List<String> _typeOptions = ['Todos']; // AÑADIDO para los tipos
+  List<String> _typeOptions = ['Todos'];
 
   @override
   void initState() {
@@ -49,8 +46,6 @@ class _LogsState extends State<Logs> {
     _debounce?.cancel();
     super.dispose();
   }
-
-  // --- DATA FETCHING LOGIC ---
 
   Future<void> _loadInitialScreenData() async {
     setState(() {
@@ -85,17 +80,17 @@ class _LogsState extends State<Logs> {
       final results = await Future.wait([
         _roleController.fetchModules(),
         _controller.fetchActions(),
-        _controller.fetchLogTypes(), // AÑADIDO
+        _controller.fetchLogTypes(),
       ]);
       final fetchedModules = results[0] as List<String>;
       final fetchedActions = results[1] as List<String>;
-      final fetchedTypes = results[2] as List<String>; // AÑADIDO
+      final fetchedTypes = results[2] as List<String>;
 
       if (mounted) {
         setState(() {
           _moduleOptions = ['Todos', ...fetchedModules];
           _actionOptions = ['Todos', ...fetchedActions];
-          _typeOptions = ['Todos', ...fetchedTypes]; // AÑADIDO
+          _typeOptions = ['Todos', ...fetchedTypes];
         });
       }
     } catch (e) {
@@ -107,8 +102,6 @@ class _LogsState extends State<Logs> {
       }
     }
   }
-
-  // --- EVENT HANDLERS ---
 
   void _onUserFilterChanged() {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
@@ -152,8 +145,6 @@ class _LogsState extends State<Logs> {
       }
     }
   }
-
-  // --- BUILD METHOD ---
 
   @override
   Widget build(BuildContext context) {
@@ -206,8 +197,6 @@ class _LogsState extends State<Logs> {
     );
   }
 
-  // --- UI WIDGET BUILDERS ---
-
   Widget _buildFiltersSection(BuildContext context, bool isMobile) {
     return isMobile
         ? Column(
@@ -254,7 +243,6 @@ class _LogsState extends State<Logs> {
         isExpanded: true,
         value: _controller.selectedTypeFilter,
         items: _buildDropdownItems(_typeOptions),
-        // Usa la lista de tipos
         onChanged: _areFiltersLoading
             ? null
             : (newValue) {
@@ -312,7 +300,6 @@ class _LogsState extends State<Logs> {
 
   List<DropdownMenuItem<String>> _buildDropdownItems(List<String> options) {
     if (_areFiltersLoading && options.length <= 1) {
-      // Muestra "Cargando..." solo si aún no hay opciones
       return [
         const DropdownMenuItem(
           value: 'Todos',
@@ -324,7 +311,7 @@ class _LogsState extends State<Logs> {
               SizedBox(
                 width: 16,
                 height: 16,
-                child: CircularProgressIndicator(strokeWidth: 2.0),
+                child: CircularProgressIndicator(color: Colors.red),
               ),
             ],
           ),
@@ -338,8 +325,6 @@ class _LogsState extends State<Logs> {
       );
     }).toList();
   }
-
-  // --- El resto del código permanece igual ---
 
   Widget _buildDatePicker(BuildContext context) {
     return Row(
@@ -474,12 +459,9 @@ class _LogsState extends State<Logs> {
 
   Widget _buildLogRowMobile(String user, String formattedDate, String details) {
     return Row(children: [
-      Expanded(flex: 3, child: Text(user, overflow: TextOverflow.ellipsis)),
-      Expanded(
-          flex: 4, child: Text(formattedDate, overflow: TextOverflow.ellipsis)),
-      Expanded(
-          flex: 5,
-          child: Text(details, overflow: TextOverflow.ellipsis, maxLines: 1))
+      _titleStyle(user, 0.2),
+      _titleStyle(formattedDate, 0.3),
+      _titleStyle(details, 0.4),
     ]);
   }
 
@@ -487,21 +469,11 @@ class _LogsState extends State<Logs> {
       String action, String formattedDate, String details) {
     return Row(children: [
       SizedBox(width: MediaQuery.of(context).size.width * 0.02),
-      SizedBox(
-          width: MediaQuery.of(context).size.width * 0.12,
-          child: Text(username, overflow: TextOverflow.ellipsis)),
-      SizedBox(
-          width: MediaQuery.of(context).size.width * 0.12,
-          child: Text(module, overflow: TextOverflow.ellipsis)),
-      SizedBox(
-          width: MediaQuery.of(context).size.width * 0.12,
-          child: Text(type, overflow: TextOverflow.ellipsis)),
-      SizedBox(
-          width: MediaQuery.of(context).size.width * 0.14,
-          child: Text(action, overflow: TextOverflow.ellipsis)),
-      SizedBox(
-          width: MediaQuery.of(context).size.width * 0.14,
-          child: Text(formattedDate, overflow: TextOverflow.ellipsis)),
+      _titleStyle(username, 0.12),
+      _titleStyle(module, 0.12),
+      _titleStyle(type, 0.12),
+      _titleStyle(action, 0.14),
+      _titleStyle(formattedDate, 0.14),
       SizedBox(
           width: MediaQuery.of(context).size.width * 0.3,
           child: Tooltip(
@@ -512,11 +484,17 @@ class _LogsState extends State<Logs> {
   }
 
   String _formatLogDate(DateTime dateValue) {
-    return DateFormat('yyyy-MM-dd HH:mm', 'es_ES').format(dateValue);
+    return DateFormat('yyyy-MM-dd hh:mm', 'es_ES').format(dateValue);
   }
 
   TextStyle _headerStyle() {
     return TextStyle(
         fontWeight: FontWeight.bold, color: Colors.grey[800], fontSize: 16);
+  }
+
+  Widget _titleStyle(String title, double widthFactor) {
+    return SizedBox(
+        width: MediaQuery.of(context).size.width * widthFactor,
+        child: Text(title));
   }
 }

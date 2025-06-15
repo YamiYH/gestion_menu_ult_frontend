@@ -234,153 +234,305 @@ class _MenuListState extends State<MenuList> {
     bool isMobile = MediaQuery.of(context).size.width < 700;
     return Card(
       margin: EdgeInsets.symmetric(vertical: 5),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: ListTile(
-                  title: Text(
-                    'Menú de ${menu.category}',
-                    style: TextStyle(
-                        fontSize: isMobile ? 14 : 17,
-                        color: Colors.red[900],
-                        fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text(
-                    '${menu.type} (${menu.date})',
-                    style: TextStyle(
-                        fontSize: isMobile ? 13 : 16,
-                        fontStyle: FontStyle.italic),
-                  ),
-                ),
-              ),
-              Tooltip(
-                // El mensaje cambia según la condición.
-                message:
-                    menu.status == 'Propuesto' || menu.status == 'Rechazado'
-                        ? 'Editar menú'
-                        : 'Este menú no se puede editar',
-
-                child: IconButton(
-                  // El color del ícono también cambia.
-                  icon: Icon(Icons.edit,
-                      color: menu.status == 'Propuesto' ||
-                              menu.status == 'Rechazado'
-                          ? Colors.blueAccent
-                          : Colors.grey),
-
-                  // La lógica de onPressed se mantiene igual.
-                  onPressed: menu.status == 'Propuesto' ||
-                          menu.status == 'Rechazado'
-                      ? () {
-                          _navigateToMenuProposal(menu: menu);
-                        }
-                      : null, // <-- Deshabilitado si no se cumple la condición
-                ),
-              ),
-              Tooltip(
-                // El mensaje cambia según la condición.
-                message:
-                    menu.status == 'Propuesto' || menu.status == 'Rechazado'
-                        ? 'Eliminar menú'
-                        : 'Este menú no se puede eliminar',
-
-                child: IconButton(
-                  // El color del ícono también cambia.
-                  icon: Icon(
-                    Icons.delete,
-                    color:
-                        menu.status == 'Propuesto' || menu.status == 'Rechazado'
-                            ? Colors.red
-                            : Colors.grey, // <-- Color condicional
-                  ),
-
-                  // La lógica de onPressed se mantiene igual.
-                  onPressed: menu.status == 'Propuesto' ||
-                          menu.status == 'Rechazado'
-                      ? () {
-                          if (menu.id != null) {
-                            showConfirmDeleteDialog(
-                              context: context,
-                              itemName: menu.date,
-                              itemType: 'el menú',
-                              onConfirm: () =>
-                                  _handleDeleteMenu(menu.id as String),
-                            );
-                          }
-                        }
-                      : null, // <-- Deshabilitado si no se cumple la condición
-                ),
-              ),
-              SizedBox(width: 20),
-              _buildStatusChip(menu.status),
-              SizedBox(width: 20)
-            ],
-          ),
-          Divider(),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Column(
+      child: isMobile
+          ? Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 10),
-                Text(
-                  'Platos:',
-                  style: TextStyle(
-                      fontSize: isMobile ? 14 : 17,
-                      fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 10),
-                ...menu.recipes.map((recipe) {
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Icon(Icons.restaurant_menu,
-                          size: isMobile ? 16 : 20, color: Colors.red[700]),
-                      SizedBox(width: 6),
-                      Expanded(
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            '- ${recipe.name}',
-                            style: TextStyle(fontSize: isMobile ? 13 : 16),
-                          ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: ListTile(
+                        title: Text(
+                          'Menú de ${menu.category}',
+                          style: TextStyle(
+                              fontSize: isMobile ? 14 : 17,
+                              color: Colors.red[900],
+                              fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text(
+                          '${menu.type} (${menu.date})',
+                          style: TextStyle(
+                              fontSize: isMobile ? 13 : 16,
+                              fontStyle: FontStyle.italic),
                         ),
                       ),
-                      SizedBox(width: 10),
+                    ),
+                    Tooltip(
+                      // El mensaje cambia según la condición.
+                      message: menu.status == 'Propuesto' ||
+                              menu.status == 'Rechazado'
+                          ? 'Editar menú'
+                          : 'Este menú no se puede editar',
+
+                      child: IconButton(
+                        // El color del ícono también cambia.
+                        icon: Icon(Icons.edit,
+                            color: menu.status == 'Propuesto' ||
+                                    menu.status == 'Rechazado'
+                                ? Colors.blueAccent
+                                : Colors.grey),
+
+                        // La lógica de onPressed se mantiene igual.
+                        onPressed: menu.status == 'Propuesto' ||
+                                menu.status == 'Rechazado'
+                            ? () {
+                                _navigateToMenuProposal(menu: menu);
+                              }
+                            : null, // <-- Deshabilitado si no se cumple la condición
+                      ),
+                    ),
+                    Tooltip(
+                      // El mensaje cambia según la condición.
+                      message: menu.status == 'Propuesto' ||
+                              menu.status == 'Rechazado'
+                          ? 'Eliminar menú'
+                          : 'Este menú no se puede eliminar',
+
+                      child: IconButton(
+                        // El color del ícono también cambia.
+                        icon: Icon(
+                          Icons.delete,
+                          color: menu.status == 'Propuesto' ||
+                                  menu.status == 'Rechazado'
+                              ? Colors.red
+                              : Colors.grey, // <-- Color condicional
+                        ),
+
+                        // La lógica de onPressed se mantiene igual.
+                        onPressed: menu.status == 'Propuesto' ||
+                                menu.status == 'Rechazado'
+                            ? () {
+                                if (menu.id != null) {
+                                  showConfirmDeleteDialog(
+                                    context: context,
+                                    itemName: menu.date,
+                                    itemType: 'el menú',
+                                    onConfirm: () =>
+                                        _handleDeleteMenu(menu.id as String),
+                                  );
+                                }
+                              }
+                            : null, // <-- Deshabilitado si no se cumple la condición
+                      ),
+                    ),
+                    SizedBox(width: 20),
+                    _buildStatusChip(menu.status),
+                    SizedBox(width: 20)
+                  ],
+                ),
+                Divider(),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 10),
                       Text(
-                        '\$ ${recipe.price}',
+                        'Platos:',
                         style: TextStyle(
-                            fontSize: isMobile ? 13 : 16,
+                            fontSize: isMobile ? 14 : 17,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 10),
+                      ...menu.recipes.map((recipe) {
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Icon(Icons.restaurant_menu,
+                                size: isMobile ? 16 : 20,
+                                color: Colors.red[700]),
+                            SizedBox(width: 6),
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  '- ${recipe.name}',
+                                  style:
+                                      TextStyle(fontSize: isMobile ? 13 : 16),
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 10),
+                            Text(
+                              '\$ ${recipe.price}',
+                              style: TextStyle(
+                                  fontSize: isMobile ? 13 : 16,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+                Divider(),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0, vertical: 10.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        'Precio Total: \$ ${menu.totalPrice}',
+                        style: TextStyle(
+                            fontSize: isMobile ? 14 : 17,
                             fontWeight: FontWeight.bold),
                       ),
                     ],
-                  );
-                }),
+                  ),
+                ),
               ],
-            ),
-          ),
-          Divider(),
-          Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Precio Total: \$ ${menu.totalPrice}',
-                  style: TextStyle(
-                      fontSize: isMobile ? 14 : 17,
-                      fontWeight: FontWeight.bold),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: ListTile(
+                        title: Text(
+                          'Menú de ${menu.category}',
+                          style: TextStyle(
+                              fontSize: isMobile ? 14 : 17,
+                              color: Colors.red[900],
+                              fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text(
+                          '${menu.type} (${menu.date})',
+                          style: TextStyle(
+                              fontSize: isMobile ? 13 : 16,
+                              fontStyle: FontStyle.italic),
+                        ),
+                      ),
+                    ),
+                    Tooltip(
+                      // El mensaje cambia según la condición.
+                      message: menu.status == 'Propuesto' ||
+                              menu.status == 'Rechazado'
+                          ? 'Editar menú'
+                          : 'Este menú no se puede editar',
+
+                      child: IconButton(
+                        // El color del ícono también cambia.
+                        icon: Icon(Icons.edit,
+                            color: menu.status == 'Propuesto' ||
+                                    menu.status == 'Rechazado'
+                                ? Colors.blueAccent
+                                : Colors.grey),
+
+                        // La lógica de onPressed se mantiene igual.
+                        onPressed: menu.status == 'Propuesto' ||
+                                menu.status == 'Rechazado'
+                            ? () {
+                                _navigateToMenuProposal(menu: menu);
+                              }
+                            : null, // <-- Deshabilitado si no se cumple la condición
+                      ),
+                    ),
+                    Tooltip(
+                      // El mensaje cambia según la condición.
+                      message: menu.status == 'Propuesto' ||
+                              menu.status == 'Rechazado'
+                          ? 'Eliminar menú'
+                          : 'Este menú no se puede eliminar',
+
+                      child: IconButton(
+                        // El color del ícono también cambia.
+                        icon: Icon(
+                          Icons.delete,
+                          color: menu.status == 'Propuesto' ||
+                                  menu.status == 'Rechazado'
+                              ? Colors.red
+                              : Colors.grey, // <-- Color condicional
+                        ),
+
+                        // La lógica de onPressed se mantiene igual.
+                        onPressed: menu.status == 'Propuesto' ||
+                                menu.status == 'Rechazado'
+                            ? () {
+                                if (menu.id != null) {
+                                  showConfirmDeleteDialog(
+                                    context: context,
+                                    itemName: menu.date,
+                                    itemType: 'el menú',
+                                    onConfirm: () =>
+                                        _handleDeleteMenu(menu.id as String),
+                                  );
+                                }
+                              }
+                            : null, // <-- Deshabilitado si no se cumple la condición
+                      ),
+                    ),
+                    SizedBox(width: 20),
+                    _buildStatusChip(menu.status),
+                    SizedBox(width: 20)
+                  ],
+                ),
+                Divider(),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 10),
+                      Text(
+                        'Platos:',
+                        style: TextStyle(
+                            fontSize: isMobile ? 14 : 17,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 10),
+                      ...menu.recipes.map((recipe) {
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Icon(Icons.restaurant_menu,
+                                size: isMobile ? 16 : 20,
+                                color: Colors.red[700]),
+                            SizedBox(width: 6),
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  '- ${recipe.name}',
+                                  style:
+                                      TextStyle(fontSize: isMobile ? 13 : 16),
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 10),
+                            Text(
+                              '\$ ${recipe.price}',
+                              style: TextStyle(
+                                  fontSize: isMobile ? 13 : 16,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+                Divider(),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0, vertical: 10.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        'Precio Total: \$ ${menu.totalPrice}',
+                        style: TextStyle(
+                            fontSize: isMobile ? 14 : 17,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -454,7 +606,9 @@ class _MenuListState extends State<MenuList> {
     return Column(
       children: [
         _buildCategoryDropdown(),
+        SizedBox(height: 15),
         _buildStatusDropdown(),
+        SizedBox(height: 15),
         _buildTypeDropdown()
       ],
     );

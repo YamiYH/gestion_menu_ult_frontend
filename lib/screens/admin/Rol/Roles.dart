@@ -257,20 +257,9 @@ class _RolesState extends State<Roles> {
         //mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SizedBox(width: MediaQuery.of(context).size.width * 0.02),
-          SizedBox(
-            width: MediaQuery.of(context).size.width * 0.20,
-            height: 20,
-            child: Text(role.description),
-          ),
-          SizedBox(
-            width: MediaQuery.of(context).size.width * 0.55,
-            height: 20,
-            child: Text(formatAccess(role.permissions)),
-          ),
-          SizedBox(
-              width: MediaQuery.of(context).size.width * 0.10,
-              height: 20,
-              child: Text(role.enabled ? 'Activo' : 'Inactivo')),
+          _listStyle(role.description, 0.2),
+          _listStyle(formatAccess(role.permissions), 0.55),
+          _listStyle(role.enabled ? 'Activo' : 'Inactivo', 0.25),
           SizedBox(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -339,21 +328,9 @@ class _RolesState extends State<Roles> {
           SizedBox(
             width: MediaQuery.of(context).size.width * 0.05,
           ),
-          SizedBox(
-            width: MediaQuery.of(context).size.width * 0.35,
-            height: 25,
-            child: Text('Nombre', style: _headerStyle()),
-          ),
-          SizedBox(
-            width: MediaQuery.of(context).size.width * 0.30,
-            height: 25,
-            child: Text('Estado', style: _headerStyle()),
-          ),
-          SizedBox(
-            width: MediaQuery.of(context).size.width * 0.25,
-            height: 25,
-            child: Text('Acciones', style: _headerStyle()),
-          ),
+          _header('Nombre', 0.35),
+          _header('Estado', 0.3),
+          _header('Acciones', 0.25),
         ],
       ),
     );
@@ -368,16 +345,8 @@ class _RolesState extends State<Roles> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(width: MediaQuery.of(context).size.width * 0.05),
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.40,
-              height: 20,
-              child: Text(role.description),
-            ),
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.25,
-              height: 20,
-              child: Text(role.enabled ? 'Activo' : 'Inactivo'),
-            ),
+            _listStyle(role.description, 0.4),
+            _listStyle(role.enabled ? 'Activo' : 'Inactivo', 0.25),
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.30,
               child: Row(
@@ -416,9 +385,19 @@ class _RolesState extends State<Roles> {
 
   Widget _header(String title, double widthFactor) {
     return SizedBox(
+        width: MediaQuery.of(context).size.width * widthFactor,
+        height: 20,
+        child: Text(
+          title,
+          style: _headerStyle(),
+        ));
+  }
+
+  Widget _listStyle(String text, double widthFactor) {
+    return SizedBox(
       width: MediaQuery.of(context).size.width * widthFactor,
       height: 20,
-      child: Text(title, style: _headerStyle(),
-    ));
+      child: Text(text, style: const TextStyle(fontSize: 14)),
+    );
   }
 }

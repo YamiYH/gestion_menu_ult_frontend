@@ -165,13 +165,12 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
 
   Future<bool> _isCurrentProposalMade(bool isStudent) async {
     if (widget.menu == null) {
-      if(isStudent){
+      if (isStudent) {
         return await _menuController.isMenuProposal(
             selectedDate!.toIso8601String().split('T').first,
             "Estudiantes",
             selectedMealType!);
-      }
-      else {
+      } else {
         return await _menuController.isMenuProposal(
             selectedDate!.toIso8601String().split('T').first,
             "Trabajadores",
@@ -180,7 +179,6 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
     }
     return false;
   }
-
 
   Future<void> _proposeMenu() async {
     if (_isLoadingRecipes) return;
@@ -191,11 +189,8 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
 
     try {
       final String date = selectedDate!.toIso8601String().split('T').first;
-
-      // 1. INICIAMOS UN FLAG PARA DETECTAR SI HUBO AL MENOS UN ÉXITO
       bool atLeastOneSuccess = false;
 
-      // --- Procesar Menú de Estudiantes ---
       if (_studentMenuItems.isNotEmpty) {
         final success = await _processMenuCategory(
           category: 'Estudiantes',
@@ -203,11 +198,10 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
           date: date,
           isStudentCategory: true,
         );
-        // 2. SI ESTA OPERACIÓN TUVO ÉXITO, ACTIVAMOS EL FLAG
+
         if (success) atLeastOneSuccess = true;
       }
 
-      // --- Procesar Menú de Trabajadores ---
       if (_workerMenuItems.isNotEmpty) {
         final success = await _processMenuCategory(
           category: 'Trabajadores',
@@ -215,17 +209,14 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
           date: date,
           isStudentCategory: false,
         );
-        // 3. SI ESTA OPERACIÓN TAMBIÉN TUVO ÉXITO, EL FLAG PERMANECE ACTIVO
+
         if (success) atLeastOneSuccess = true;
       }
 
-      // 4. LA CONDICIÓN FINAL AHORA VERIFICA SI AL MENOS UNO TUVO ÉXITO
       if (atLeastOneSuccess && mounted) {
-        // Pequeña espera para que el usuario pueda ver el último SnackBar de éxito
         await Future.delayed(const Duration(milliseconds: 500));
         Navigator.push(context, createFadeRoute(MenuList()));
       }
-
     } catch (e) {
       _showSnackBar('Ocurrió un error inesperado: $e', isError: true);
     } finally {
@@ -243,30 +234,26 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
     required String date,
     required bool isStudentCategory,
   }) async {
-    // No procesar si no hay platos en el menú
     if (menuItems.isEmpty) {
-      return false; // Consideramos éxito porque no había nada que proponer.
+      return false;
     }
 
-    // 1. Validar si ya existe
     if (await _isCurrentProposalMade(isStudentCategory)) {
       print("$category verdadero");
-      _showSnackBar('Ya se ha propuesto un menú de $category para esta fecha.', isError: true);
-      return false; // Falla: ya existía
+      _showSnackBar('Ya se ha propuesto un menú de $category para esta fecha.',
+          isError: true);
+      return false;
     }
 
-    // 2. Mapear los items a recetas
     final recipes = menuItems
-        .where((item) => item.selectedRecipeId != null) // Más robusto: evita enviar platos vacíos
+        .where((item) => item.selectedRecipeId != null)
         .map((item) => MenuRecipe(id: item.selectedRecipeId))
         .toList();
 
-    // Si después de filtrar no quedan recetas, no hacemos nada.
     if (recipes.isEmpty) {
       return true;
     }
 
-    // 3. Construir la entidad del menú
     final menu = MenuEntity(
       category: category,
       date: date,
@@ -275,7 +262,6 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
       type: selectedMealType!,
     );
 
-    // 4. Crear el menú
     await _menuController.createMenu(menu.toJson());
     _showSnackBar('Propuesta de menú de $category enviada con éxito.');
     return true; // Éxito
@@ -363,10 +349,9 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          // Tipo de comida
                           SizedBox(
                             width: 160,
-                            height: 55,
+                            height: 58,
                             child: isMenuView
                                 ? InputDecorator(
                                     decoration: InputDecoration(
@@ -388,7 +373,6 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
                                   }, isMobile),
                           ),
                           const SizedBox(width: 10),
-                          // Fecha
                           SizedBox(
                             width: MediaQuery.of(context).size.width * 0.45,
                             child: isMenuView
@@ -420,8 +404,7 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 10),
-                      // Botón proponer
+                      const SizedBox(height: 15),
                       Button(
                         onPressed: isMenuView || _isLoadingRecipes
                             ? null
@@ -430,9 +413,9 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
                         colorButton: (isMenuView || _isLoadingRecipes)
                             ? Colors.grey
                             : null,
-                        size: Size(isMobile ? 320 : 180, isMobile ? 60 : 50),
+                        size: Size(isMobile ? 340 : 180, isMobile ? 60 : 50),
                       ),
-                      SizedBox(height: isMobile ? 10 : 40),
+                      SizedBox(height: isMobile ? 30 : 40),
                       if (_isLoadingRecipes)
                         const Center(
                             child: Padding(
@@ -453,118 +436,122 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
                       const SizedBox(height: 20)
                     ],
                   )
-                // Desde aqui se construye la vista Web
-                //************************************
-                //*************************************
-                : Column (
-              children: [
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                : Column(
                     children: [
-                      SizedBox(
-                        width: 200,
-                        height: 50,
-                        child: isMenuView
-                            ? InputDecorator(
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.grey[200],
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide.none),
-                          ),
-                          child: Text(
-                            menuMealType ?? '',
-                            style: const TextStyle(fontSize: 18),
-                          ),
-                        )
-                            : FoodDropDown(selectedMealType, (newValue) {
-                          setState(() => selectedMealType = newValue);
-                          _resetForm();
-                        }, isMobile),
-                      ),
-                      const SizedBox(width: 20),
-                      // Fecha
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.15,
-                        child: isMenuView
-                            ? InputDecorator(
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.grey[200],
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide.none),
-                          ),
-                          child: Text(
-                            menuDate != null
-                                ? "${menuDate.day.toString().padLeft(2, '0')}/${menuDate.month.toString().padLeft(2, '0')}/${menuDate.year}"
-                                : '',
-                            style: const TextStyle(fontSize: 18),
-                          ),
-                        )
-                            : DateWidget(
-                          selectedDate: selectedDate,
-                          onDateSelected: (date) {
-                            setState(() => selectedDate = date);
-                            _resetForm();
-                          },
-                          size: MediaQuery.of(context).size.width * 0.15,
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      // Botón proponer
-                      Button(
-                        onPressed: isMenuView || _isLoadingRecipes
-                            ? null
-                            : () => _showConfirmationDialog(),
-                        text: isMenuView ? 'Propuesto' : 'Proponer',
-                        colorButton: (isMenuView || _isLoadingRecipes)
-                            ? Colors.grey
-                            : null,
-                        size: Size(isMobile ? 320 : 180, isMobile ? 60 : 50),
-                      ),
-                      const SizedBox(width: 20),
-                      // Botón lista de menús
-                      Button(
-                        onPressed: () {
-                          Navigator.push(context, createFadeRoute(MenuList()));
-                        },
-                        text: 'Lista de Menús',
-                        size: Size(isMobile ? 320 : 220, isMobile ? 60 : 50),
-                      ),
-                      SizedBox(height: isMobile ? 10 : 40),
-                    ]
-                ),
-                SizedBox(height: isMobile ? 10 : 40),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _isLoadingRecipes
-                          ? const Center(
-                          child: Padding(
-                            padding: EdgeInsets.all(10.0),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SizedBox(height: 100),
-                                CircularProgressIndicator(
-                                  color: Colors.red,
-                                ),
-                                SizedBox(height: 10),
-                                Text("Cargando platos..."),
-                              ],
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              width: 200,
+                              height: 50,
+                              child: isMenuView
+                                  ? InputDecorator(
+                                      decoration: InputDecoration(
+                                        filled: true,
+                                        fillColor: Colors.grey[200],
+                                        border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: BorderSide.none),
+                                      ),
+                                      child: Text(
+                                        menuMealType ?? '',
+                                        style: const TextStyle(fontSize: 18),
+                                      ),
+                                    )
+                                  : FoodDropDown(selectedMealType, (newValue) {
+                                      setState(
+                                          () => selectedMealType = newValue);
+                                      _resetForm();
+                                    }, isMobile),
                             ),
-                          ))
-                          : Row (
-                        children: _buildMenuCards(isMobile),
+                            const SizedBox(width: 20),
+                            // Fecha
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.15,
+                              child: isMenuView
+                                  ? InputDecorator(
+                                      decoration: InputDecoration(
+                                        filled: true,
+                                        fillColor: Colors.grey[200],
+                                        border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            borderSide: BorderSide.none),
+                                      ),
+                                      child: Text(
+                                        menuDate != null
+                                            ? "${menuDate.day.toString().padLeft(2, '0')}/${menuDate.month.toString().padLeft(2, '0')}/${menuDate.year}"
+                                            : '',
+                                        style: const TextStyle(fontSize: 18),
+                                      ),
+                                    )
+                                  : DateWidget(
+                                      selectedDate: selectedDate,
+                                      onDateSelected: (date) {
+                                        setState(() => selectedDate = date);
+                                        _resetForm();
+                                      },
+                                      size: MediaQuery.of(context).size.width *
+                                          0.15,
+                                    ),
+                            ),
+                            const SizedBox(width: 20),
+                            // Botón proponer
+                            Button(
+                              onPressed: isMenuView || _isLoadingRecipes
+                                  ? null
+                                  : () => _showConfirmationDialog(),
+                              text: isMenuView ? 'Propuesto' : 'Proponer',
+                              colorButton: (isMenuView || _isLoadingRecipes)
+                                  ? Colors.grey
+                                  : null,
+                              size: Size(
+                                  isMobile ? 320 : 180, isMobile ? 60 : 50),
+                            ),
+                            const SizedBox(width: 20),
+                            // Botón lista de menús
+                            Button(
+                              onPressed: () {
+                                Navigator.push(
+                                    context, createFadeRoute(MenuList()));
+                              },
+                              text: 'Lista de Menús',
+                              size: Size(
+                                  isMobile ? 320 : 220, isMobile ? 60 : 50),
+                            ),
+                            SizedBox(height: isMobile ? 10 : 40),
+                          ]),
+                      SizedBox(height: isMobile ? 10 : 40),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _isLoadingRecipes
+                                ? const Center(
+                                    child: Padding(
+                                    padding: EdgeInsets.all(10.0),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        SizedBox(height: 100),
+                                        CircularProgressIndicator(
+                                          color: Colors.red,
+                                        ),
+                                        SizedBox(height: 10),
+                                        Text("Cargando platos..."),
+                                      ],
+                                    ),
+                                  ))
+                                : Row(
+                                    children: _buildMenuCards(isMobile),
+                                  ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
-                ),
-              ],
-            )
+                    ],
+                  )
           ],
         ),
       ),
@@ -572,47 +559,28 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
   }
 
   List<Widget> _buildMenuCards(bool isMobile) {
-    if (widget.menu == null) {
-      // Modo propuesta (formulario editable)
-      return [
-        Expanded(
-          child: MenuCard(
-            isMobile: isMobile,
-            title: 'Menú Estudiantes',
-            isEstudiantes: true,
-            menu: null,
-          ),
-        ),
-        SizedBox(width: isMobile ? 0 : 20, height: isMobile ? 20 : 0),
-        Expanded(
-          child: MenuCard(
-            isMobile: isMobile,
-            title: 'Menú Trabajadores',
-            isEstudiantes: false,
-            menu: null,
-          ),
-        ),
-      ];
+    Widget estudiantes = MenuCard(
+      isMobile: isMobile,
+      title: 'Menú Estudiantes',
+      isEstudiantes: true,
+      menu: widget.menu,
+    );
+    Widget trabajadores = MenuCard(
+      isMobile: isMobile,
+      title: 'Menú Trabajadores',
+      isEstudiantes: false,
+      menu: widget.menu,
+    );
+    Widget espacio =
+        SizedBox(width: isMobile ? 0 : 20, height: isMobile ? 20 : 0);
+
+    if (isMobile) {
+      return [estudiantes, espacio, trabajadores];
     } else {
-      // Modo visualización (datos del menú)
       return [
-        Expanded(
-          child: MenuCard(
-            isMobile: isMobile,
-            title: 'Menú Estudiantes',
-            isEstudiantes: true,
-            menu: widget.menu,
-          ),
-        ),
-        SizedBox(width: isMobile ? 0 : 20, height: isMobile ? 20 : 0),
-        Expanded(
-          child: MenuCard(
-            isMobile: isMobile,
-            title: 'Menú Trabajadores',
-            isEstudiantes: false,
-            menu: widget.menu,
-          ),
-        ),
+        Expanded(child: estudiantes),
+        espacio,
+        Expanded(child: trabajadores),
       ];
     }
   }
@@ -708,7 +676,6 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
                                   menuItem.controller.text = selection.name;
                                 });
                               },
-                              // Dentro de MenuCard, en el Autocomplete<Recipe>
                               fieldViewBuilder: (context, textEditingController,
                                   focusNode, onFieldSubmitted) {
                                 return CustomTextFormField(
@@ -745,7 +712,9 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
                 ),
                 const SizedBox(height: 10),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisAlignment: isMobile
+                      ? MainAxisAlignment.center
+                      : MainAxisAlignment.start,
                   children: [
                     AddButton(
                       onPressed: () {
