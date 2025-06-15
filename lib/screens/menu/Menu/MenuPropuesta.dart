@@ -723,7 +723,6 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
                 ),
                 const SizedBox(height: 10),
                 Row(
-                  //mainAxisAlignment:MainAxisAlignment.start,
                   children: [
                     AddButton(
                       onPressed: () {
@@ -751,7 +750,7 @@ class _MenuPropuestaState extends State<MenuPropuesta> {
                           },
                           text: 'Guardar',
                           colorButton: Colors.blue,
-                          size: Size(isMobile ? 320 : 180, isMobile ? 60 : 50),
+                          size: Size(isMobile ? 140 : 180, isMobile ? 45 : 50),
                         ),
                       ),
                   ],

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
@@ -26,6 +28,45 @@ class _ComedorAccesoState extends State<ComedorAcceso> {
   void dispose() {
     _controller.dispose(); // Libera los recursos cuando se elimina el widget
     super.dispose();
+  }
+
+  Widget _buildVentaDetalle(String data) {
+    try {
+      final venta = json.decode(data);
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          //Text('ID Venta: ${venta['id'] ?? '-'}'),
+          Text(
+            'Cliente: ${venta['user'] ?? '-'}',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          ),
+          Text('Fecha: ${venta['date'] ?? '-'}',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+          Text('Estado: ${venta['status'] ?? '-'}',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+          Text('Platos:',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+          if (venta['recipes'] != null)
+            ...List<Widget>.from((venta['recipes'] as List).map((p) => Text(
+                  ' - ${p}',
+                  style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
+                ))),
+          SizedBox(
+            height: 10,
+          ),
+          Text(
+            'Total: \$${venta['totalPrice'] ?? '-'}',
+            style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.red.shade700),
+          )
+        ],
+      );
+    } catch (e) {
+      return Text('No se pudo leer el detalle de la venta.');
+    }
   }
 
   @override
@@ -62,12 +103,15 @@ class _ComedorAccesoState extends State<ComedorAcceso> {
                 children: [
                   Text(
                     'Datos escaneados:',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red.shade900),
                   ),
                   Divider(),
                   SizedBox(
                       height: MediaQuery.of(context).size.height * 0.3,
-                      child: Text(scannedData!)),
+                      child: _buildVentaDetalle(scannedData!)),
                   SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
