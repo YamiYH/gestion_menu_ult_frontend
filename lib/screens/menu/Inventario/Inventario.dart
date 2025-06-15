@@ -92,10 +92,10 @@ class _InventarioState extends State<Inventario> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(12.0),
+            padding: const EdgeInsets.only(top: 15),
             child: _buildFilterSection(isMobile),
           ),
-          const SizedBox(height: 10),
+          //const SizedBox(height: 10),
           isMobile ? _buildHeaderRowMobile() : _buildHeaderRow(),
           Expanded(
             child: _isLoading
@@ -154,7 +154,7 @@ class _InventarioState extends State<Inventario> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(width: 300, child: _buildSearchField()),
-              const SizedBox(width: 20),
+             // const SizedBox(width: 20),
             ],
           );
   }
@@ -182,15 +182,16 @@ class _InventarioState extends State<Inventario> {
 
   Widget _buildHeaderRow() {
     return Container(
+
       color: Colors.grey[200],
       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 8),
       child: Row(
         children: [
           SizedBox(width: MediaQuery.of(context).size.width * 0.02),
-          _header('Código', 0.2),
-          _header('Producto', 0.2),
+          _header('Código', 0.15),
+          _header('Producto', 0.25),
           _header('Existencia', 0.2),
-          _header('U/M', 0.1),
+          _header('U/M', 0.2),
           _header('Precio', 0.1),
         ],
       ),
@@ -229,10 +230,10 @@ class _InventarioState extends State<Inventario> {
           child: Row(
             children: [
               SizedBox(width: MediaQuery.of(context).size.width * 0.02),
-              _listStyle(product.code, 0.2),
-              _listStyle(product.description, 0.4),
+              _listStyle(product.code, 0.15),
+              _listStyle(product.description, 0.25),
               _listStyle(product.existence.toStringAsFixed(2), 0.2),
-              _listStyle(product.measurementUnit, 0.1),
+              _listStyle(product.measurementUnit, 0.2),
               _listStyle("\$${product.price.toStringAsFixed(2)}", 0.1),
             ],
           ),
