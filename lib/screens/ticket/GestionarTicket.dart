@@ -7,6 +7,7 @@ import 'package:intl/intl.dart' show DateFormat;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../widgets/Button.dart';
+import '../../widgets/PlaceDropDown.dart';
 import '../../widgets/SmallButton.dart'; // Para formatear fechas
 
 class GestionarTicket extends StatefulWidget {
@@ -536,7 +537,16 @@ class _GestionarTicketState extends State<GestionarTicket> {
               SizedBox(height: 10),
               _buildOptionTitle('Comedor', Icons.restaurant_menu),
               SizedBox(height: 10),
-              PlaceDropDown(isMobile),
+              PlaceDropDown(
+                widthFactor1: 0.13,
+                widthFactor: 0.38,
+                value: selectedCafeteria,
+                onChanged: (String? newValue) {
+                  setState(() {
+                    selectedCafeteria = newValue!;
+                  });
+                },
+              ),
             ],
           ),
           SizedBox(width: 20),
@@ -598,44 +608,6 @@ class _GestionarTicketState extends State<GestionarTicket> {
         },
       )
     ];
-  }
-
-  SizedBox PlaceDropDown(bool isMobile) {
-    return SizedBox(
-      width: isMobile ? 150 : 200,
-      height: isMobile ? 60 : 50,
-      child: InputDecorator(
-        decoration: InputDecoration(
-          filled: true,
-          fillColor: Colors.grey[200],
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide.none,
-          ),
-        ),
-        child: DropdownButtonHideUnderline(
-          child: DropdownButton<String>(
-            value: selectedCafeteria,
-            onChanged: (String? newValue) {
-              setState(() {
-                selectedCafeteria = newValue!;
-              });
-            },
-            items: ['Lenin', 'Pepito Tey']
-                .map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value, style: TextStyle(fontSize: 17)),
-              );
-            }).toList(),
-            icon: Icon(Icons.arrow_drop_down_circle, color: Colors.red[900]),
-            dropdownColor: Colors.grey[200],
-            borderRadius: BorderRadius.circular(10),
-            isExpanded: true,
-          ),
-        ),
-      ),
-    );
   }
 
   SizedBox FoodDropDown(bool isMobile) {

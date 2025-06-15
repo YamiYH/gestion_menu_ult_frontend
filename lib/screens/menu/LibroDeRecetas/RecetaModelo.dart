@@ -380,6 +380,7 @@ class _RecetaModeloState extends State<RecetaModelo> {
                               rowData.productController.text =
                                   selection.description;
                             });
+                            Focus.of(context).unfocus();
                           },
                           fieldViewBuilder: (context, textEditingController,
                               focusNode, onFieldSubmitted) {

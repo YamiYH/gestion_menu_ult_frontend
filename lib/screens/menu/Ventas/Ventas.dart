@@ -10,6 +10,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../../models/MenuEntity.dart';
 import '../../../widgets/DynamicButton.dart';
+import '../../../widgets/PlaceDropDown.dart';
 
 class Ventas extends StatefulWidget {
   final MenuEntity? menu;
@@ -149,7 +150,9 @@ class _VentasState extends State<Ventas> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext context) {
+      builder: (
+        BuildContext context,
+      ) {
         return const Center(
             child: CircularProgressIndicator(color: Colors.red));
       },
@@ -175,60 +178,87 @@ class _VentasState extends State<Ventas> {
   // NUEVO: Función para mostrar el modal de confirmación
   Future<void> _showConfirmationDialog(String qrData) async {
     final data = jsonDecode(qrData);
-
+    bool isMobile = MediaQuery.of(context).size.width < 600;
     await showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(
-            'Confirmar venta o reserva',
-            style: TextStyle(
-                color: Colors.red.shade900,
-                fontWeight: FontWeight.bold,
-                fontSize: 20),
+          title: Center(
+            child: Text(
+              'Confirmar',
+              style: TextStyle(
+                  color: Colors.red.shade900,
+                  fontWeight: FontWeight.bold,
+                  fontSize: isMobile ? 20 : 24),
+            ),
           ),
           content: SizedBox(
-            width: MediaQuery.of(context).size.width *
-                0.3, // Forzamos un ancho (ej. 80% de la pantalla)
+            width: isMobile
+                ? MediaQuery.of(context).size.width * 0.9
+                : MediaQuery.of(context).size.width * 0.8,
+            height: isMobile
+                ? MediaQuery.of(context).size.height * 0.45
+                : MediaQuery.of(context).size.height * 0.9,
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
                 QrImageView(
                   data: qrData,
                   version: QrVersions.auto,
-                  size: MediaQuery.of(context).size.width * 0.2,
+                  size: MediaQuery.of(context).size.width * 0.7,
                   backgroundColor: Colors.white,
                 ),
                 const SizedBox(height: 20),
                 Text('Usuario: $selectedUserFullName',
                     style: const TextStyle(
                         fontWeight: FontWeight.bold, fontSize: 16)),
+                const SizedBox(height: 10),
                 Text(
                     'Total a pagar: \$${(data['totalPrice'] as double).toStringAsFixed(2)}',
                     style: const TextStyle(fontSize: 18)),
-                const SizedBox(height: 10),
+                //const SizedBox(height: 10),
               ],
             ),
           ),
           actions: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                DynamicButton(
-                  onPressed: () => {},
-                  text: 'Confirmar',
-                  colorButton: Colors.green,
-                  size: Size(160, 50),
-                ),
-                SizedBox(width: 10),
-                DynamicButton(
-                  onPressed: () => {Navigator.of(context).pop()},
-                  text: 'Cancelar',
-                  colorButton: Colors.red[900]!,
-                  size: Size(160, 50),
-                ),
-              ],
-            ),
+            isMobile
+                ? Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      DynamicButton(
+                        onPressed: () => {},
+                        text: 'Confirmar',
+                        colorButton: Colors.green,
+                        size: Size(isMobile ? 250 : 160, 50),
+                      ),
+                      SizedBox(height: 10),
+                      DynamicButton(
+                        onPressed: () => {Navigator.of(context).pop()},
+                        text: 'Cancelar',
+                        colorButton: Colors.red[900]!,
+                        size: Size(isMobile ? 250 : 160, 50),
+                      ),
+                    ],
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      DynamicButton(
+                        onPressed: () => {},
+                        text: 'Confirmar',
+                        colorButton: Colors.green,
+                        size: Size(160, 50),
+                      ),
+                      SizedBox(width: 10),
+                      DynamicButton(
+                        onPressed: () => {Navigator.of(context).pop()},
+                        text: 'Cancelar',
+                        colorButton: Colors.red[900]!,
+                        size: Size(160, 50),
+                      ),
+                    ],
+                  ),
           ],
         );
       },
@@ -379,7 +409,7 @@ class _VentasState extends State<Ventas> {
               ),
             ),
           ),
-          SizedBox(height: 30),
+          SizedBox(height: 15),
           // Buscador de Usuarios
           SizedBox(
             width: isMobile
@@ -408,6 +438,7 @@ class _VentasState extends State<Ventas> {
                     selectedUserFullName =
                         '${selection.name} ${selection.lastName}';
                   });
+                  Focus.of(context).unfocus();
                   _updateTotal();
                 },
                 fieldViewBuilder: (context, textEditingController, focusNode,
@@ -426,8 +457,13 @@ class _VentasState extends State<Ventas> {
               ),
             ),
           ),
-          const SizedBox(height: 20),
-
+          const SizedBox(height: 10),
+          PlaceDropDown(
+              widthFactor1: 0.2,
+              widthFactor: 0.85,
+              onChanged: (p0) {},
+              value: 'Lenin'),
+          const SizedBox(height: 25),
           // Espacio para Código QR
           Container(
               width: isMobile
@@ -446,16 +482,22 @@ class _VentasState extends State<Ventas> {
           isMobile
               ? Column(children: [
                   DynamicButton(
-                    onPressed: () {},
+                    onPressed: _isActionable
+                        ? () => _processSale('Reservado')
+                        : null, //
                     text: 'Reservar',
-                    colorButton: Colors.red.shade900,
+                    colorButton:
+                        _isActionable ? Colors.red.shade900 : Colors.grey, //
                     size: Size(isMobile ? 300 : 160, isMobile ? 60 : 50),
                   ),
                   SizedBox(height: 15),
                   DynamicButton(
-                      onPressed: () {},
+                      onPressed: _isActionable
+                          ? () => _processSale('Pagado')
+                          : null, // Lógica aquí
                       text: 'Pagar',
-                      colorButton: Colors.red.shade900,
+                      colorButton:
+                          _isActionable ? Colors.red.shade900 : Colors.grey,
                       size: Size(isMobile ? 300 : 160, isMobile ? 60 : 50)),
                   SizedBox(height: 15),
                   CloseSalesButton(isMobile)
