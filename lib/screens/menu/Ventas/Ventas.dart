@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:gestion_menu_ult_frontend/controllers/security/user/UserController.dart';
+import 'package:gestion_menu_ult_frontend/models/UserEntity.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../models/MenuEntity.dart';
 import '../../../widgets/DynamicButton.dart';
@@ -22,6 +25,8 @@ class Ventas extends StatefulWidget {
 
 class _VentasState extends State<Ventas> {
 
+  UserController userController = UserController();
+  late TextEditingController userListController;
   Timer? _debounce; // El temporizador para el delay
   String? _qrDataString; // Los datos del QR en formato String (JSON)
   bool _isQrGenerating = true; // Flag para mostrar el spinner de carga del QR
@@ -30,7 +35,7 @@ class _VentasState extends State<Ventas> {
   Map<MenuRecipe, bool> selectedItems = {};
 
   // Lista simulada de nombres para el Autocomplete
-  List<String> userNames = [];
+  List<User> userList = [];
 
   // Nombre seleccionado
   String? selectedUser;
@@ -49,6 +54,8 @@ class _VentasState extends State<Ventas> {
   @override
   void initState() {
     super.initState();
+    _fetchUsers();
+    _initializeUserList();
     _onDataChangedForQr();
   }
 
@@ -56,6 +63,23 @@ class _VentasState extends State<Ventas> {
   void dispose() {
     _debounce?.cancel();
     super.dispose();
+  }
+
+  void _initializeUserList() {
+    userListController = TextEditingController();
+    userListController.addListener(() {
+      _onDataChangedForQr();
+    });
+  }
+
+  Future<void> _fetchUsers() async {
+    try {
+      userList = await userController.getAllUsers();
+      setState(() {
+      });
+    } catch (e) {
+      print('Error fetching users: $e');
+    }
   }
 
 
@@ -70,9 +94,10 @@ class _VentasState extends State<Ventas> {
 
     // 2. Creamos un mapa con toda la información
     final Map<String, dynamic> data = {
+      'id': const Uuid().v4(), // Generamos un ID único para la venta
+      'user': selectedUser ?? 'No seleccionado',
       'menuId': widget.menu!.id,
       'date': widget.menu!.date,
-      'type': widget.menu!.type,
       'recipes': recipeNames,
       'totalPrice': totalPrice, // Usamos el getter que ya calcula el total
     };
@@ -260,21 +285,26 @@ class _VentasState extends State<Ventas> {
                 ? MediaQuery.of(context).size.height * 0.08
                 : MediaQuery.of(context).size.height * 0.08,
             child: SingleChildScrollView(
-              child: Autocomplete<String>(
+              child: Autocomplete<User>(
+                displayStringForOption: (User option) =>
+                '${option.name} ${option.lastName}',
+                initialValue: TextEditingValue(
+                    text: userListController.text),
                 optionsBuilder: (TextEditingValue textEditingValue) {
-                  if (textEditingValue.text.isEmpty) {
-                    return const Iterable<String>.empty();
+                  if (textEditingValue.text == '') {
+                    return const Iterable<User>.empty();
                   }
-                  return userNames.where((String option) {
-                    return option
-                        .toLowerCase()
-                        .contains(textEditingValue.text.toLowerCase());
-                  });
+                  return userList.where(
+                          (User option) => '${option.name} ${option.lastName}'
+                          .toLowerCase()
+                          .contains(
+                          textEditingValue.text.toLowerCase()));
                 },
-                onSelected: (String selection) {
+                onSelected: (User selection) {
                   setState(() {
-                    selectedUser = selection;
+                    selectedUser = selection.username;
                   });
+                  _updateTotal();
                 },
                 fieldViewBuilder: (context, textEditingController, focusNode,
                     onFieldSubmitted) {
@@ -289,7 +319,6 @@ class _VentasState extends State<Ventas> {
                     ),
                   );
                 },
-                displayStringForOption: (String option) => option,
               ),
             ),
           ),
