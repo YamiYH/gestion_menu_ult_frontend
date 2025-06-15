@@ -1,14 +1,14 @@
-import 'package:flutter/material.dart';
-import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
-
-import '../../../models/MenuEntity.dart';
-import '../../../widgets/DynamicButton.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 import 'dart:async';
 import 'dart:convert';
 
-class Ventas extends StatefulWidget {
+import 'package:flutter/material.dart';
+import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
+import '../../../models/MenuEntity.dart';
+import '../../../widgets/DynamicButton.dart';
+
+class Ventas extends StatefulWidget {
   final MenuEntity? menu;
 
   const Ventas({
@@ -21,7 +21,6 @@ class Ventas extends StatefulWidget {
 }
 
 class _VentasState extends State<Ventas> {
-
   Timer? _debounce; // El temporizador para el delay
   String? _qrDataString; // Los datos del QR en formato String (JSON)
   bool _isQrGenerating = true; // Flag para mostrar el spinner de carga del QR
@@ -58,62 +57,53 @@ class _VentasState extends State<Ventas> {
     super.dispose();
   }
 
-
   String _generateQrDataString() {
-    // 1. Extraemos los nombres de los platos
     final List<String> recipeNames = [];
     for (var entry in selectedItems.entries) {
       if (entry.value) {
         recipeNames.add(entry.key.name as String);
       }
-    };
+    }
+    ;
 
-    // 2. Creamos un mapa con toda la información
     final Map<String, dynamic> data = {
       'menuId': widget.menu!.id,
       'date': widget.menu!.date,
       'type': widget.menu!.type,
       'recipes': recipeNames,
-      'totalPrice': totalPrice, // Usamos el getter que ya calcula el total
+      'totalPrice': totalPrice,
     };
 
-    // 3. Convertimos el mapa a un string en formato JSON
     return jsonEncode(data);
   }
 
   void _onDataChangedForQr() {
-    // Si ya hay un timer corriendo, lo cancelamos para empezar de nuevo
     if (_debounce?.isActive ?? false) _debounce!.cancel();
 
-    // Mostramos el indicador de carga inmediatamente
     setState(() {
       _isQrGenerating = true;
     });
 
-    // Creamos un nuevo timer con el delay de 1 segundo
     _debounce = Timer(const Duration(seconds: 1), () {
-      // Cuando el timer termina, generamos los datos y actualizamos el estado
       final newData = _generateQrDataString();
       if (mounted) {
         setState(() {
           _qrDataString = newData;
-          _isQrGenerating = false; // Ocultamos el indicador de carga
+          _isQrGenerating = false;
         });
       }
     });
   }
 
   void _updateTotal() {
-    setState(() {
-      // Esta llamada a setState es para actualizar el precio total inmediatamente
-    });
-    // Adicionalmente, disparamos la lógica de regeneración del QR
+    setState(() {});
+
     _onDataChangedForQr();
   }
 
   Widget _buildQrSection(bool isMobile) {
     double size = isMobile
-        ? MediaQuery.of(context).size.width * 0.69
+        ? MediaQuery.of(context).size.width * 0.67
         : MediaQuery.of(context).size.width * 0.19;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -123,18 +113,17 @@ class _VentasState extends State<Ventas> {
           child: SizedBox(
             width: size,
             height: size,
-            // Usamos un AnimatedSwitcher para una transición suave entre el spinner y el QR
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
               child: _isQrGenerating
-                  ? const CircularProgressIndicator(color: Colors.red) // Muestra el spinner
-                  : QrImageView( // Muestra el QR cuando está listo
-                key: ValueKey(_qrDataString), // Key para que la animación funcione
-                data: _qrDataString!,
-                version: QrVersions.auto,
-                size: size,
-                backgroundColor: Colors.white,
-              ),
+                  ? const CircularProgressIndicator(color: Colors.red)
+                  : QrImageView(
+                      key: ValueKey(_qrDataString),
+                      data: _qrDataString!,
+                      version: QrVersions.auto,
+                      size: size,
+                      backgroundColor: Colors.white,
+                    ),
             ),
           ),
         ),
@@ -245,8 +234,10 @@ class _VentasState extends State<Ventas> {
               ),
               child: Text(
                 widget.menu!.date,
-                style: TextStyle(color: Colors.red[900]!,
-                fontSize: isMobile ? 18 : 20, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    color: Colors.red[900]!,
+                    fontSize: isMobile ? 18 : 20,
+                    fontWeight: FontWeight.bold),
               ),
             ),
           ),
@@ -297,18 +288,17 @@ class _VentasState extends State<Ventas> {
 
           // Espacio para Código QR
           Container(
-            width: isMobile
-                ? MediaQuery.of(context).size.width * 0.70
-                : MediaQuery.of(context).size.width * 0.20,
-            height: isMobile
-                ? MediaQuery.of(context).size.width * 0.70
-                : MediaQuery.of(context).size.width * 0.20,
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: _buildQrSection(isMobile)
-          ),
+              width: isMobile
+                  ? MediaQuery.of(context).size.width * 0.70
+                  : MediaQuery.of(context).size.width * 0.20,
+              height: isMobile
+                  ? MediaQuery.of(context).size.width * 0.70
+                  : MediaQuery.of(context).size.width * 0.20,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: _buildQrSection(isMobile)),
           SizedBox(height: 30),
 
           isMobile
@@ -395,8 +385,10 @@ class _VentasState extends State<Ventas> {
           menuItem.name as String,
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        subtitle: Text('\$${menuItem.price}',
-        style: TextStyle(fontSize: 22),),
+        subtitle: Text(
+          '\$${menuItem.price}',
+          style: TextStyle(fontSize: 22),
+        ),
         trailing: Checkbox(
           activeColor: Colors.red,
           value: selectedItems[menuItem] ?? false,

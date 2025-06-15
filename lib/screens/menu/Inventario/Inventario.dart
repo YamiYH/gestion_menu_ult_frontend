@@ -147,6 +147,7 @@ class _InventarioState extends State<Inventario> {
             children: [
               const SizedBox(height: 10),
               _buildSearchField(),
+              const SizedBox(height: 25),
             ],
           )
         : Row(
@@ -154,7 +155,7 @@ class _InventarioState extends State<Inventario> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(width: 300, child: _buildSearchField()),
-             // const SizedBox(width: 20),
+              // const SizedBox(width: 20),
             ],
           );
   }
@@ -182,7 +183,6 @@ class _InventarioState extends State<Inventario> {
 
   Widget _buildHeaderRow() {
     return Container(
-
       color: Colors.grey[200],
       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 8),
       child: Row(

@@ -110,9 +110,12 @@ class _InformesVentasState extends State<InformesVentas> {
                     color: Colors.red,
                   ))
                 : _reportGroups.isEmpty
-                    ? const Center(
+                    ? Container(
+                        padding: EdgeInsets.all(50),
                         child: Text(
-                            'No se encontraron informes para las fechas seleccionadas.'))
+                          'No se encontraron informes para las fechas seleccionadas.',
+                          style: TextStyle(color: Colors.grey.shade600),
+                        ))
                     : ListView.builder(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         itemCount: _reportGroups.length,

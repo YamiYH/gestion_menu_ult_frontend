@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/controllers/menu/MenuController.dart';
 import 'package:gestion_menu_ult_frontend/models/MenuEntity.dart';
 import 'package:gestion_menu_ult_frontend/routes/PageRouteBuilder.dart';
-import 'package:gestion_menu_ult_frontend/screens/menu/Contabilidad/AprobarMenu.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/Ventas/Ventas.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 
@@ -58,7 +57,9 @@ class _MenuVentasState extends State<MenuVentas> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al cargar los menús: $e'), backgroundColor: Colors.red),
+          SnackBar(
+              content: Text('Error al cargar los menús: $e'),
+              backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -78,17 +79,23 @@ class _MenuVentasState extends State<MenuVentas> {
     });
 
     try {
-      MenuEntity updatedMenu = await _controller.changeStatusMenu(menu.id as String, "Venta");
+      MenuEntity updatedMenu =
+          await _controller.changeStatusMenu(menu.id as String, "Venta");
       await Future.delayed(const Duration(milliseconds: 300));
-      Navigator.push(context, createFadeRoute(Ventas(menu: updatedMenu,)));
+      Navigator.push(
+          context,
+          createFadeRoute(Ventas(
+            menu: updatedMenu,
+          )));
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Ocurrió un error inesperado: $e'), backgroundColor: Colors.red),
+          SnackBar(
+              content: Text('Ocurrió un error inesperado: $e'),
+              backgroundColor: Colors.red),
         );
       }
-    }
-    finally {
+    } finally {
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -99,13 +106,11 @@ class _MenuVentasState extends State<MenuVentas> {
 
   @override
   Widget build(BuildContext context) {
-    bool isMobile = MediaQuery
-        .of(context)
-        .size
-        .width < 600;
+    bool isMobile = MediaQuery.of(context).size.width < 600;
 
     return Scaffold(
-        appBar: CustomAppBar(title: 'Menús Para Ventas'),
+        appBar: CustomAppBar(
+            title: isMobile ? 'Menús Ventas' : 'Menús Para Ventas'),
         body: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -114,41 +119,45 @@ class _MenuVentasState extends State<MenuVentas> {
                 padding: EdgeInsets.all(16.0),
                 child: isMobile
                     ? Column(
-                  children: [
-                    buildRow(),
-                  ],
-                )
+                        children: [
+                          buildRow(),
+                        ],
+                      )
                     : Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    buildRow(),
-                  ],
-                ),
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          buildRow(),
+                        ],
+                      ),
               ),
               _isLoading
                   ? const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(32.0),
-                  child: CircularProgressIndicator(),
-                ),
-              ) :Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount: _menuList.length,
-                  itemBuilder: (context, index) {
-                    final menu = _menuList[index];
-                    return MenuCardWithAction(context: context,
-                        actionText: menu.status == 'Venta' ? 'Continuar' : 'Vender',
-                        //add is loading state to the button
-                        onPressed: () {
-                        _startToSale(menu);
-                        }
-                        ,menu: menu);
-                  },
-                ),
-              ),
+                      child: Padding(
+                        padding: EdgeInsets.all(32.0),
+                        child: CircularProgressIndicator(color: Colors.red),
+                      ),
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: _menuList.length,
+                        itemBuilder: (context, index) {
+                          final menu = _menuList[index];
+                          return MenuCardWithAction(
+                              context: context,
+                              actionText: menu.status == 'Venta'
+                                  ? 'Continuar'
+                                  : 'Vender',
+                              //add is loading state to the button
+                              onPressed: () {
+                                _startToSale(menu);
+                              },
+                              menu: menu);
+                        },
+                      ),
+                    ),
             ],
           ),
         ),
@@ -169,8 +178,7 @@ class _MenuVentasState extends State<MenuVentas> {
               _fetchMenus();
             }
           },
-        )
-    );
+        ));
   }
 
   Widget buildRow() {
@@ -187,8 +195,7 @@ class _MenuVentasState extends State<MenuVentas> {
               _fetchMenus();
             },
             firstDate: DateTime.now(),
-            lastDate: DateTime.now().add(Duration(days: 30))
-        ),
+            lastDate: DateTime.now().add(Duration(days: 30))),
         SizedBox(width: 10),
         Icon(Icons.arrow_forward, color: Colors.red[900]),
         SizedBox(width: 10),
@@ -202,8 +209,7 @@ class _MenuVentasState extends State<MenuVentas> {
               _fetchMenus();
             },
             firstDate: DateTime.now(),
-            lastDate: DateTime.now().add(Duration(days: 30))
-        ),
+            lastDate: DateTime.now().add(Duration(days: 30))),
       ],
     );
   }

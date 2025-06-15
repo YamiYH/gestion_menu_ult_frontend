@@ -53,7 +53,7 @@ class MenuCardWithAction extends StatelessWidget {
                   isLoading: isLoading,
                   text: actionText,
                   size: Size(
-                    isMobile ? 95 : 120,
+                    isMobile ? 110 : 120,
                     40,
                   )),
               SizedBox(width: 20)

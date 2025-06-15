@@ -165,7 +165,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 'Aceptar',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 18,
+                  fontSize: 19,
                   color: Colors.red.shade700,
                 ),
               ),
