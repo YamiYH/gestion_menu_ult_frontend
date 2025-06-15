@@ -1,41 +1,145 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 
+import '../../../models/MenuEntity.dart';
 import '../../../widgets/DynamicButton.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'dart:async';
+import 'dart:convert';
 
 class Ventas extends StatefulWidget {
+
+  final MenuEntity? menu;
+
+  const Ventas({
+    Key? key,
+    this.menu,
+  }) : super(key: key);
+
   @override
   State<Ventas> createState() => _VentasState();
 }
 
 class _VentasState extends State<Ventas> {
-  // Datos simulados de platos
-  List<Map<String, dynamic>> menuItems = [
-    {'name': 'Plato 1', 'price': 3.75},
-    {'name': 'Plato 2', 'price': 4.00},
-    {'name': 'Plato 3', 'price': 4.50},
-  ];
+
+  Timer? _debounce; // El temporizador para el delay
+  String? _qrDataString; // Los datos del QR en formato String (JSON)
+  bool _isQrGenerating = true; // Flag para mostrar el spinner de carga del QR
 
   // Estado para seguir los platos seleccionados
-  Map<int, bool> selectedItems = {};
-
-  // Fecha seleccionada
-  DateTime? selectedDate = DateTime.now().add(Duration(days: 1));
+  Map<MenuRecipe, bool> selectedItems = {};
 
   // Lista simulada de nombres para el Autocomplete
-  List<String> userNames = ['Juan Pérez', 'María López', 'Carlos Gómez'];
+  List<String> userNames = [];
 
   // Nombre seleccionado
   String? selectedUser;
 
   double get totalPrice {
     double total = 0;
-    for (var i = 0; i < menuItems.length; i++) {
-      if (selectedItems[i] ?? false) {
-        total += menuItems[i]['price'];
+
+    for (var entry in selectedItems.entries) {
+      if (entry.value) {
+        total += entry.key.price ?? 0.0;
       }
     }
     return total;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _onDataChangedForQr();
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+
+  String _generateQrDataString() {
+    // 1. Extraemos los nombres de los platos
+    final List<String> recipeNames = [];
+    for (var entry in selectedItems.entries) {
+      if (entry.value) {
+        recipeNames.add(entry.key.name as String);
+      }
+    };
+
+    // 2. Creamos un mapa con toda la información
+    final Map<String, dynamic> data = {
+      'menuId': widget.menu!.id,
+      'date': widget.menu!.date,
+      'type': widget.menu!.type,
+      'recipes': recipeNames,
+      'totalPrice': totalPrice, // Usamos el getter que ya calcula el total
+    };
+
+    // 3. Convertimos el mapa a un string en formato JSON
+    return jsonEncode(data);
+  }
+
+  void _onDataChangedForQr() {
+    // Si ya hay un timer corriendo, lo cancelamos para empezar de nuevo
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+
+    // Mostramos el indicador de carga inmediatamente
+    setState(() {
+      _isQrGenerating = true;
+    });
+
+    // Creamos un nuevo timer con el delay de 1 segundo
+    _debounce = Timer(const Duration(seconds: 1), () {
+      // Cuando el timer termina, generamos los datos y actualizamos el estado
+      final newData = _generateQrDataString();
+      if (mounted) {
+        setState(() {
+          _qrDataString = newData;
+          _isQrGenerating = false; // Ocultamos el indicador de carga
+        });
+      }
+    });
+  }
+
+  void _updateTotal() {
+    setState(() {
+      // Esta llamada a setState es para actualizar el precio total inmediatamente
+    });
+    // Adicionalmente, disparamos la lógica de regeneración del QR
+    _onDataChangedForQr();
+  }
+
+  Widget _buildQrSection(bool isMobile) {
+    double size = isMobile
+        ? MediaQuery.of(context).size.width * 0.69
+        : MediaQuery.of(context).size.width * 0.19;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        SizedBox(height: 8),
+        Center(
+          child: SizedBox(
+            width: size,
+            height: size,
+            // Usamos un AnimatedSwitcher para una transición suave entre el spinner y el QR
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: _isQrGenerating
+                  ? const CircularProgressIndicator(color: Colors.red) // Muestra el spinner
+                  : QrImageView( // Muestra el QR cuando está listo
+                key: ValueKey(_qrDataString), // Key para que la animación funcione
+                data: _qrDataString!,
+                version: QrVersions.auto,
+                size: size,
+                backgroundColor: Colors.white,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -48,8 +152,8 @@ class _VentasState extends State<Ventas> {
             padding: EdgeInsets.all(isMobile ? 25.0 : 30.0),
             child: isMobile
                 ? Column(
-                    children: _buildSales(isMobile, context),
                     mainAxisAlignment: MainAxisAlignment.center,
+                    children: _buildSales(isMobile, context),
                   )
                 : Row(children: _buildSales(isMobile, context))),
       ),
@@ -68,7 +172,6 @@ class _VentasState extends State<Ventas> {
 
   Widget MenuExpanded(bool isMobile, BuildContext context) {
     return Card(
-      color: Colors.white,
       elevation: 5,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
@@ -79,35 +182,41 @@ class _VentasState extends State<Ventas> {
             : MediaQuery.of(context).size.width * 0.6,
         height: isMobile ? null : MediaQuery.of(context).size.height * 0.8,
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Menú Disponible',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.red[900],
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Platos Disponibles',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red[900],
+                ),
               ),
-            ),
-            const SizedBox(height: 10),
-            ListView.builder(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                itemCount: menuItems.length,
-                itemBuilder: (context, index) {
-                  final menuItem = menuItems[index];
-                  return BuildCard(menuItem, index);
-                }),
-            const SizedBox(height: 20),
-            Text(
-              'Total: \$${totalPrice.toStringAsFixed(2)}',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+              const SizedBox(height: 15),
+              ListView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: widget.menu!.recipes.length,
+                  itemBuilder: (context, index) {
+                    final menuItem = widget.menu!.recipes[index];
+                    return BuildCard(menuItem, menuItem.id as String);
+                  }),
+              const SizedBox(height: 20),
+              Container(
+                alignment: Alignment.bottomRight,
+                padding: const EdgeInsets.only(right: 16),
+                child: Text(
+                  'Total: \$${totalPrice.toStringAsFixed(2)}',
+                  style: TextStyle(
+                    fontSize: 25,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -119,69 +228,29 @@ class _VentasState extends State<Ventas> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Selector de Fecha
-          ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              fixedSize: Size(
-                isMobile
-                    ? MediaQuery.of(context).size.width * 0.85
-                    : MediaQuery.of(context).size.width * 0.20,
-                MediaQuery.of(context).size.height * 0.07,
+          SizedBox(
+            width: isMobile
+                ? MediaQuery.of(context).size.width * 0.85
+                : MediaQuery.of(context).size.width * 0.20,
+            height: isMobile
+                ? MediaQuery.of(context).size.height * 0.08
+                : MediaQuery.of(context).size.height * 0.08,
+            child: OutlinedButton(
+              onPressed: null,
+              style: OutlinedButton.styleFrom(
+                side: BorderSide(color: Colors.red[900]!, width: 2),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5),
+                ),
               ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+              child: Text(
+                widget.menu!.date,
+                style: TextStyle(color: Colors.red[900]!,
+                fontSize: isMobile ? 18 : 20, fontWeight: FontWeight.bold),
               ),
-              backgroundColor: Colors.white,
-              side: BorderSide(color: Colors.red[900]!, width: 1),
-              padding: EdgeInsets.symmetric(
-                horizontal: isMobile ? 10 : 20,
-                vertical: isMobile ? 8 : 12,
-              ),
-            ),
-            onPressed: () async {
-              final pickedDate = await showDatePicker(
-                context: context,
-                initialDate: DateTime.now(),
-                firstDate: DateTime.now(),
-                lastDate: DateTime.now().add(Duration(days: 30)),
-                builder: (BuildContext context, Widget? child) {
-                  return Theme(
-                    data: ThemeData(
-                      primaryColor: Colors.red[900],
-                      colorScheme: ColorScheme.light(
-                        primary: Colors.red[400]!,
-                      ),
-                      textTheme: TextTheme(
-                        headlineMedium: TextStyle(fontSize: 16),
-                        bodyLarge: TextStyle(fontSize: 14),
-                        bodyMedium: TextStyle(fontSize: 12),
-                      ),
-                      dialogTheme:
-                          DialogThemeData(backgroundColor: Colors.white),
-                    ),
-                    child: child!,
-                  );
-                },
-              );
-              if (pickedDate != null) {
-                setState(() {
-                  selectedDate = pickedDate;
-                });
-              }
-            },
-            icon: Icon(Icons.calendar_today, color: Colors.red[900]),
-            label: Text(
-              selectedDate == null
-                  ? 'Seleccionar Fecha'
-                  : '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}',
-              style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.red[900],
-                  fontWeight: FontWeight.bold),
             ),
           ),
-          const SizedBox(height: 20),
-
+          SizedBox(height: 30),
           // Buscador de Usuarios
           SizedBox(
             width: isMobile
@@ -238,13 +307,7 @@ class _VentasState extends State<Ventas> {
               border: Border.all(color: Colors.grey),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Center(
-              child: Text(
-                'Código QR\nGenerado aquí',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14, color: Colors.grey),
-              ),
-            ),
+            child: _buildQrSection(isMobile)
           ),
           SizedBox(height: 30),
 
@@ -321,24 +384,27 @@ class _VentasState extends State<Ventas> {
     );
   }
 
-  Card BuildCard(Map<String, dynamic> menuItem, int index) {
+  Card BuildCard(MenuRecipe menuItem, String index) {
     return Card(
+      color: Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
       child: ListTile(
         title: Text(
-          menuItem['name'],
+          menuItem.name as String,
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        subtitle: Text('\$${menuItem['price']}'),
+        subtitle: Text('\$${menuItem.price}',
+        style: TextStyle(fontSize: 22),),
         trailing: Checkbox(
           activeColor: Colors.red,
-          value: selectedItems[index] ?? false,
+          value: selectedItems[menuItem] ?? false,
           onChanged: (value) {
             setState(() {
-              selectedItems[index] = value!;
+              selectedItems[menuItem] = value!;
             });
+            _updateTotal();
           },
         ),
       ),

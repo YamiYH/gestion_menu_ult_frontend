@@ -8,11 +8,13 @@ class MenuCardWithAction extends StatelessWidget {
     super.key,
     required this.context,
     required this.actionText,
+    this.isLoading = false,
     required this.onPressed,
     required this.menu,
   });
 
   final BuildContext context;
+  final bool isLoading;
   final String actionText;
   final VoidCallback onPressed;
   final MenuEntity menu;
@@ -48,6 +50,7 @@ class MenuCardWithAction extends StatelessWidget {
               SizedBox(width: 20),
               SmallButton(
                   onPressed: onPressed,
+                  isLoading: isLoading,
                   text: actionText,
                   size: Size(
                     isMobile ? 95 : 120,
