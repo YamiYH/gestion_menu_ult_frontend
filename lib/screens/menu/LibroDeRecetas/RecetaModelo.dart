@@ -271,7 +271,7 @@ class _RecetaModeloState extends State<RecetaModelo> {
                     child: CustomTextFormField(
                         controller: nombreController,
                         readOnly: !widget.isEditMode,
-                        labelText: 'Nombre del plato',
+                        labelText: isMobile ? 'Nombre' : 'Nombre del plato',
                         validator: Validators.recipeName),
                   ),
                   const SizedBox(width: 16),
@@ -332,14 +332,17 @@ class _RecetaModeloState extends State<RecetaModelo> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Ingredientes para una ración',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(
+                      isMobile
+                          ? 'Ingredientes'
+                          : 'Ingredientes para una ración',
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold)),
                   if (widget.isEditMode)
                     AddButton(
                         onPressed: addIngredienteRow,
                         text: 'Ingrediente',
-                        size: Size(isMobile ? 140 : 170, 45))
+                        size: Size(isMobile ? 160 : 170, 45))
                 ],
               ),
               const Divider(),
@@ -471,6 +474,7 @@ class _RecetaModeloState extends State<RecetaModelo> {
               if (widget.isEditMode)
                 Center(
                     child: Button(
+                  icon: Icons.save_alt,
                   onPressed: _isSaving ? null : saveRecipe,
                   text: _isSaving ? 'Guardando...' : 'Guardar',
                 )),
@@ -492,7 +496,7 @@ class _RecetaModeloState extends State<RecetaModelo> {
         labelText: 'Categoría',
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(5.0)),
         contentPadding:
-            const EdgeInsets.symmetric(horizontal: 12.0, vertical: 16.0),
+            const EdgeInsets.symmetric(horizontal: 12.0, vertical: 13.0),
       ),
       isExpanded: true,
       items: _categoryOptions.map((String category) {
@@ -507,46 +511,37 @@ class _RecetaModeloState extends State<RecetaModelo> {
   }
 
   Widget _buildHeaderIngredientes() {
-    return const Row(
+    return Row(
       children: [
-        Expanded(
-            flex: 3,
-            child: Text('Producto',
-                style: TextStyle(fontWeight: FontWeight.bold))),
+        _header('Producto', 0.3),
         SizedBox(width: 10),
-        Expanded(
-            flex: 2,
-            child: Text('Peso Bruto (g)',
-                style: TextStyle(fontWeight: FontWeight.bold))),
+        _header('Peso Bruto (g)', 0.2),
         SizedBox(width: 10),
-        Expanded(
-            flex: 2,
-            child: Text('Peso Neto (g)',
-                style: TextStyle(fontWeight: FontWeight.bold))),
+        _header('Peso Neto (g)', 0.2),
         SizedBox(width: 48),
       ],
     );
   }
 
   Widget _buildHeaderIngredientesMobile() {
-    return const Row(
+    return Row(
       children: [
-        Expanded(
-            flex: 3,
-            child: Text('Producto',
-                style: TextStyle(fontWeight: FontWeight.bold))),
+        _header('Producto', 0.31),
         SizedBox(width: 10),
-        Expanded(
-            flex: 2,
-            child: Text('P. Bruto',
-                style: TextStyle(fontWeight: FontWeight.bold))),
+        _header('P. Bruto', 0.22),
         SizedBox(width: 10),
-        Expanded(
-            flex: 2,
-            child:
-                Text('P. Neto', style: TextStyle(fontWeight: FontWeight.bold))),
+        _header('P. Neto', 0.17),
         SizedBox(width: 48),
       ],
     );
+  }
+
+  Widget _header(String title, double widthFactor) {
+    return SizedBox(
+        width: MediaQuery.of(context).size.width * widthFactor,
+        child: Text(
+          title,
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ));
   }
 }

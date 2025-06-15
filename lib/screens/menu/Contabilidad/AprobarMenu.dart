@@ -232,7 +232,6 @@ class _AprobarMenuState extends State<AprobarMenu> {
 
   Widget MenuApprovalSection(bool isMobile, BuildContext context) {
     return Card(
-      color: Colors.white,
       elevation: 5,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
@@ -281,7 +280,7 @@ class _AprobarMenuState extends State<AprobarMenu> {
               child: Text(
                 'Total: \$${totalPrice.toStringAsFixed(2)}',
                 style: TextStyle(
-                  fontSize: 16, // Tamaño ligeramente menor
+                  fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -304,7 +303,7 @@ class _AprobarMenuState extends State<AprobarMenu> {
                 const SizedBox(width: 15), // Espacio entre botones
                 SmallButton(
                   onPressed: _saveChanges,
-                  size: Size(isMobile ? 100 : 180, 40),
+                  size: Size(isMobile ? 120 : 180, 45),
                   isLoading: _isSaving, // Simplemente pasas el flag
                   text: isMobile
                       ? 'Guardar'
@@ -337,7 +336,7 @@ class _AprobarMenuState extends State<AprobarMenu> {
             isLoading: _isProcessingStatusChange,
             text: 'Aprobar',
             colorButton: Colors.green,
-            icon: Icons.check_circle,
+            icon: Icons.check,
             size: Size(isMobile ? 180 : 230, 50),
           ),
           const SizedBox(
@@ -350,7 +349,7 @@ class _AprobarMenuState extends State<AprobarMenu> {
             isLoading: _isProcessingStatusChange,
             text: 'Rechazar',
             colorButton: Colors.red[800]!, // Usamos un rojo estándar
-            icon: Icons.cancel,
+            icon: Icons.close,
             size: Size(isMobile ? 180 : 230, 50),
           ),
         ],
@@ -360,6 +359,8 @@ class _AprobarMenuState extends State<AprobarMenu> {
 
   Widget BuildCard(MenuRecipe menuItem, TextEditingController priceController) {
     return Card(
+        shadowColor: Colors.grey.shade200,
+        color: Colors.white,
         margin: const EdgeInsets.symmetric(vertical: 5),
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
