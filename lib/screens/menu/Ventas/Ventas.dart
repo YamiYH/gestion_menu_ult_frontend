@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/controllers/security/user/UserController.dart';
 import 'package:gestion_menu_ult_frontend/models/UserEntity.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
+import 'package:gestion_menu_ult_frontend/widgets/SmallButton.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:uuid/uuid.dart';
 
@@ -38,6 +39,7 @@ class _VentasState extends State<Ventas> {
 
   // Nombre seleccionado
   String? selectedUser;
+  String? selectedUserFullName;
 
   double get totalPrice {
     double total = 0;
@@ -48,6 +50,10 @@ class _VentasState extends State<Ventas> {
       }
     }
     return total;
+  }
+
+  bool get _isActionable {
+    return selectedUser != null && selectedItems.containsValue(true);
   }
 
   @override
@@ -80,7 +86,7 @@ class _VentasState extends State<Ventas> {
     }
   }
 
-  String _generateQrDataString() {
+  String _generateQrDataString(String status) {
     // 1. Extraemos los nombres de los platos
     final List<String> recipeNames = [];
     for (var entry in selectedItems.entries) {
@@ -94,8 +100,9 @@ class _VentasState extends State<Ventas> {
     final Map<String, dynamic> data = {
       'id': const Uuid().v4(), // Generamos un ID único para la venta
       'user': selectedUser ?? 'No seleccionado',
+      'userFullName': selectedUserFullName ?? 'No seleccionado',
       'menuId': widget.menu!.id,
-      'status': widget.menu!.status,
+      'status': status,
       'date': widget.menu!.date,
       'recipes': recipeNames,
       'totalPrice': totalPrice, // Usamos el getter que ya calcula el total
@@ -117,7 +124,7 @@ class _VentasState extends State<Ventas> {
     // Creamos un nuevo timer con el delay de 1 segundo
     _debounce = Timer(const Duration(seconds: 1), () {
       // Cuando el timer termina, generamos los datos y actualizamos el estado
-      final newData = _generateQrDataString();
+      final newData = _generateQrDataString('Reservado');
       if (mounted) {
         setState(() {
           _qrDataString = newData;
@@ -133,6 +140,100 @@ class _VentasState extends State<Ventas> {
     });
     // Adicionalmente, disparamos la lógica de regeneración del QR
     _onDataChangedForQr();
+  }
+
+  // NUEVO: Función para procesar la venta (Reservar/Pagar)
+  Future<void> _processSale(String status) async {
+    if (!_isActionable) return; // Doble chequeo de seguridad
+
+    // Mostramos un spinner de carga modal para bloquear la UI
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const Center(
+            child: CircularProgressIndicator(color: Colors.red));
+      },
+    );
+
+    // Generamos el QR final de forma síncrona (sin debounce)
+    final finalQrData = _generateQrDataString(status);
+
+    // Esperamos un instante para que el usuario perciba la acción
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    if (!mounted) return;
+    Navigator.of(context).pop(); // Cerramos el spinner de carga
+
+    // Mostramos el modal de confirmación
+    try {
+      _showConfirmationDialog(finalQrData);
+    } on Exception catch (e, stackTrace) {
+      stackTrace.toString();
+    }
+  }
+
+  // NUEVO: Función para mostrar el modal de confirmación
+  Future<void> _showConfirmationDialog(String qrData) async {
+    final data = jsonDecode(qrData);
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Confirmar venta o reserva',
+            style: TextStyle(
+                color: Colors.red.shade900,
+                fontWeight: FontWeight.bold,
+                fontSize: 20),
+          ),
+          content: SizedBox(
+            width: MediaQuery.of(context).size.width *
+                0.3, // Forzamos un ancho (ej. 80% de la pantalla)
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                QrImageView(
+                  data: qrData,
+                  version: QrVersions.auto,
+                  size: MediaQuery.of(context).size.width * 0.2,
+                  backgroundColor: Colors.white,
+                ),
+                const SizedBox(height: 20),
+                Text('Usuario: $selectedUserFullName',
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 16)),
+                Text(
+                    'Total a pagar: \$${(data['totalPrice'] as double).toStringAsFixed(2)}',
+                    style: const TextStyle(fontSize: 18)),
+                const SizedBox(height: 10),
+              ],
+            ),
+          ),
+          actions: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                DynamicButton(
+                  onPressed: () => {},
+                  text: 'Confirmar',
+                  colorButton: Colors.green,
+                  size: Size(160, 50),
+                ),
+                SizedBox(width: 10),
+                DynamicButton(
+                  onPressed: () => {Navigator.of(context).pop()},
+                  text: 'Cancelar',
+                  colorButton: Colors.red[900]!,
+                  size: Size(160, 50),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Widget _buildQrSection(bool isMobile) {
@@ -155,8 +256,8 @@ class _VentasState extends State<Ventas> {
                       color: Colors.red) // Muestra el spinner
                   : QrImageView(
                       // Muestra el QR cuando está listo
-                      key: ValueKey(
-                          _qrDataString), // Key para que la animación funcione
+                      key: ValueKey(_qrDataString),
+                      // Key para que la animación funcione
                       data: _qrDataString!,
                       version: QrVersions.auto,
                       size: size,
@@ -305,6 +406,8 @@ class _VentasState extends State<Ventas> {
                 onSelected: (User selection) {
                   setState(() {
                     selectedUser = selection.username;
+                    selectedUserFullName =
+                        '${selection.name} ${selection.lastName}';
                   });
                   _updateTotal();
                 },
@@ -362,16 +465,24 @@ class _VentasState extends State<Ventas> {
                   children: [
                     Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                       DynamicButton(
-                        onPressed: () {},
+                        onPressed: _isActionable
+                            ? () => _processSale('Reservado')
+                            : null, // Lógica aquí
                         text: 'Reservar',
-                        colorButton: Colors.red.shade900,
+                        colorButton: _isActionable
+                            ? Colors.red.shade900
+                            : Colors.grey, // Estilo deshabilitado
                         size: Size(isMobile ? 300 : 160, isMobile ? 60 : 50),
                       ),
                       const SizedBox(width: 10),
                       DynamicButton(
-                          onPressed: () {},
+                          onPressed: _isActionable
+                              ? () => _processSale('Pagado')
+                              : null, // Lógica aquí
                           text: 'Pagar',
-                          colorButton: Colors.red.shade900,
+                          colorButton: _isActionable
+                              ? Colors.red.shade900
+                              : Colors.grey, // Estilo deshabilitado
                           size: Size(isMobile ? 300 : 160, isMobile ? 60 : 50)),
                     ]),
                     SizedBox(height: 15),
