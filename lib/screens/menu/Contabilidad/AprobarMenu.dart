@@ -335,7 +335,7 @@ class _AprobarMenuState extends State<AprobarMenu> {
                 : () => _showConfirmationDialog('Aprobado'),
             isLoading: _isProcessingStatusChange,
             text: 'Aprobar',
-            colorButton: Colors.green,
+            colorButton: Colors.red.shade700,
             icon: Icons.check,
             size: Size(isMobile ? 180 : 230, 50),
           ),

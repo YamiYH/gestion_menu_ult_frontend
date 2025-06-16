@@ -195,10 +195,10 @@ class _VentasState extends State<Ventas> {
           content: SizedBox(
             width: isMobile
                 ? MediaQuery.of(context).size.width * 0.9
-                : MediaQuery.of(context).size.width * 0.8,
+                : MediaQuery.of(context).size.width * 0.2,
             height: isMobile
                 ? MediaQuery.of(context).size.height * 0.45
-                : MediaQuery.of(context).size.height * 0.9,
+                : MediaQuery.of(context).size.height * 0.6,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
@@ -206,17 +206,19 @@ class _VentasState extends State<Ventas> {
                 QrImageView(
                   data: qrData,
                   version: QrVersions.auto,
-                  size: MediaQuery.of(context).size.width * 0.7,
+                  size: isMobile
+                      ? MediaQuery.of(context).size.width * 0.7
+                      : MediaQuery.of(context).size.width * 0.2,
                   backgroundColor: Colors.white,
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: isMobile ? 20 : 10),
                 Text('Usuario: $selectedUserFullName',
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 16)),
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 const SizedBox(height: 10),
                 Text(
                     'Total a pagar: \$${(data['totalPrice'] as double).toStringAsFixed(2)}',
-                    style: const TextStyle(fontSize: 18)),
+                    style: TextStyle(fontSize: 18)),
                 //const SizedBox(height: 10),
               ],
             ),
