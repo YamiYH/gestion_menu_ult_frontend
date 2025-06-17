@@ -38,7 +38,7 @@ class _ComedorAccesoState extends State<ComedorAcceso> {
         children: [
           //Text('ID Venta: ${venta['id'] ?? '-'}'),
           Text(
-            'Cliente: ${venta['user'] ?? '-'}',
+            'Cliente: ${venta['userFullName'] ?? '-'}',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
           ),
           Text('Fecha: ${venta['date'] ?? '-'}',
