@@ -221,9 +221,9 @@ class _RolesState extends State<Roles> {
           ),
           _header('Nombre', 0.2),
           _header('Accesos', 0.55),
-          _header('Estado', 0.5),
+          _header('Estado', 0.08),
           SizedBox(
-            width: MediaQuery.of(context).size.width * 0.03,
+            width: MediaQuery.of(context).size.width * 0.01,
             height: 25,
           ),
           AddButton(
@@ -259,7 +259,7 @@ class _RolesState extends State<Roles> {
           SizedBox(width: MediaQuery.of(context).size.width * 0.02),
           _listStyle(role.description, 0.2),
           _listStyle(formatAccess(role.permissions), 0.55),
-          _listStyle(role.enabled ? 'Activo' : 'Inactivo', 0.25),
+          _listStyle(role.enabled ? 'Activo' : 'Inactivo', 0.10),
           SizedBox(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -386,7 +386,7 @@ class _RolesState extends State<Roles> {
   Widget _header(String title, double widthFactor) {
     return SizedBox(
         width: MediaQuery.of(context).size.width * widthFactor,
-        height: 20,
+        height: 25,
         child: Text(
           title,
           style: _headerStyle(),
@@ -396,7 +396,7 @@ class _RolesState extends State<Roles> {
   Widget _listStyle(String text, double widthFactor) {
     return SizedBox(
       width: MediaQuery.of(context).size.width * widthFactor,
-      height: 20,
+      height: 25,
       child: Text(text, style: const TextStyle(fontSize: 14)),
     );
   }
