@@ -1,14 +1,18 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/controllers/security/user/UserController.dart';
+import 'package:gestion_menu_ult_frontend/controllers/ticket/TicketController.dart';
 import 'package:gestion_menu_ult_frontend/models/UserEntity.dart';
+import 'package:gestion_menu_ult_frontend/models/UserProfile.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../models/MenuEntity.dart';
+import '../../../models/TicketEntity.dart';
 import '../../../widgets/DynamicButton.dart';
 import '../../../widgets/PlaceDropDown.dart';
 
@@ -29,7 +33,9 @@ class _VentasState extends State<Ventas> {
   late TextEditingController userListController;
   Timer? _debounce; // El temporizador para el delay
   String? _qrDataString; // Los datos del QR en formato String (JSON)
-  bool _isQrGenerating = true; // Flag para mostrar el spinner de carga del QR
+  bool _isQrGenerating = true;
+  String? selectedCafeteria = 'Lenin'; // Cafetería seleccionada por defecto
+  final TicketController _ticketController = TicketController();
 
   // Estado para seguir los platos seleccionados
   Map<MenuRecipe, bool> selectedItems = {};
@@ -229,7 +235,10 @@ class _VentasState extends State<Ventas> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       DynamicButton(
-                        onPressed: () => {},
+                        onPressed: () => {
+                          _generateDataAndPush(qrData),
+                          _isQrGenerating = true, // Mostrar spinner de carga
+                        },
                         text: 'Confirmar',
                         colorButton: Colors.green,
                         size: Size(isMobile ? 250 : 160, 50),
@@ -247,7 +256,10 @@ class _VentasState extends State<Ventas> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       DynamicButton(
-                        onPressed: () => {},
+                        onPressed: () => {
+                          _generateDataAndPush(qrData),
+                          _isQrGenerating = true, // Mostrar spinner de carga
+                        },
                         text: 'Confirmar',
                         colorButton: Colors.green,
                         size: Size(160, 50),
@@ -265,6 +277,57 @@ class _VentasState extends State<Ventas> {
         );
       },
     );
+  }
+
+  Future<void> _generateDataAndPush(String data) async {
+    String qrImageBase64 = '';
+    try {
+      final qrValidationResult = QrValidator.validate(
+        data: data,
+        version: QrVersions.auto,
+        errorCorrectionLevel: QrErrorCorrectLevel.L,
+      );
+      if (qrValidationResult.status == QrValidationStatus.valid) {
+        final painter = QrPainter.withQr(
+          qr: qrValidationResult.qrCode!,
+          color: const Color(0xFF000000),
+          emptyColor: const Color(0xFFFFFFFF),
+          gapless: true,
+        );
+        final picData = await painter.toImageData(400, format: ImageByteFormat.png);
+        if (picData != null) {
+          qrImageBase64 = base64Encode(picData.buffer.asUint8List());
+        }
+      }
+      Map<String, dynamic> dataMap = jsonDecode(data);
+      TicketEntityRequest request = TicketEntityRequest(
+        id: const Uuid().v4(),
+        user: dataMap['user'] as String,
+        campus: selectedCafeteria,
+        menu: dataMap['menuId'] as String,
+        status: dataMap['status'] as String,
+        recipes: selectedItems.keys.map((e) => e.id as String).toList(),
+        totalPrice: totalPrice,
+        qr: qrImageBase64,
+      );
+      await _ticketController.createTicket(request.toJson());
+      if (mounted) {
+        Navigator.pop(context);
+        setState(() {
+          _qrDataString = data;
+          _isQrGenerating = false; // Ocultamos el spinner de carga
+        });
+        resetFields();
+      }
+    }  catch (e) {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Usted ya tiene un ticket reservado para esa fecha.'),
+          backgroundColor: Colors.red[700],
+        ),
+      );
+    }
   }
 
   Widget _buildQrSection(bool isMobile) {
@@ -440,7 +503,9 @@ class _VentasState extends State<Ventas> {
                     selectedUserFullName =
                         '${selection.name} ${selection.lastName}';
                   });
-                  Focus.of(context).unfocus();
+                  if(isMobile){
+                    Focus.of(context).unfocus();
+                  }
                   _updateTotal();
                 },
                 fieldViewBuilder: (context, textEditingController, focusNode,
@@ -463,7 +528,11 @@ class _VentasState extends State<Ventas> {
           PlaceDropDown(
               widthFactor1: 0.2,
               widthFactor: 0.85,
-              onChanged: (p0) {},
+              onChanged: (String? newValue) {
+                setState(() {
+                  selectedCafeteria = newValue!;
+                });
+              },
               value: 'Lenin'),
           const SizedBox(height: 25),
           // Espacio para Código QR
@@ -495,7 +564,7 @@ class _VentasState extends State<Ventas> {
                   SizedBox(height: 15),
                   DynamicButton(
                       onPressed: _isActionable
-                          ? () => _processSale('Pagado')
+                          ? () => _processSale('Pago')
                           : null, // Lógica aquí
                       text: 'Pagar',
                       colorButton:
@@ -520,7 +589,7 @@ class _VentasState extends State<Ventas> {
                       const SizedBox(width: 10),
                       DynamicButton(
                           onPressed: _isActionable
-                              ? () => _processSale('Pagado')
+                              ? () => _processSale('Pago')
                               : null, // Lógica aquí
                           text: 'Pagar',
                           colorButton: _isActionable
@@ -595,5 +664,22 @@ class _VentasState extends State<Ventas> {
         ),
       ),
     );
+  }
+
+  // Función para dejar todos los campos por defecto
+  void resetFields() {
+    setState(() {
+      // Limpiar campo de usuario
+      userListController.clear();
+      userListController.text = '';
+      selectedUser = null;
+      selectedUserFullName = null;
+      // Desmarcar todos los checkbox
+      selectedItems = {for (var item in widget.menu!.recipes) item: false};
+      // Reiniciar cafetería seleccionada si lo deseas
+      selectedCafeteria = 'Lenin';
+      // Regenerar QR
+      _onDataChangedForQr();
+    });
   }
 }
