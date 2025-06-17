@@ -10,7 +10,7 @@ class MenuEntityController extends BaseController {
     Map<String, String> queryParams = {
       'pageNo': super.currentPage.toString(),
       'pageSize': super.pageSize.toString(),
-      'sortType': 'asc',
+      'sortType': 'dsc',
       'sortBy': 'date',
     };
 

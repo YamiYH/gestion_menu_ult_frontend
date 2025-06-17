@@ -3,9 +3,12 @@ import 'dart:convert';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:gestion_menu_ult_frontend/controllers/menu/MenuController.dart';
 import 'package:gestion_menu_ult_frontend/controllers/security/user/UserController.dart';
 import 'package:gestion_menu_ult_frontend/controllers/ticket/TicketController.dart';
 import 'package:gestion_menu_ult_frontend/models/UserEntity.dart';
+import 'package:gestion_menu_ult_frontend/routes/PageRouteBuilder.dart';
+import 'package:gestion_menu_ult_frontend/screens/menu/Ventas/MenuVenta.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:uuid/uuid.dart';
@@ -35,6 +38,7 @@ class _VentasState extends State<Ventas> {
   bool _isQrGenerating = true;
   String? selectedCafeteria = 'Lenin'; // Cafetería seleccionada por defecto
   final TicketController _ticketController = TicketController();
+  final MenuEntityController _menuEntityController = MenuEntityController();
 
   // Estado para seguir los platos seleccionados
   Map<MenuRecipe, bool> selectedItems = {};
@@ -607,7 +611,33 @@ class _VentasState extends State<Ventas> {
 
   ElevatedButton CloseSalesButton(bool isMobile) {
     return ElevatedButton(
-      onPressed: () {},
+      onPressed: () {
+      showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: const Text('Confirmar cierre de ventas'),
+                      content: const Text('¿Estás seguro de cerrar las ventas? Esta acción marcará el menú como vendido.'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: const Text('Cancelar'),
+                        ),
+                        TextButton(
+                          onPressed: () async {
+                            // Cambiar el estado del menú a "Vendido"
+                            await _menuEntityController.changeStatusMenu(
+                              widget.menu!.id as String, 'Vendido');
+                            Navigator.of(context).pop();
+                            Navigator.of(context).pushReplacement(createFadeRoute(MenuVentas()));
+                          },
+                          child: const Text('Confirmar'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+      },
       style: ElevatedButton.styleFrom(
         fixedSize: Size(isMobile ? 300 : 330, isMobile ? 60 : 50),
         elevation: 3,
@@ -635,6 +665,8 @@ class _VentasState extends State<Ventas> {
       ),
     );
   }
+  
+  
 
   Card BuildCard(MenuRecipe menuItem, String index) {
     return Card(

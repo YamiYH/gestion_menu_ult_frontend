@@ -139,6 +139,7 @@ class _MenuListState extends State<MenuList> {
     if (typeToFilter != 'Todos') {
       filters['type'] = typeToFilter;
     }
+    filters['startDate'] = DateTime.now().toIso8601String().split('T').first;
 
     try {
       final menus = await _menuEntityController.fetchMenu(filters: filters);
