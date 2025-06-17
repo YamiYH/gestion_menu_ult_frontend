@@ -7,6 +7,18 @@ class UserAuthContext {
     await prefs.setString('jwtToken', token);
   }
 
+  // Método privado para almacenar el username en SharedPreferences
+  static Future<void> saveUsername(String username) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('username', username);
+  }
+
+  // Método para obtener el token JWT almacenado
+  static Future<String?> getUsername() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('username');
+  }
+
 // Método para obtener el token JWT almacenado
   static Future<String?> getJwtToken() async {
     final prefs = await SharedPreferences.getInstance();

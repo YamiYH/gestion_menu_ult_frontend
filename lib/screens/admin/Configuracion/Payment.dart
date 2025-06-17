@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:gestion_menu_ult_frontend/controllers/ticket/TicketController.dart';
+import 'package:gestion_menu_ult_frontend/models/TicketEntity.dart';
+import 'package:gestion_menu_ult_frontend/screens/ticket/GestionarTicket.dart';
 import 'package:gestion_menu_ult_frontend/widgets/CustomAppbar.dart';
 
+import '../../../routes/PageRouteBuilder.dart';
 import '../../../widgets/Button.dart'; // Asumo que este es tu AppBar personalizado
 // Si tienes un widget de Botón personalizado, podrías importarlo:
 // import 'package:gestion_menu_ult_frontend/widgets/Button.dart';
 
 class Payment extends StatefulWidget {
-  final String ticketId;
-  final double amount;
-  final String description;
+  final TicketEntityResponse? ticket;
 
   const Payment({
     super.key,
-    this.ticketId = '',
-    this.amount = 0.0,
-    this.description = "Ticket de Almuerzo", // Valor por defecto
+    this.ticket, // Valor por defecto
   });
 
   @override
@@ -23,6 +23,7 @@ class Payment extends StatefulWidget {
 
 class _PaymentState extends State<Payment> {
   bool _isLoading = false; // Para mostrar un indicador de carga al procesar
+  TicketController ticketController = TicketController();
 
   void _processPaymentWithEnzona() async {
     setState(() {
@@ -30,8 +31,8 @@ class _PaymentState extends State<Payment> {
     });
 
     // Simulación del proceso de pago
-    print('Iniciando pago con Enzona para el ticket: ${widget.ticketId}');
-    print('Monto: ${widget.amount.toStringAsFixed(2)} CUP');
+    print('Iniciando pago con Enzona para el ticket: ${widget.ticket?.id}');
+    print('Monto: ${widget.ticket?.totalPrice.toStringAsFixed(2)} CUP');
 
     // --- Aquí iría la lógica real para interactuar con la API de Enzona ---
     // 1. Obtener las credenciales de Enzona (Consumer Key, Secret, Merchant UUID, etc.)
@@ -64,10 +65,14 @@ class _PaymentState extends State<Payment> {
     );
     // En un caso real, la app podría quedar en segundo plano mientras el usuario está en Enzona.
     // Deberías manejar el retorno a la app desde las URL_RETURN y URL_CANCEL.
-
+    await ticketController.changeTicketStatus(
+      widget.ticket!.id,
+      'Pago', // Actualiza el estado del ticket a 'pagado'
+    );
     setState(() {
       _isLoading = false;
     });
+    Navigator.pushReplacement(context, createFadeRoute(GestionarTicket()));
   }
 
   @override
@@ -98,9 +103,9 @@ class _PaymentState extends State<Payment> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildDetailRow('Descripción:', widget.description),
+                    _buildDetailRow('Descripción:', 'Ticket de reserva de comedor. Universidad de Las Tunas. Día: ${widget.ticket?.date} Comedor: ${widget.ticket?.campus} Horario: ${widget.ticket?.menuType}'),
                     const SizedBox(height: 8),
-                    _buildDetailRow('ID Ticket:', widget.ticketId),
+                    _buildDetailRow('ID Ticket:', widget.ticket!.id),
                     const SizedBox(height: 12),
                     const Divider(),
                     const SizedBox(height: 12),
@@ -114,7 +119,7 @@ class _PaymentState extends State<Payment> {
                               .titleMedium
                               ?.copyWith(fontWeight: FontWeight.bold),
                         ),
-                        Text('${widget.amount.toStringAsFixed(2)} CUP',
+                        Text('${widget.ticket?.totalPrice.toStringAsFixed(2)} CUP',
                             style: TextStyle(
                                 color: Colors.red.shade900,
                                 fontSize: 22,

@@ -5,6 +5,7 @@ import 'package:gestion_menu_ult_frontend/screens/ticket/GestionarTicket.dart';
 import 'package:provider/provider.dart';
 
 import '../../controllers/security/LoginController.dart';
+import '../../controllers/security/user/UserAuthContext.dart';
 import '../../providers/ProfileProvider.dart';
 import 'Options.dart';
 
@@ -44,6 +45,8 @@ class _LoginState extends State<Login> {
             Provider.of<ProfileProvider>(context, listen: false);
 
         await profileProvider.fetchUserProfile(user.username);
+
+        UserAuthContext.saveUsername(user.username);
 
         final destinationScreen = _getDestinationScreen(profileProvider);
 

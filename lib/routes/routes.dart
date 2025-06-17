@@ -73,7 +73,7 @@ class AppRoutes {
       users: (context) => Users(),
       ventas: (context) => Ventas(),
       roles: (context) => Roles(),
-      enzona: (context) => Payment(),
+      enzona: (context) => Payment(ticket: null,),
       config: (context) => Config(),
       modulosVenta: (context) => ModulosVenta(),
       informes: (context) => InformesVentas(),

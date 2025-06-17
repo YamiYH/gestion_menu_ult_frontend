@@ -9,6 +9,7 @@ class TicketEntityResponse {
   String status;
   double totalPrice;
   String userFullName;
+  String qrImage;
 
   TicketEntityResponse({
     required this.campus,
@@ -19,6 +20,7 @@ class TicketEntityResponse {
     required this.status,
     required this.totalPrice,
     required this.userFullName,
+    required this.qrImage,
   });
 
   // Constructor desde JSON
@@ -32,6 +34,7 @@ class TicketEntityResponse {
       status: json['status'] as String? ?? 'Sin Estado',
       totalPrice: (json['totalPrice'] as num?)?.toDouble() ?? 0.0,
       userFullName: json['userFullName'] as String? ?? 'Sin Nombre de Usuario',
+      qrImage: json['qrImage'] as String? ?? 'Sin Imagen QR',
     );
   }
 }
