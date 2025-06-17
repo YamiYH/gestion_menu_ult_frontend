@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:gestion_menu_ult_frontend/screens/admin/Configuracion/Config.dart';
-import 'package:gestion_menu_ult_frontend/screens/admin/ModulosAdmin.dart';
 import 'package:gestion_menu_ult_frontend/screens/admin/Configuracion/Payment.dart';
+import 'package:gestion_menu_ult_frontend/screens/admin/ModulosAdmin.dart';
 import 'package:gestion_menu_ult_frontend/screens/admin/Usuario/UserModelo.dart';
 import 'package:gestion_menu_ult_frontend/screens/admin/Usuario/Users.dart';
 import 'package:gestion_menu_ult_frontend/screens/common/Help.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/Contabilidad/AprobarMenu.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/Contabilidad/Contabilidad.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/LibroDeRecetas/LibroRecetas.dart';
+import 'package:gestion_menu_ult_frontend/screens/menu/LibroDeRecetas/RecetaModelo.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/Menu/MenuList.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/Menu/MenuPropuesta.dart';
-import 'package:gestion_menu_ult_frontend/screens/menu/LibroDeRecetas/RecetaModelo.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/Ventas/ComedorAcceso.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/Ventas/ModulosVenta.dart';
 
@@ -21,7 +21,6 @@ import '../screens/common/Login.dart';
 import '../screens/common/Options.dart';
 import '../screens/common/Perfil.dart';
 import '../screens/menu/Inventario/Inventario.dart';
-import '../screens/menu/Menu/MenuConfig.dart';
 import '../screens/menu/ModulosMenu.dart';
 import '../screens/menu/Ventas/InformesVentas.dart';
 import '../screens/menu/Ventas/MenuVenta.dart';
@@ -45,7 +44,6 @@ class AppRoutes {
   static const String config = '/config';
   static const String modulosVenta = '/modulos_venta';
   static const String informes = '/informes';
-  static const String menuConfig = '/menu_config';
   static const String menuPropuesta = '/menu_propuesta';
   static const String libroRecetas = '/libro_recetas';
   static const String recetaModelo = '/receta_modelo';
@@ -73,11 +71,12 @@ class AppRoutes {
       users: (context) => Users(),
       ventas: (context) => Ventas(),
       roles: (context) => Roles(),
-      enzona: (context) => Payment(ticket: null,),
+      enzona: (context) => Payment(
+            ticket: null,
+          ),
       config: (context) => Config(),
       modulosVenta: (context) => ModulosVenta(),
       informes: (context) => InformesVentas(),
-      menuConfig: (context) => MenuConfig(),
       menuPropuesta: (context) => MenuPropuesta(),
       libroRecetas: (context) => LibroRecetas(),
       recetaModelo: (context) => RecetaModelo(isEditMode: true, receta: null),

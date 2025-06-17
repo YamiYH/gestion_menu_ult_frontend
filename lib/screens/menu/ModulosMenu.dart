@@ -10,7 +10,6 @@ import '../../providers/ProfileProvider.dart';
 import '../../widgets/ProtectedWidget.dart';
 import 'Inventario/Inventario.dart';
 import 'LibroDeRecetas/LibroRecetas.dart';
-import 'Menu/MenuConfig.dart';
 import 'Ventas/ModulosVenta.dart';
 
 class ModulosMenu extends StatelessWidget {
@@ -115,16 +114,6 @@ class ModulosMenu extends StatelessWidget {
                 Navigator.push(context, createFadeRoute(Contabilidad()));
               },
               isEnabled: userPermissions.contains('Contabilidad'))),
-      ProtectedWidget(
-          requiredPermission: 'Configuraciones',
-          child: CardStyle(
-            title: 'Configuración',
-            icon: Icons.settings,
-            onTap: () {
-              Navigator.push(context, createFadeRoute(MenuConfig()));
-            },
-            isEnabled: userPermissions.contains('Configuraciones'),
-          )),
     ];
   }
 }

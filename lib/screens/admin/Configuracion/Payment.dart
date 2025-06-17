@@ -103,7 +103,8 @@ class _PaymentState extends State<Payment> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildDetailRow('Descripción:', 'Ticket de reserva de comedor. Universidad de Las Tunas. Día: ${widget.ticket?.date} Comedor: ${widget.ticket?.campus} Horario: ${widget.ticket?.menuType}'),
+                    _buildDetailRow('Descripción:',
+                        'Ticket de reserva de comedor. Universidad de Las Tunas. Día: ${widget.ticket?.date} Comedor: ${widget.ticket?.campus} Horario: ${widget.ticket?.menuType}'),
                     const SizedBox(height: 8),
                     _buildDetailRow('ID Ticket:', widget.ticket!.id),
                     const SizedBox(height: 12),
@@ -119,7 +120,8 @@ class _PaymentState extends State<Payment> {
                               .titleMedium
                               ?.copyWith(fontWeight: FontWeight.bold),
                         ),
-                        Text('${widget.ticket?.totalPrice.toStringAsFixed(2)} CUP',
+                        Text(
+                            '${widget.ticket?.totalPrice.toStringAsFixed(2)} CUP',
                             style: TextStyle(
                                 color: Colors.red.shade900,
                                 fontSize: 22,
@@ -161,12 +163,12 @@ class _PaymentState extends State<Payment> {
                     color: Colors.red,
                   ))
                 : Button(
-                    size: Size(isMobile ? 200 : 260, 50),
+                    size: Size(isMobile ? 240 : 260, 50),
                     onPressed: _processPaymentWithEnzona,
                     text: 'Pagar con Enzona',
                     icon: Icons.lock_open_outlined, // Ejemplo de ícono
                   ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 15),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Volver a la pantalla anterior

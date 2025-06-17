@@ -15,14 +15,12 @@ import 'package:gestion_menu_ult_frontend/widgets/DatePickerButton.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../controllers/menu/MenuController.dart';
 import '../../controllers/security/user/UserAuthContext.dart';
 import '../../widgets/Button.dart';
 import '../../widgets/DynamicButton.dart';
-import '../../widgets/SmallButton.dart';
 import '../../widgets/WhitePlaceDropDown.dart'; // Para formatear fechas
 
 class GestionarTicket extends StatefulWidget {
@@ -30,8 +28,8 @@ class GestionarTicket extends StatefulWidget {
   _GestionarTicketState createState() => _GestionarTicketState();
 }
 
-class _GestionarTicketState extends State<GestionarTicket> with TickerProviderStateMixin{
-
+class _GestionarTicketState extends State<GestionarTicket>
+    with TickerProviderStateMixin {
   TicketController _ticketController = TicketController();
   MenuEntityController _menuController = MenuEntityController();
   Map<MenuRecipe, bool> selectedItems = {};
@@ -50,7 +48,6 @@ class _GestionarTicketState extends State<GestionarTicket> with TickerProviderSt
   List<TicketEntityResponse> myTickets = [];
   late UserProfile _user;
 
-
   double get totalPrice {
     double total = 0;
 
@@ -66,17 +63,13 @@ class _GestionarTicketState extends State<GestionarTicket> with TickerProviderSt
     return selectedItems.containsValue(true);
   }
 
-  // Valores por defecto internos si el admin no configura
   final TimeOfDay _defaultHoraMaximaReserva =
       const TimeOfDay(hour: 13, minute: 0);
-
-  late TimeOfDay _horaMaximaReservaConfig;
 
   @override
   void initState() {
     super.initState();
     _reservationDay = DateTime.now().add(Duration(days: 1));
-    _horaMaximaReservaConfig = _defaultHoraMaximaReserva;
     _tabController = TabController(length: 2, vsync: this);
     _loadMyTicketsAndNavigate(false);
     _searchMenus();
@@ -89,7 +82,6 @@ class _GestionarTicketState extends State<GestionarTicket> with TickerProviderSt
   }
 
   String _generateQrDataString(String status) {
-    // 1. Extraemos los nombres de los platos
     final List<String> recipeNames = [];
     for (var entry in selectedItems.entries) {
       if (entry.value) {
@@ -98,82 +90,68 @@ class _GestionarTicketState extends State<GestionarTicket> with TickerProviderSt
     }
     ;
 
-    // 2. Creamos un mapa con toda la información
     final Map<String, dynamic> data = {
-      'id': const Uuid().v4(), // Generamos un ID único para la venta
+      'id': const Uuid().v4(),
       'user': _user.username,
       'userFullName': _user.fullName,
-      'menuId': availableMenus.isNotEmpty
-          ? availableMenus.first.id
-          : 'No disponible', // Usamos el primer menú disponible
+      'menuId':
+          availableMenus.isNotEmpty ? availableMenus.first.id : 'No disponible',
       'status': status,
       'date': availableMenus.isNotEmpty
           ? availableMenus.first.date
-          : 'No disponible', // Usamos el primer menú disponible
+          : 'No disponible',
       'recipes': recipeNames,
-      'totalPrice': totalPrice, // Usamos el getter que ya calcula el total
+      'totalPrice': totalPrice,
     };
 
-    // 3. Convertimos el mapa a un string en formato JSON
     return jsonEncode(data);
   }
 
   void _onDataChangedForQr() {
-    // Si ya hay un timer corriendo, lo cancelamos para empezar de nuevo
     if (_debounce?.isActive ?? false) _debounce!.cancel();
 
-    // Mostramos el indicador de carga inmediatamente
     setState(() {
       _isQrGenerating = true;
     });
 
-    // Creamos un nuevo timer con el delay de 1 segundo
     _debounce = Timer(const Duration(seconds: 1), () {
-      // Cuando el timer termina, generamos los datos y actualizamos el estado
       final newData = _generateQrDataString('Reservado');
       if (mounted) {
         setState(() {
           _qrDataString = newData;
-          _isQrGenerating = false; // Ocultamos el indicador de carga
+          _isQrGenerating = false;
         });
       }
     });
   }
 
   void _updateTotal() {
-    setState(() {
-      // Esta llamada a setState es para actualizar el precio total inmediatamente
-    });
-    // Adicionalmente, disparamos la lógica de regeneración del QR
+    setState(() {});
+
     _onDataChangedForQr();
   }
 
-  // NUEVO: Función para procesar la venta (Reservar/Pagar)
   Future<void> _processSale(String status) async {
-    if (!_isActionable) return; // Doble chequeo de seguridad
+    if (!_isActionable) return;
 
-    // Mostramos un spinner de carga modal para bloquear la UI
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (
-          BuildContext context,
-          ) {
+        BuildContext context,
+      ) {
         return const Center(
             child: CircularProgressIndicator(color: Colors.red));
       },
     );
 
-    // Generamos el QR final de forma síncrona (sin debounce)
     final finalQrData = _generateQrDataString(status);
 
-    // Esperamos un instante para que el usuario perciba la acción
     await Future.delayed(const Duration(milliseconds: 500));
 
     if (!mounted) return;
-    Navigator.of(context).pop(); // Cerramos el spinner de carga
+    Navigator.of(context).pop();
 
-    // Mostramos el modal de confirmación
     try {
       _showConfirmationDialog(finalQrData);
     } on Exception catch (e, stackTrace) {
@@ -181,7 +159,6 @@ class _GestionarTicketState extends State<GestionarTicket> with TickerProviderSt
     }
   }
 
-  // NUEVO: Función para mostrar el modal de confirmación
   Future<void> _showConfirmationDialog(String qrData) async {
     final data = jsonDecode(qrData);
     bool isMobile = MediaQuery.of(context).size.width < 600;
@@ -220,57 +197,52 @@ class _GestionarTicketState extends State<GestionarTicket> with TickerProviderSt
                 SizedBox(height: isMobile ? 20 : 10),
                 Text('Usuario: ${_user.fullName}',
                     style:
-                    TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 const SizedBox(height: 10),
                 Text(
                     'Total a pagar: \$${(data['totalPrice'] as double).toStringAsFixed(2)}',
                     style: TextStyle(fontSize: 18)),
-                //const SizedBox(height: 10),
               ],
             ),
           ),
           actions: [
             isMobile
                 ? Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                DynamicButton(
-                  onPressed: () => {
-                    _generateDataAndPush(qrData)
-                  },
-                  text: 'Confirmar',
-                  colorButton: Colors.green,
-                  size: Size(isMobile ? 250 : 160, 50),
-                ),
-                SizedBox(height: 10),
-                DynamicButton(
-                  onPressed: () => {Navigator.of(context).pop()},
-                  text: 'Cancelar',
-                  colorButton: Colors.red[900]!,
-                  size: Size(isMobile ? 250 : 160, 50),
-                ),
-              ],
-            )
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      DynamicButton(
+                        onPressed: () => {_generateDataAndPush(qrData)},
+                        text: 'Confirmar',
+                        colorButton: Colors.green,
+                        size: Size(isMobile ? 250 : 160, 50),
+                      ),
+                      SizedBox(height: 10),
+                      DynamicButton(
+                        onPressed: () => {Navigator.of(context).pop()},
+                        text: 'Cancelar',
+                        colorButton: Colors.red[900]!,
+                        size: Size(isMobile ? 250 : 160, 50),
+                      ),
+                    ],
+                  )
                 : Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                DynamicButton(
-                  onPressed: () => {
-                    _generateDataAndPush(qrData)
-                  },
-                  text: 'Confirmar',
-                  colorButton: Colors.green,
-                  size: Size(160, 50),
-                ),
-                SizedBox(width: 10),
-                DynamicButton(
-                  onPressed: () => {Navigator.of(context).pop()},
-                  text: 'Cancelar',
-                  colorButton: Colors.red[900]!,
-                  size: Size(160, 50),
-                ),
-              ],
-            ),
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      DynamicButton(
+                        onPressed: () => {_generateDataAndPush(qrData)},
+                        text: 'Confirmar',
+                        colorButton: Colors.green,
+                        size: Size(160, 50),
+                      ),
+                      SizedBox(width: 10),
+                      DynamicButton(
+                        onPressed: () => {Navigator.of(context).pop()},
+                        text: 'Cancelar',
+                        colorButton: Colors.red[900]!,
+                        size: Size(160, 50),
+                      ),
+                    ],
+                  ),
           ],
         );
       },
@@ -292,7 +264,8 @@ class _GestionarTicketState extends State<GestionarTicket> with TickerProviderSt
           emptyColor: const Color(0xFFFFFFFF),
           gapless: true,
         );
-        final picData = await painter.toImageData(400, format: ImageByteFormat.png);
+        final picData =
+            await painter.toImageData(400, format: ImageByteFormat.png);
         if (picData != null) {
           qrImageBase64 = base64Encode(picData.buffer.asUint8List());
         }
@@ -315,25 +288,25 @@ class _GestionarTicketState extends State<GestionarTicket> with TickerProviderSt
           _loadMyTicketsAndNavigate(true);
         });
       }
-    }  catch (e) {
+    } catch (e) {
       Navigator.pop(context);
-     ScaffoldMessenger.of(context).showSnackBar(
-       SnackBar(
-         content: Text('Usted ya tiene un ticket reservado para esa fecha.'),
-         backgroundColor: Colors.red[700],
-       ),
-     );
-     _loadMyTicketsAndNavigate(true);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Usted ya tiene un ticket reservado para esa fecha.'),
+          backgroundColor: Colors.red[700],
+        ),
+      );
+      _loadMyTicketsAndNavigate(true);
     }
   }
 
   Future<void> _loadMyTicketsAndNavigate(bool navigate) async {
     String? username = '';
-   try {
-     username = _user.username;
-   } catch (e) {
-     username = await UserAuthContext.getUsername();
-   }
+    try {
+      username = _user.username;
+    } catch (e) {
+      username = await UserAuthContext.getUsername();
+    }
     Map<String, String> filters = {
       'status': 'Reservado',
       'otherStatus': 'Pago',
@@ -348,7 +321,6 @@ class _GestionarTicketState extends State<GestionarTicket> with TickerProviderSt
           _tabController.animateTo(1);
         }
       }
-
     }).catchError((error) {
       print('Error al cargar los tickets: $error');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -357,11 +329,9 @@ class _GestionarTicketState extends State<GestionarTicket> with TickerProviderSt
     });
   }
 
-
   Future<void> _searchMenus() async {
-
     setState(() {
-      availableMenus.clear();// Limpiar la lista antes de buscar
+      availableMenus.clear();
     });
 
     Map<String, String> filters = {
@@ -380,15 +350,16 @@ class _GestionarTicketState extends State<GestionarTicket> with TickerProviderSt
     final profileProvider = Provider.of<ProfileProvider>(context);
     _user = profileProvider.userProfile!;
     return Scaffold(
-          appBar: CustomAppBar(
-            title: 'Gestión de Tickets',
-            bottom: buildTabBar(isMobile, _tabController),
-          ),
-          body: buildTabBarView(isMobile, context, _tabController),
-        );
+      appBar: CustomAppBar(
+        title: 'Gestión de Tickets',
+        bottom: buildTabBar(isMobile, _tabController),
+      ),
+      body: buildTabBarView(isMobile, context, _tabController),
+    );
   }
 
-  TabBarView buildTabBarView(bool isMobile, BuildContext context, TabController controller) {
+  TabBarView buildTabBarView(
+      bool isMobile, BuildContext context, TabController controller) {
     return TabBarView(
       controller: controller,
       children: [
@@ -489,7 +460,7 @@ class _GestionarTicketState extends State<GestionarTicket> with TickerProviderSt
     );
   }
 
-  Card BuildCard(MenuRecipe menuItem, String index) {
+  Card BuildCard(MenuRecipe menuItem, String index, isMobile) {
     return Card(
       color: Colors.white,
       shape: RoundedRectangleBorder(
@@ -502,7 +473,7 @@ class _GestionarTicketState extends State<GestionarTicket> with TickerProviderSt
         ),
         subtitle: Text(
           '\$${menuItem.price}',
-          style: TextStyle(fontSize: 22),
+          style: TextStyle(fontSize: isMobile ? 18 : 22),
         ),
         trailing: Checkbox(
           activeColor: Colors.red,
@@ -520,8 +491,7 @@ class _GestionarTicketState extends State<GestionarTicket> with TickerProviderSt
     );
   }
 
-  Card buildCardMenu(
-      MenuEntity menu, bool isMobile, BuildContext context) {
+  Card buildCardMenu(MenuEntity menu, bool isMobile, BuildContext context) {
     return Card(
       margin: EdgeInsets.symmetric(vertical: 5),
       child: Column(
@@ -529,41 +499,43 @@ class _GestionarTicketState extends State<GestionarTicket> with TickerProviderSt
         children: [
           Row(
             children: [
-              Expanded(child: ListTile(
-                title: Text(
-                  menu.date,
-                  style: TextStyle(
-                      fontSize: isMobile ? 14 : 17,
-                      color: Colors.red[900],
-                      fontWeight: FontWeight.bold),
-                ),
-                subtitle: Text(
-                  '${menu.type} (${menu.category})',
-                  style: TextStyle(
-                      fontSize: isMobile ? 13 : 16, fontStyle: FontStyle.italic),
-                ),
-              ),),
-              Padding(padding: EdgeInsets.all(20),
-              child:Row (
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SizedBox(width: 10),
-                  _buildOptionTitle('Comedor', Icons.restaurant_menu),
-                  SizedBox(width: 20),
-                  WhitePlaceDropDown(
-                    widthFactor1: 0.13,
-                    widthFactor: 0.38,
-                    value: selectedCafeteria,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedCafeteria = newValue!;
-                      });
-                    },
+              Expanded(
+                child: ListTile(
+                  title: Text(
+                    menu.date,
+                    style: TextStyle(
+                        fontSize: isMobile ? 14 : 17,
+                        color: Colors.red[900],
+                        fontWeight: FontWeight.bold),
                   ),
-                ],
+                  subtitle: Text(
+                    '${menu.type} (${menu.category})',
+                    style: TextStyle(
+                        fontSize: isMobile ? 13 : 16,
+                        fontStyle: FontStyle.italic),
+                  ),
+                ),
               ),
+              Padding(
+                padding: EdgeInsets.all(20),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    //SizedBox(width: 10),
+                    SizedBox(width: 20),
+                    WhitePlaceDropDown(
+                      widthFactor1: 0.13,
+                      widthFactor: 0.38,
+                      value: selectedCafeteria,
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          selectedCafeteria = newValue!;
+                        });
+                      },
+                    ),
+                  ],
+                ),
               ),
-
             ],
           ),
           Divider(),
@@ -576,9 +548,7 @@ class _GestionarTicketState extends State<GestionarTicket> with TickerProviderSt
                 SizedBox(height: 10),
                 Text(
                   'Platos:',
-                  style: TextStyle(
-                      fontSize: isMobile ? 14 : 17,
-                      fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 10),
                 ListView.builder(
@@ -587,7 +557,8 @@ class _GestionarTicketState extends State<GestionarTicket> with TickerProviderSt
                     itemCount: menu.recipes.length,
                     itemBuilder: (context, index) {
                       final menuItem = menu.recipes[index];
-                      return BuildCard(menuItem, menuItem.id as String);
+                      return BuildCard(
+                          menuItem, menuItem.id as String, isMobile);
                     }),
                 const SizedBox(height: 20),
                 Container(
@@ -596,7 +567,7 @@ class _GestionarTicketState extends State<GestionarTicket> with TickerProviderSt
                   child: Text(
                     'Total: \$${totalPrice.toStringAsFixed(2)}',
                     style: TextStyle(
-                      fontSize: 25,
+                      fontSize: isMobile ? 20 : 23,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -610,12 +581,15 @@ class _GestionarTicketState extends State<GestionarTicket> with TickerProviderSt
           Align(
             alignment: Alignment.center,
             child: DynamicButton(
-              onPressed: _isActionable && _canCreateOrCancelReservation(menu.date)
-                  ? () => _processSale('Reservado')
-                  : null, //
+              onPressed:
+                  _isActionable && _canCreateOrCancelReservation(menu.date)
+                      ? () => _processSale('Reservado')
+                      : null, //
               text: 'Reservar',
               colorButton:
-              _isActionable && _canCreateOrCancelReservation(menu.date) ? Colors.red.shade900 : Colors.grey, //
+                  _isActionable && _canCreateOrCancelReservation(menu.date)
+                      ? Colors.red.shade900
+                      : Colors.grey, //
               size: Size(isMobile ? 300 : 160, isMobile ? 60 : 50),
             ),
           ),
@@ -629,7 +603,7 @@ class _GestionarTicketState extends State<GestionarTicket> with TickerProviderSt
   SingleChildScrollView buildSingleChildScrollView(isMobile) {
     return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(10.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -648,44 +622,101 @@ class _GestionarTicketState extends State<GestionarTicket> with TickerProviderSt
             else
               ListView.builder(
                 shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
+                physics: NeverScrollableScrollPhysics(),
                 itemCount: myTickets.length,
                 itemBuilder: (context, index) {
                   final ticket = myTickets[index];
-                  return Card(
-                    margin: const EdgeInsets.symmetric(vertical: 5),
-                    child: ListTile(
-                      title: Text(
-                        ticket.date,
-                        style: TextStyle(
-                            color: Colors.red[900],
-                            fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Text(
-                          '${ticket.campus} - ${ticket.menuType} (${ticket.date})'),
-                      trailing: Row(
-                        // Eliminado Expanded
-                        mainAxisSize: MainAxisSize.min,
-                        // Hace que el Row ocupe solo el espacio necesario para sus hijos
-                        children: [
-                          DynamicButton(
-                            onPressed: () {_showTicketDetails(context, ticket);}, //
-                            text: 'Detalles',
-                            colorButton: Colors.red.shade900, //
-                            size: Size(isMobile ? 110 : 140, 50),
-                          ),
-                          const SizedBox(width: 10),
-                          // Espacio opcional entre botones
-                          DynamicButton(
-                            onPressed: ticket.status == 'Reservado'
-                                ? () {Navigator.push(context, createFadeRoute(Payment(ticket: ticket)));}
-                                : null, //
-                            text: 'Pagar',
-                            colorButton: ticket.status == 'Reservado' ? Colors.green : Colors.grey, //
-                            size: Size(isMobile ? 110 : 140, 50),
-                          ),
-                        ],
-                      ),
+                  return SizedBox(
+                    height: isMobile
+                        ? MediaQuery.of(context).size.width * 0.5
+                        : 100,
+                    child: Card(
+                      margin: EdgeInsets.all(15),
+                      child: isMobile
+                          ? Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(height: 10),
+                                Text(
+                                  ticket.date,
+                                  style: TextStyle(
+                                      color: Colors.red[900],
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                    '${ticket.campus} - ${ticket.menuType} (${ticket.date})'),
+                                SizedBox(height: 20),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    DynamicButton(
+                                      onPressed: () {
+                                        _showTicketDetails(context, ticket);
+                                      }, //
+                                      text: 'Detalles',
+                                      colorButton: Colors.red.shade900, //
+                                      size: Size(140, 50),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    DynamicButton(
+                                      onPressed: ticket.status == 'Reservado'
+                                          ? () {
+                                              Navigator.push(
+                                                  context,
+                                                  createFadeRoute(
+                                                      Payment(ticket: ticket)));
+                                            }
+                                          : null, //
+                                      text: 'Pagar',
+                                      colorButton: ticket.status == 'Reservado'
+                                          ? Colors.green
+                                          : Colors.grey, //
+                                      size: Size(140, 50),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 5)
+                              ],
+                            )
+                          : ListTile(
+                              title: Text(
+                                ticket.date,
+                                style: TextStyle(
+                                    color: Colors.red[900],
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              subtitle: Text(
+                                  '${ticket.campus} - ${ticket.menuType} (${ticket.date})'),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  DynamicButton(
+                                    onPressed: () {
+                                      _showTicketDetails(context, ticket);
+                                    }, //
+                                    text: 'Detalles',
+                                    colorButton: Colors.red.shade900, //
+                                    size: Size(isMobile ? 120 : 140, 50),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  DynamicButton(
+                                    onPressed: ticket.status == 'Reservado'
+                                        ? () {
+                                            Navigator.push(
+                                                context,
+                                                createFadeRoute(
+                                                    Payment(ticket: ticket)));
+                                          }
+                                        : null, //
+                                    text: 'Pagar',
+                                    colorButton: ticket.status == 'Reservado'
+                                        ? Colors.green
+                                        : Colors.grey, //
+                                    size: Size(isMobile ? 110 : 140, 50),
+                                  ),
+                                ],
+                              ),
+                            ),
                     ),
                   );
                 },
@@ -697,8 +728,9 @@ class _GestionarTicketState extends State<GestionarTicket> with TickerProviderSt
   }
 
   // Función para mostrar los detalles del ticket
- void _showTicketDetails(BuildContext context, TicketEntityResponse ticket) {
-    bool canCancel = _canCreateOrCancelReservation(ticket.date) && ticket.status != 'Pago';
+  void _showTicketDetails(BuildContext context, TicketEntityResponse ticket) {
+    bool canCancel =
+        _canCreateOrCancelReservation(ticket.date) && ticket.status != 'Pago';
     TextEditingController confirmController = TextEditingController();
     ValueNotifier<bool> isConfirmEnabled = ValueNotifier<bool>(false);
 
@@ -714,7 +746,8 @@ class _GestionarTicketState extends State<GestionarTicket> with TickerProviderSt
                 child: Text(
                   'Detalles del Ticket',
                   style: TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: isMobile ? 18 : 25),
+                      fontWeight: FontWeight.bold,
+                      fontSize: isMobile ? 18 : 25),
                 ),
               ),
               content: SingleChildScrollView(
@@ -726,8 +759,8 @@ class _GestionarTicketState extends State<GestionarTicket> with TickerProviderSt
                       Center(
                         child: Image.memory(
                           base64Decode(ticket.qrImage),
-                          width: isMobile ? 180 : 300,
-                          height: isMobile ? 180 : 300,
+                          width: isMobile ? 180 : 250,
+                          height: isMobile ? 180 : 250,
                           fit: BoxFit.contain,
                         ),
                       ),
@@ -752,13 +785,20 @@ class _GestionarTicketState extends State<GestionarTicket> with TickerProviderSt
                     SizedBox(height: 8),
                     Text(
                       'Nota: Para obtener más detalles, escanea el código QR.',
-                      style: TextStyle(fontSize: isMobile ? 14 : 18, fontWeight: FontWeight.bold, fontStyle: FontStyle.italic),
+                      style: TextStyle(
+                          fontSize: isMobile ? 14 : 18,
+                          fontWeight: FontWeight.bold,
+                          fontStyle: FontStyle.italic,
+                          color: Colors.red),
                     ),
-                    if (ticket.status == 'Reservado' && _canCreateOrCancelReservation(ticket.date)) ...[
+                    if (ticket.status == 'Reservado' &&
+                        _canCreateOrCancelReservation(ticket.date)) ...[
                       const SizedBox(height: 20),
                       Text(
                         'Para cancelar la reserva, escribe CANCELAR en mayúsculas:',
-                        style: TextStyle(fontSize: isMobile ? 13 : 16, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: isMobile ? 13 : 16,
+                            fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 8),
                       TextField(
@@ -772,7 +812,8 @@ class _GestionarTicketState extends State<GestionarTicket> with TickerProviderSt
                           hintText: 'CANCELAR',
                           hintStyle: TextStyle(color: Colors.grey),
                           border: OutlineInputBorder(),
-                          contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                          contentPadding:
+                              EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                         ),
                         textCapitalization: TextCapitalization.characters,
                       ),
@@ -800,6 +841,7 @@ class _GestionarTicketState extends State<GestionarTicket> with TickerProviderSt
                       );
                     },
                   ),
+                SizedBox(height: 10),
                 DynamicButton(
                   onPressed: () {
                     Navigator.of(context).pop();
@@ -817,26 +859,25 @@ class _GestionarTicketState extends State<GestionarTicket> with TickerProviderSt
   }
 
 // Función para verificar si se puede cancelar la reserva
-bool _canCreateOrCancelReservation(String reservationDate) {
-  final now = DateTime.now();
-  final reservationDateTime = DateFormat('yyyy-MM-dd').parse(reservationDate);
-  final createOrCancelLimit = DateTime(
-    reservationDateTime.year,
-    reservationDateTime.month,
-    reservationDateTime.day,
-    _defaultHoraMaximaReserva.hour,
-    _defaultHoraMaximaReserva.minute,
-  ).subtract(const Duration(days: 1));
-  return now.isBefore(createOrCancelLimit);
-}
+  bool _canCreateOrCancelReservation(String reservationDate) {
+    final now = DateTime.now();
+    final reservationDateTime = DateFormat('yyyy-MM-dd').parse(reservationDate);
+    final createOrCancelLimit = DateTime(
+      reservationDateTime.year,
+      reservationDateTime.month,
+      reservationDateTime.day,
+      _defaultHoraMaximaReserva.hour,
+      _defaultHoraMaximaReserva.minute,
+    ).subtract(const Duration(days: 1));
+    return now.isBefore(createOrCancelLimit);
+  }
 
 // Función para cancelar la reserva
   Future<void> _cancelReservation(TicketEntityResponse ticket) async {
     setState(() {
-      myTickets.remove(ticket);// Eliminar el ticket de la lista
+      myTickets.remove(ticket);
     });
-    await _ticketController.deleteTicket(ticket.id); // Llamada al controlador para eliminar el ticket
-    // Mostrar notificación
+    await _ticketController.deleteTicket(ticket.id);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Reserva cancelada: ${ticket.date}'),
@@ -852,37 +893,28 @@ bool _canCreateOrCancelReservation(String reservationDate) {
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          SizedBox(width: 20),
-          // Dropdown para Menú
-          Column(
+          SizedBox(width: isMobile ? 0 : 20),
+          Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 10),
-              _buildOptionTitle('Menú', Icons.food_bank),
-              SizedBox(height: 10),
               FoodDropDown(isMobile),
+              SizedBox(width: 20),
+              DatePickerButton(
+                  label: 'Fecha',
+                  selectedDate: _reservationDay,
+                  onDateSelected: (date) {
+                    setState(() {
+                      _reservationDay = date;
+                    });
+                  },
+                  firstDate: DateTime.now(),
+                  lastDate: DateTime.now().add(Duration(days: 30)))
             ],
           ),
         ],
       ),
-      SizedBox(height: 20, width: isMobile ? 20 : 40),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          DatePickerButton(
-              label: 'Fecha',
-              selectedDate: _reservationDay,
-              onDateSelected: (date) {
-                setState(() {
-                  _reservationDay = date;
-                });
-              },
-              firstDate: DateTime.now(),
-              lastDate: DateTime.now().add(Duration(days: 30))),
-          SizedBox(width: isMobile ? 10 : 20),
-        ],
-      ),
-      SizedBox(height: 20, width: isMobile ? 20 : 40),
+      SizedBox(height: 20, width: isMobile ? 20 : 30),
+
       // Botón BUSCAR
       Button(
         icon: Icons.search,
@@ -902,8 +934,8 @@ bool _canCreateOrCancelReservation(String reservationDate) {
 
   SizedBox FoodDropDown(bool isMobile) {
     return SizedBox(
-      width: isMobile ? 150 : 200,
-      height: isMobile ? 60 : 50,
+      width: isMobile ? 155 : 200,
+      height: isMobile ? 53 : 50,
       child: InputDecorator(
         decoration: InputDecoration(
           filled: true,

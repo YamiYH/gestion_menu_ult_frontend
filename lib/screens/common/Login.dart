@@ -64,7 +64,9 @@ class _LoginState extends State<Login> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al iniciar sesión: ${e.toString()}')),
+          SnackBar(
+              content: Text(
+                  'Error al iniciar sesión: ${e.toString()}. Verifique sus credenciales.')),
         );
       }
     } finally {
