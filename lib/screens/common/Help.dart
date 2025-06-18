@@ -75,10 +75,10 @@ class Help extends StatelessWidget {
             icon: Icons.group,
             title: 'Roles del sistema',
             content:
-                'Administrador del sistema: Tiene acceso a todos los módulos del sistema.\n'
-                'Especialista: Tiene acceso a Menú, Inventario, Propuestas de Menú, Libro de Recetas, Ventas, Informe de Ventas, Tickets. \n'
-                'Contador: Tiene acceso a Menú, Inventario, Contabilidad, Ventas, Informe de Ventas, Tickets. \n'
-                'Técnico: Tiene acceso a Ventas. \n'
+                'Administrador del sistema: Tiene acceso a todos los módulos del sistema.\n\n'
+                'Especialista: Tiene acceso a Menú, Inventario, Propuestas de Menú, Libro de Recetas, Ventas, Informe de Ventas, Tickets. \n\n'
+                'Contador: Tiene acceso a Menú, Inventario, Contabilidad, Ventas, Informe de Ventas, Tickets. \n\n'
+                'Técnico: Tiene acceso a Ventas. \n\n'
                 'Usuario: Solo tiene acceso a Tickets. \n',
           ),
           const Divider(),

@@ -16,7 +16,7 @@ class ReportController {
 
   final String _baseUrl = 'http://192.168.1.111:8887'; // IP de tu backend
   final String _endPoint =
-      '/api/v1/reports/sales'; // Asume este endpoint para informes de ventas
+      '/api/v1/reports'; // Asume este endpoint para informes de ventas
 
   Future<List<DailyReportGroup>> fetchReports() async {
     String? token = await UserAuthContext.getJwtToken();

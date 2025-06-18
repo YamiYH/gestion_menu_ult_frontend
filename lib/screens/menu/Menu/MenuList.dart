@@ -4,7 +4,6 @@ import 'package:gestion_menu_ult_frontend/models/MenuEntity.dart';
 import 'package:gestion_menu_ult_frontend/screens/menu/Menu/MenuPropuesta.dart';
 
 import '../../../routes/PageRouteBuilder.dart';
-import '../../../widgets/Button.dart';
 import '../../../widgets/Confirm.dart';
 import '../../../widgets/CustomAppbar.dart';
 import '../../../widgets/Pagination.dart';
@@ -69,7 +68,7 @@ class _MenuListState extends State<MenuList> {
   }
 
   Future<void> _navigateToMenuProposal({MenuEntity? menu}) async {
-    final result = await Navigator.push(
+    final result = await Navigator.pushReplacement(
       context,
       createFadeRoute(MenuPropuesta(menu: menu)),
     );
@@ -152,7 +151,7 @@ class _MenuListState extends State<MenuList> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = "Error al buscar menus: ${e.toString()}";
+          _errorMessage = "Error al buscar menús: ${e.toString()}";
           _displayedMenus = [];
         });
       }
@@ -605,22 +604,7 @@ class _MenuListState extends State<MenuList> {
         _buildHeader(_buildStatusDropdown()),
         const SizedBox(width: 16),
         _buildHeader(_buildTypeDropdown()),
-        _buildNavigationButton(isMobile),
       ],
-    );
-  }
-
-  Padding _buildNavigationButton(isMobile) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15.0),
-      child: Button(
-        icon: Icons.replay,
-        onPressed: () =>
-            Navigator.push(context, createFadeRoute(MenuPropuesta())),
-        text: "Volver",
-        colorButton: Colors.blue,
-        size: Size(isMobile ? 320 : 160, 50),
-      ),
     );
   }
 

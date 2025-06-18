@@ -26,6 +26,7 @@ import '../screens/menu/Ventas/InformesVentas.dart';
 import '../screens/menu/Ventas/MenuVenta.dart';
 import '../screens/menu/Ventas/Ventas.dart';
 import '../screens/ticket/GestionarTicket.dart';
+import 'NotFoundPage.dart';
 
 class AppRoutes {
   // Definimos los nombres de las rutas
@@ -57,6 +58,7 @@ class AppRoutes {
   static const String help = '/help';
   static const String menuList = '/menu_list';
   static const String menuVentas = '/menu_ventas';
+  static const String notFound = '/not_found';
 
   // Mapeamos las rutas a las pantallas correspondientes
   static Map<String, WidgetBuilder> getRoutes() {
@@ -89,6 +91,7 @@ class AppRoutes {
       help: (context) => Help(),
       menuList: (context) => MenuList(),
       menuVentas: (context) => MenuVentas(),
+      notFound: (context) => NotFoundPage(),
     };
   }
 }

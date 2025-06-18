@@ -175,17 +175,14 @@ class _UserModeloState extends State<UserModelo> {
         }
 
         if (mounted) {
-          // Si todo sale bien, muestra un mensaje de éxito y cierra la pantalla
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
                 content: Text('Usuario guardado con éxito.'),
                 backgroundColor: Colors.green),
           );
-          Navigator.pop(context,
-              true); // Devuelve 'true' para indicar que se debe refrescar la lista
+          Navigator.pop(context, true);
         }
       } catch (e) {
-        // Si hay un error, muéstralo al usuario en un SnackBar
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -194,7 +191,6 @@ class _UserModeloState extends State<UserModelo> {
           );
         }
       } finally {
-        // Desactiva el indicador de carga
         setState(() {
           /* _isSaving = false; */
         });
@@ -311,14 +307,14 @@ class _UserModeloState extends State<UserModelo> {
         controller: _passwordController,
         labelText: _isEditing ? 'Nueva Contraseña (opcional)' : 'Contraseña',
         obscureText: true,
-        validator: Validators.password,
+        validator: _isEditing ? null : Validators.password,
         textInputAction: TextInputAction.next,
       ),
       CustomTextFormField(
         controller: _confirmPasswordController,
         labelText: 'Confirmar Contraseña',
         obscureText: true,
-        validator: Validators.password,
+        validator: _isEditing ? null : Validators.password,
         textInputAction: TextInputAction.done,
         onFieldSubmitted: (_) => _saveForm(),
       ),

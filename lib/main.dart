@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:gestion_menu_ult_frontend/providers/ProfileProvider.dart';
-import 'package:gestion_menu_ult_frontend/routes/routes.dart';
+import 'package:gestion_menu_ult_frontend/routes/Routes.dart';
 import 'package:google_fonts/google_fonts.dart' show GoogleFonts;
 import 'package:provider/provider.dart';
 
@@ -27,6 +27,7 @@ class MyApp extends StatelessWidget {
           ),
           initialRoute: AppRoutes.login,
           routes: AppRoutes.getRoutes(),
+          //routerConfig: AppRouter.router,
           localizationsDelegates: [
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
