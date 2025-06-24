@@ -11,7 +11,7 @@ import '../../../widgets/DatePickerButton.dart';
 import '../../../widgets/Pagination.dart';
 
 class InformesVentas extends StatefulWidget {
-  const InformesVentas({super.key}); // Añadido super.key
+  const InformesVentas({super.key});
 
   @override
   State<InformesVentas> createState() => _InformesVentasState();
@@ -22,8 +22,6 @@ class _InformesVentasState extends State<InformesVentas> {
   bool _isLoading = true;
   List<DailyReportGroup> _reportGroups = [];
 
-  // Las fechas ahora se manejan en el controlador, pero las guardamos
-  // localmente para los DatePickers
   DateTime? _localStartDate;
   DateTime? _localEndDate;
 
@@ -39,7 +37,6 @@ class _InformesVentasState extends State<InformesVentas> {
       _isLoading = true;
     });
 
-    // Actualiza el controlador con las fechas de la UI
     _controller.startDate = _localStartDate;
     _controller.endDate = _localEndDate;
 
@@ -64,7 +61,6 @@ class _InformesVentasState extends State<InformesVentas> {
   }
 
   void _triggerSearch() {
-    // Al buscar, siempre reseteamos a la primera página
     _controller.currentPage = 0;
     _fetchData();
   }
@@ -183,7 +179,6 @@ class _InformesVentasState extends State<InformesVentas> {
 
   Widget _buildInformeCard(DailyReportGroup reportGroup) {
     bool isMobile = MediaQuery.of(context).size.width < 600;
-    // Formatea la fecha usando intl para mostrarla
     final String fecha =
         DateFormat('dd MMMM yyyy', 'es_ES').format(reportGroup.fecha);
 
@@ -217,9 +212,6 @@ class _InformesVentasState extends State<InformesVentas> {
                 trailing: IconButton(
                   icon: Icon(Icons.download, color: Colors.red[900], size: 25),
                   onPressed: () {
-                    // Lógica para descargar usando item.archivoUrl
-                    // Ejemplo: await launchUrl(Uri.parse(item.archivoUrl));
-                    print('Descargando desde ${item.archivoUrl}...');
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                           content:
