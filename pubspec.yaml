@@ -30,14 +30,31 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  provider: ^6.1.5
+  http: ^1.3.0
+  equatable:
+  mobile_scanner: ^5.0.0
+  permission_handler:
+  shared_preferences: ^2.2.0
+  intl: ^0.20.2
+  flutter_localizations:
+    sdk: flutter
+  go_router:
 
+  
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  qr_flutter: ^4.1.0
+  uuid: ^4.5.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.14.3
+  google_fonts: ^6.2.1
+
+
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -52,12 +69,21 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
   assets:
-    - assets/logo1.png
+    - assets/img/
+    - assets/icons/
+    - assets/logos/
+    - assets/fonts/
 
+  
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/icon.png"
 
   # To add assets to your application, add an assets section, like this:
   # assets:
@@ -75,12 +101,14 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
+  flutter:
+    fonts:
+      - family: Roboto
+        fonts:
+          - asset: fonts/Roboto-Black
+          - asset: fonts/Roboto-Medium
+          - asset: fonts/Roboto-Regular
+            style: regular
   #   - family: Trajan Pro
   #     fonts:
   #       - asset: fonts/TrajanPro.ttf

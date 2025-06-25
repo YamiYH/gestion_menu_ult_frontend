@@ -1,0 +1,2 @@
+/home/yami/StudioProjects/gestion_menu_ult_frontend/android/app/.cxx/Debug/6q38vjbg/arm64-v8a/CMakeFiles/edit_cache.dir
+/home/yami/StudioProjects/gestion_menu_ult_frontend/android/app/.cxx/Debug/6q38vjbg/arm64-v8a/CMakeFiles/rebuild_cache.dir
