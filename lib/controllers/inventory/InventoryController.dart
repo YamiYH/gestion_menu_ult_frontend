@@ -9,11 +9,6 @@ class InventoryController extends BaseController {
   double? minQuantity;
   double? maxQuantity;
 
-  // Estado de la Paginación
-  int currentPage = 0; // El backend usa paginación basada en 0
-  int totalPages = 1;
-  int pageSize = 10;
-
   // Usa la IP correcta de tu backend
   @override
   final String endPoint = '/api/v1/products';
